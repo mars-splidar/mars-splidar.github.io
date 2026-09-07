@@ -175,4 +175,9 @@ Each build stage appends one line here.
   media gate, removing the six unfinished bands, their nav anchors and all
   five missing-poster 404s. Added the three-cube hook figure, an inline SVG
   favicon, and the paper as a 2.97 MB web copy (300 dpi, lossless) plus the
-  25.3 MB original. All 17 W-checks pass.
+  25.3 MB original. Added `tools/check_links.py`, which resolves every
+  reference a page actually makes — including the URLs injected at
+  runtime from `site.config.js` — against a live URL; that is what caught
+  the poster 404s. All 17 W-checks pass. FCP on Slow 3G is 6.2 s against
+  the guide's 1.5 s budget; stage 06 owns it, the diagnosis is in the
+  stage 1.5 handoff.

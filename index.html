@@ -1,100 +1,456 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>MaRS: Markov-Renewal Simulator for Single-Photon LiDAR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      max-width: 900px;
-      margin: 60px auto;
-      padding: 0 24px;
-      line-height: 1.6;
-      color: #222;
-    }
+<title>MaRS — Markov-Renewal Single-Photon LiDAR Simulator</title>
+<meta name="description" content="MaRS gives the first analytic photon-count distribution under detector dead time — matching the sequential gold standard 40× faster, and making physically faithful single-photon LiDAR training data practical. ECCV 2026.">
+<link rel="canonical" href="https://mars-splidar.github.io/">
 
-    h1 {
-      font-size: 2.4rem;
-      margin-bottom: 0.2em;
-    }
+<!-- Open Graph / Twitter card. Image is the three-cube tradeoff hook. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MaRS">
+<meta property="og:url" content="https://mars-splidar.github.io/">
+<meta property="og:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
+<meta property="og:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster. ECCV 2026.">
+<meta property="og:image" content="https://mars-splidar.github.io/assets/img/og_card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Three histogram cubes side by side: a Poisson simulator at 0.2 s but physically wrong, the sequential gold standard at 16.1 s and correct, and MaRS at 0.3 s and correct.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
+<meta name="twitter:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster. ECCV 2026.">
+<meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png">
 
-    .subtitle {
-      font-size: 1.2rem;
-      color: #555;
-      margin-bottom: 1.5em;
-    }
+<!-- Google Scholar. citation_pdf_url is deliberately ABSENT while the paper
+     PDF has not been cleared for posting (site.config.js paperPdf === null).
+     Stage 06 adds it together with the PDF. -->
+<meta name="citation_title" content="Markov-Renewal Single-Photon LiDAR Simulator">
+<meta name="citation_author" content="Zhang, Weijian">
+<meta name="citation_author" content="Chennuri, Prateek">
+<meta name="citation_author" content="Weerasooriya, Hashan K.">
+<meta name="citation_author" content="Ma, Bole">
+<meta name="citation_author" content="Chan, Stanley H.">
+<meta name="citation_conference_title" content="European Conference on Computer Vision (ECCV)">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
 
-    .authors {
-      margin-bottom: 2em;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="css/mars.css">
 
-    .buttons a {
-      display: inline-block;
-      margin-right: 12px;
-      margin-bottom: 12px;
-      padding: 10px 16px;
-      border: 1px solid #222;
-      border-radius: 6px;
-      color: #222;
-      text-decoration: none;
-    }
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  "headline": "Markov-Renewal Single-Photon LiDAR Simulator",
+  "name": "Markov-Renewal Single-Photon LiDAR Simulator",
+  "alternateName": "MaRS",
+  "inLanguage": "en",
+  "datePublished": "2026",
+  "url": "https://mars-splidar.github.io/",
+  "image": "https://mars-splidar.github.io/assets/img/og_card.png",
+  "abstract": "MaRS models single-photon detector registration as a Markov-renewal process, giving the first analytic photon-count distribution under dead time, with closed-form mean and variance and a delay-invariance theorem that removes depth from the lookup table.",
+  "keywords": ["Single-Photon LiDAR", "Dead Time", "Markov-Renewal Process", "Physics-Based Simulator"],
+  "publication": {
+    "@type": "PublicationEvent",
+    "name": "European Conference on Computer Vision (ECCV) 2026",
+    "location": "Malmö, Sweden",
+    "startDate": "2026-09-08",
+    "endDate": "2026-09-12"
+  },
+  "author": [
+    { "@type": "Person", "name": "Weijian Zhang",
+      "identifier": "https://orcid.org/0009-0001-8142-3421",
+      "affiliation": { "@type": "Organization", "name": "Elmore Family School of Electrical and Computer Engineering, Purdue University" } },
+    { "@type": "Person", "name": "Prateek Chennuri",
+      "identifier": "https://orcid.org/0009-0006-6257-962X",
+      "affiliation": { "@type": "Organization", "name": "Elmore Family School of Electrical and Computer Engineering, Purdue University" } },
+    { "@type": "Person", "name": "Hashan K. Weerasooriya",
+      "identifier": "https://orcid.org/0000-0002-0143-9547",
+      "affiliation": { "@type": "Organization", "name": "Elmore Family School of Electrical and Computer Engineering, Purdue University" } },
+    { "@type": "Person", "name": "Bole Ma",
+      "identifier": "https://orcid.org/0009-0007-0417-3979",
+      "affiliation": { "@type": "Organization", "name": "Elmore Family School of Electrical and Computer Engineering, Purdue University" } },
+    { "@type": "Person", "name": "Stanley H. Chan",
+      "identifier": "https://orcid.org/0000-0001-5876-2073",
+      "affiliation": { "@type": "Organization", "name": "Elmore Family School of Electrical and Computer Engineering, Purdue University" } }
+  ],
+  "funder": [
+    { "@type": "Organization", "name": "DARPA / SRC CogniSense JUMP 2.0 Center" },
+    { "@type": "Organization", "name": "National Science Foundation", "identifier": "IIS-2133032" },
+    { "@type": "Organization", "name": "National Science Foundation", "identifier": "ECCS-2030570" }
+  ]
+}
+</script>
 
-    pre {
-      background: #f5f5f5;
-      padding: 16px;
-      overflow-x: auto;
-      border-radius: 6px;
-    }
-
-    .note {
-      color: #666;
-      font-size: 0.95rem;
-    }
-  </style>
+<script src="js/site.config.js"></script>
 </head>
-
 <body>
-  <h1>MaRS</h1>
 
-  <div class="subtitle">
-    Markov-Renewal Simulator for High-Flux Single-Photon LiDAR
+<a class="mars-skip" href="#main">Skip to content</a>
+
+<!-- ======================================================================
+     STICKY NAV — INK USE 1 OF 2 on this page (guide 4.1)
+     ====================================================================== -->
+<nav class="mars-nav" aria-label="Section navigation">
+  <div class="mars-nav__inner">
+    <a class="mars-nav__brand" href="#top">MaRS</a>
+
+    <button class="mars-nav__burger" type="button"
+            aria-expanded="false" aria-controls="mars-nav-links"
+            aria-label="Toggle section menu">
+      <i class="ti ti-menu-2" aria-hidden="true"></i>
+    </button>
+
+    <div class="mars-nav__links" id="mars-nav-links">
+      <ul class="mars-nav__scroll">
+        <li><a class="mars-nav__link" href="#motivation">Motivation</a></li>
+        <li><a class="mars-nav__link" href="#approach">Approach</a></li>
+        <li><a class="mars-nav__link" href="#contributions">Contributions</a></li>
+        <li><a class="mars-nav__link" href="#theory">Theory</a></li>
+        <li><a class="mars-nav__link" href="#simulator">Simulator</a></li>
+        <li><a class="mars-nav__link" href="#utility">Utility</a></li>
+        <li><a class="mars-nav__link" href="#limitations">Limitations</a></li>
+        <li><a class="mars-nav__link" href="#bibtex">BibTeX</a></li>
+        <li aria-hidden="true"><span class="mars-nav__divider"></span></li>
+      </ul>
+      <a class="mars-nav__pill" href="demos/">Demo lab
+        <i class="ti ti-arrow-up-right" aria-hidden="true"></i></a>
+    </div>
   </div>
+</nav>
 
-  <div class="authors">
-    <strong>Weijian Zhang</strong>, Author 2, Author 3
+<main id="main">
+<span id="top"></span>
+
+<!-- ======================================================================
+     HERO (guide 4.2) — light PAPER, not ink. See guide 8.1 for that
+     departure from PROJECT_BRIEF.md 7.4; open question E7.
+     ====================================================================== -->
+<section class="mars-band" aria-labelledby="hero-title">
+  <div class="mars-band__inner mars-hero__inner">
+    <p class="mars-badge">ECCV 2026 · Malmö, Sweden</p>
+
+    <!-- THE TITLE MARKUP IS EXACT.  `MaRS` = **Ma**rkov-**R**enewal
+         **S**imulator, so the highlighted S is the S of *Simulator* — NOT the
+         S of *Single-Photon*.  Same font size throughout; the contrast comes
+         from colour and weight only.  GAP_REPORT.md #20. -->
+    <h1 class="mars-hero__title" id="hero-title">
+      <span class="mars-hl">MaRS</span>:
+      <span class="mars-hl">Ma</span>rkov-<span class="mars-hl">R</span>enewal
+      Single-Photon LiDAR <span class="mars-hl">S</span>imulator
+    </h1>
+
+    <!-- Sanctioned two-line fallback, shown below ~380px only (guide 4.2). -->
+    <p class="mars-hero__title--narrow" aria-hidden="true">
+      <span class="mars-hero__acronym">MaRS</span>
+      <span class="mars-hero__full">Markov-Renewal Single-Photon LiDAR Simulator</span>
+    </p>
+
+    <p class="mars-hero__subhead">Accurate, efficient single-photon LiDAR
+      simulation — even under detector dead time.</p>
+
+    <p class="mars-hero__authors">
+      <a href="https://orcid.org/0009-0001-8142-3421" target="_blank" rel="noopener">Weijian Zhang</a> ·
+      <a href="https://orcid.org/0009-0006-6257-962X" target="_blank" rel="noopener">Prateek Chennuri</a> ·
+      <a href="https://orcid.org/0000-0002-0143-9547" target="_blank" rel="noopener">Hashan K. Weerasooriya</a> ·
+      <a href="https://orcid.org/0009-0007-0417-3979" target="_blank" rel="noopener">Bole Ma</a> ·
+      <a href="https://orcid.org/0000-0001-5876-2073" target="_blank" rel="noopener">Stanley H. Chan</a>
+    </p>
+    <p class="mars-hero__affil">Elmore Family School of ECE, Purdue University</p>
+
+    <!-- Built by js/mars-nav.js from window.MARS_CONFIG so a null URL renders
+         a non-clickable `· soon` pill instead of a dead link. -->
+    <ul class="mars-hero__buttons" id="mars-hero-buttons"></ul>
+    <p class="mars-hero__note" id="mars-hero-note" hidden></p>
   </div>
+</section>
 
-  <p>
-    MaRS is a fast physics-based simulator for single-photon LiDAR under detector
-    dead-time effects. It enables efficient prediction of photon count statistics
-    and distorted temporal histograms without expensive sequential per-photon simulation.
-  </p>
-
-  <div class="buttons">
-    <a href="#">Paper</a>
-    <a href="#">Code</a>
-    <a href="#">Supplementary</a>
-    <a href="#">BibTeX</a>
+<!-- ======================================================================
+     FOUR GAINS (guide 4.3) — MINT.  Fixed order accuracy -> table size ->
+     speed -> downstream.  No circle badges (dropped in review).
+     ====================================================================== -->
+<section class="mars-band is-mint" aria-labelledby="gains-heading">
+  <div class="mars-band__inner is-tight">
+    <h2 class="mars-visually-hidden" id="gains-heading">Headline results</h2>
+    <ul class="mars-stats">
+      <li class="mars-stat">
+        <span class="mars-stat__num">30×</span>
+        <span class="mars-stat__cap">closer to true count law</span>
+      </li>
+      <li class="mars-stat">
+        <span class="mars-stat__num">1000×</span>
+        <span class="mars-stat__cap">smaller lookup table</span>
+      </li>
+      <li class="mars-stat">
+        <span class="mars-stat__num">40×</span>
+        <span class="mars-stat__cap">faster than gold standard</span>
+      </li>
+      <li class="mars-stat">
+        <span class="mars-stat__num">+17dB</span>
+        <span class="mars-stat__cap">better downstream reconstruction</span>
+      </li>
+    </ul>
   </div>
+</section>
 
-  <h2>Overview</h2>
-  <p>
-    This project page will host the paper, code, documentation, examples, and
-    additional results for MaRS.
-  </p>
+<!-- ======================================================================
+     MOTIVATION (guide 4.4) — PAPER, neutral accent.  STUB: stage 02.
+     ====================================================================== -->
+<section class="mars-band" id="motivation" aria-labelledby="motivation-heading">
+  <div class="mars-band__inner">
+    <p class="mars-eyebrow is-neutral">
+      <i class="ti ti-clock-pause" aria-hidden="true"></i>Motivation</p>
+    <h2 class="mars-section__title" id="motivation-heading">Why fast, accurate
+      simulation is hard</h2>
 
-  <h2>Citation</h2>
-  <pre>@inproceedings{zhang2026mars,
-  title={MaRS: Markov-Renewal Simulator for High-Flux Single-Photon LiDAR},
-  author={Zhang, Weijian and ...},
-  booktitle={...},
-  year={2026}
+    <p class="mars-todo">Stage 02 fills this section.</p>
+
+    <figure class="mars-media" data-media-id="anim_motivation_scaling">
+      <div class="mars-media__frame">
+        <p class="mars-media__placeholder">Animation slot ·
+          anim_motivation_scaling
+          <small>Stage 05 supplies assets/media/anim_motivation_scaling.{mp4,webm,jpg}</small>
+        </p>
+        <video class="mars-media__video" muted loop playsinline preload="none"
+               width="1280" height="720"
+               poster="assets/media/anim_motivation_scaling.jpg">
+          <source src="assets/media/anim_motivation_scaling.webm" type="video/webm">
+          <source src="assets/media/anim_motivation_scaling.mp4" type="video/mp4">
+        </video>
+      </div>
+      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ======================================================================
+     OUR APPROACH (guide 4.5) — MINT, neutral accent.  STUB: stage 02.
+     ====================================================================== -->
+<section class="mars-band is-mint" id="approach" aria-labelledby="approach-heading">
+  <div class="mars-band__inner">
+    <p class="mars-eyebrow is-neutral">
+      <i class="ti ti-bulb" aria-hidden="true"></i>Our approach</p>
+    <h2 class="mars-section__title" id="approach-heading">An analytical
+      simulator</h2>
+
+    <p class="mars-todo">Stage 02 fills this section.</p>
+  </div>
+</section>
+
+<!-- ======================================================================
+     OUR CONTRIBUTIONS (guide 4.6) — PAPER.  No section icon; the two cards
+     carry ti-math-function (BLUE) and ti-bolt (GREEN).  STUB: stage 02.
+     ====================================================================== -->
+<section class="mars-band" id="contributions" aria-labelledby="contributions-heading">
+  <div class="mars-band__inner">
+    <h2 class="mars-section__title" id="contributions-heading">Our contributions</h2>
+
+    <p class="mars-todo">Stage 02 fills this section.</p>
+  </div>
+</section>
+
+<!-- ======================================================================
+     THEORY (guide 4.7) — MINT, BLUE accent, merged method + results.
+     STUB: stage 02.  Two media slots live here, one per Method tab.
+     ====================================================================== -->
+<section class="mars-band is-mint" id="theory" aria-labelledby="theory-heading">
+  <div class="mars-band__inner">
+    <p class="mars-eyebrow is-theory">
+      <i class="ti ti-math-function" aria-hidden="true"></i>Theory</p>
+    <h2 class="mars-section__title" id="theory-heading">Theory</h2>
+
+    <p class="mars-todo">Stage 02 fills this section.</p>
+
+    <figure class="mars-media" data-media-id="anim_theory_countlaw">
+      <div class="mars-media__frame">
+        <p class="mars-media__placeholder">Animation slot ·
+          anim_theory_countlaw
+          <small>Stage 04 supplies assets/media/anim_theory_countlaw.{mp4,webm,jpg}</small>
+        </p>
+        <video class="mars-media__video" muted loop playsinline preload="none"
+               width="1280" height="720"
+               poster="assets/media/anim_theory_countlaw.jpg">
+          <source src="assets/media/anim_theory_countlaw.webm" type="video/webm">
+          <source src="assets/media/anim_theory_countlaw.mp4" type="video/mp4">
+        </video>
+      </div>
+      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
+    </figure>
+
+    <figure class="mars-media" data-media-id="anim_theory_covariance">
+      <div class="mars-media__frame">
+        <p class="mars-media__placeholder">Animation slot ·
+          anim_theory_covariance
+          <small>Stage 04 supplies assets/media/anim_theory_covariance.{mp4,webm,jpg}</small>
+        </p>
+        <video class="mars-media__video" muted loop playsinline preload="none"
+               width="1280" height="720"
+               poster="assets/media/anim_theory_covariance.jpg">
+          <source src="assets/media/anim_theory_covariance.webm" type="video/webm">
+          <source src="assets/media/anim_theory_covariance.mp4" type="video/mp4">
+        </video>
+      </div>
+      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ======================================================================
+     SIMULATOR (guide 4.8) — PAPER, GREEN accent, merged method + results.
+     STUB: stage 02.  Two media slots live here, one per Method tab.
+     ====================================================================== -->
+<section class="mars-band" id="simulator" aria-labelledby="simulator-heading">
+  <div class="mars-band__inner">
+    <p class="mars-eyebrow is-simulator">
+      <i class="ti ti-bolt" aria-hidden="true"></i>Simulator</p>
+    <h2 class="mars-section__title" id="simulator-heading">Simulator</h2>
+
+    <p class="mars-todo">Stage 02 fills this section.</p>
+
+    <figure class="mars-media" data-media-id="anim_sim_pipeline">
+      <div class="mars-media__frame">
+        <p class="mars-media__placeholder">Animation slot ·
+          anim_sim_pipeline
+          <small>Stage 05 supplies assets/media/anim_sim_pipeline.{mp4,webm,jpg}</small>
+        </p>
+        <video class="mars-media__video" muted loop playsinline preload="none"
+               width="1280" height="720"
+               poster="assets/media/anim_sim_pipeline.jpg">
+          <source src="assets/media/anim_sim_pipeline.webm" type="video/webm">
+          <source src="assets/media/anim_sim_pipeline.mp4" type="video/mp4">
+        </video>
+      </div>
+      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
+    </figure>
+
+    <figure class="mars-media" data-media-id="anim_sim_lut">
+      <div class="mars-media__frame">
+        <p class="mars-media__placeholder">Animation slot ·
+          anim_sim_lut
+          <small>Stage 05 supplies assets/media/anim_sim_lut.{mp4,webm,jpg}</small>
+        </p>
+        <video class="mars-media__video" muted loop playsinline preload="none"
+               width="1280" height="720"
+               poster="assets/media/anim_sim_lut.jpg">
+          <source src="assets/media/anim_sim_lut.webm" type="video/webm">
+          <source src="assets/media/anim_sim_lut.mp4" type="video/mp4">
+        </video>
+      </div>
+      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ======================================================================
+     UTILITY (guide 4.9) — MINT, AGED/GOLD accent.  STUB: stage 02.
+     ====================================================================== -->
+<section class="mars-band is-mint" id="utility" aria-labelledby="utility-heading">
+  <div class="mars-band__inner">
+    <p class="mars-eyebrow is-utility">
+      <i class="ti ti-target" aria-hidden="true"></i>Utility</p>
+    <h2 class="mars-section__title" id="utility-heading">Utility: accurate
+      counts, better depth and reflectivity recovery</h2>
+
+    <p class="mars-todo">Stage 02 fills this section.</p>
+  </div>
+</section>
+
+<!-- ======================================================================
+     LIMITATIONS (guide 4.10) — PAPER, muted GREY.  FINISHED in stage 01.
+     Deliberately the least-designed section on the page. Copy is verbatim
+     from the guide and must not be "improved".
+     ====================================================================== -->
+<section class="mars-band" id="limitations" aria-labelledby="limitations-heading">
+  <div class="mars-band__inner">
+    <p class="mars-eyebrow is-muted" id="limitations-heading">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>Limitations</p>
+    <div class="mars-limitations__body">
+      <p>Assumes a nonparalyzable detector and negligible afterpulsing.
+        Paralyzable detectors, timing jitter, and afterpulsing are left for
+        future work.</p>
+      <p>The Markov-renewal framework itself applies to any known transient
+        arrival rate whose induced chain mixes, so non-Gaussian pulses and
+        multiple returns are in scope in principle.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ======================================================================
+     BIBTEX + FOOTER (guide 4.11) — INK USE 2 OF 2.  Nothing sits between
+     Limitations and this band.  One citation block on the page; both the nav
+     link and the hero's `BibTeX ↓` button target #bibtex.
+     ====================================================================== -->
+<footer class="mars-band is-ink" id="bibtex">
+  <div class="mars-band__inner">
+    <h2 class="mars-closing__title">BibTeX</h2>
+
+    <!-- PROVISIONAL CITATION.  Written fresh for this build; the placeholder
+         page's entry was unusable (wrong title, elided authors, empty
+         booktitle).  Page numbers, the volume, and the exact proceedings
+         title are NOT KNOWN until ECCV camera-ready is processed, so none are
+         invented here.  Stage 06 verifies this against the final proceedings
+         citation before launch. -->
+    <div class="mars-code">
+      <button class="mars-code__copy" type="button"
+              data-mars-copy="#bibtex-entry">Copy</button>
+      <pre id="bibtex-entry">@inproceedings{zhang2026mars,
+  title     = {Markov-Renewal Single-Photon LiDAR Simulator},
+  author    = {Zhang, Weijian and Chennuri, Prateek and
+               Weerasooriya, Hashan K. and Ma, Bole and Chan, Stanley H.},
+  booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
+  year      = {2026}
 }</pre>
+    </div>
+    <p class="mars-closing__note">Provisional entry — page numbers and the
+      exact proceedings title are pending ECCV camera-ready.</p>
 
-  <p class="note">
-    Website under construction. Code and documentation will be released soon.
-  </p>
+    <hr class="mars-closing__rule">
+
+    <p class="mars-closing__links">
+      <span id="mars-closing-paper">Read the paper</span>
+      <span class="sep">·</span>
+      <a href="demos/">Explore the demo lab</a>
+      <span class="sep">·</span>
+      <a id="mars-closing-contact" href="mailto:zhan5056@purdue.edu">Contact the authors</a>
+    </p>
+
+    <p class="mars-closing__footer">
+      DARPA / SRC CogniSense JUMP 2.0 Center · NSF IIS-2133032 ·
+      NSF ECCS-2030570 · Chan Lab, Purdue University ·
+      ECCV 2026, Malmö, Sweden
+    </p>
+  </div>
+</footer>
+
+<!-- Video lightbox. Empty until opened, so the 24 MB file is never on the
+     critical path. Source comes from site.config.js (self-hosted or YouTube). -->
+<div class="mars-lightbox" id="mars-lightbox" role="dialog" aria-modal="true"
+     aria-label="MaRS five-minute overview" hidden>
+  <div class="mars-lightbox__body">
+    <div class="mars-lightbox__bar">
+      <span>MaRS — five-minute overview</span>
+      <span>
+        <a class="mars-lightbox__srt" id="mars-lightbox-srt"
+           download hidden>Captions (.srt)</a>
+        <button class="mars-lightbox__close" type="button"
+                id="mars-lightbox-close">Close ✕</button>
+      </span>
+    </div>
+    <div id="mars-lightbox-body"></div>
+  </div>
+</div>
+
+<script src="js/mars-nav.js"></script>
+<script src="js/mars-switchbar.js"></script>
+<script src="js/mars-media.js"></script>
+<script src="js/mars-lightbox.js"></script>
 </body>
 </html>

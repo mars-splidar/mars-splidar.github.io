@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Demo lab — MaRS</title>
+<meta name="description" content="Interactive demos for MaRS: a dead-time playground running the paper's analytic model from a precomputed lookup table, plus reconstruction comparisons and a runtime replay.">
+<link rel="canonical" href="https://mars-splidar.github.io/demos/">
+<meta name="robots" content="index, follow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="../css/mars.css">
+
+<script src="../js/site.config.js"></script>
+</head>
+<body>
+
+<div class="mars-lab">
+
+  <!-- Thin light top strip (guide 5.1) -->
+  <div class="mars-lab__strip">
+    <a class="mars-lab__back" href="../index.html">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i> MaRS project page</a>
+    <span class="mars-lab__label">Demo lab</span>
+  </div>
+
+  <div class="mars-lab__body">
+
+    <!-- ==================================================================
+         INK SIDEBAR — the third and only other sanctioned ink surface, on
+         this page only. It is dark ON PURPOSE: unlike the article-like main
+         page, this signals "you're in the lab now." Do not "fix" it.
+         ================================================================== -->
+    <nav class="mars-lab__sidebar" aria-label="Demos">
+      <ul class="mars-lab__nav" id="mars-lab-nav">
+        <li>
+          <button class="mars-lab__item" type="button" data-demo="0"
+                  aria-current="true" aria-controls="demo-0">
+            Dead-time playground
+            <span class="mars-lab__tag is-live">Live</span>
+          </button>
+        </li>
+        <li>
+          <button class="mars-lab__item" type="button" data-demo="1"
+                  aria-current="false" aria-controls="demo-1">
+            Before / after wipe
+            <span class="mars-lab__tag is-soon">Coming soon</span>
+          </button>
+        </li>
+        <li>
+          <button class="mars-lab__item" type="button" data-demo="2"
+                  aria-current="false" aria-controls="demo-2">
+            The race, replayed
+            <span class="mars-lab__tag is-soon">Coming soon</span>
+          </button>
+        </li>
+        <li>
+          <button class="mars-lab__item" type="button" data-demo="3"
+                  aria-current="false" aria-controls="demo-3">
+            Scene loops
+            <span class="mars-lab__tag is-soon">Coming soon</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mars-lab__main">
+
+      <!-- ---------------- 1. Dead-time playground (stage 03) ------------ -->
+      <section class="mars-lab__panel" id="demo-0" aria-labelledby="demo-0-h">
+        <span class="mars-lab__status is-live">Live</span>
+        <h1 id="demo-0-h">Dead-time playground</h1>
+
+        <!-- STANDING CAVEAT — non-negotiable #9. Stage 03 must keep this line
+             and must not soften it. -->
+        <p class="mars-lab__caveat">Runs the paper's model from a precomputed
+          lookup table at reduced grid resolution — not a full simulator.</p>
+
+        <!-- Stage 03 mounts the playground here and loads
+             demos/data/mars_lut_v1.{bin,json} lazily, on this page only. -->
+        <div id="playground-root">
+          <p>Playground mounts here.<br>
+            <small>Stage 03 supplies <code>demos/js/playground.js</code> and
+            <code>demos/data/mars_lut_v1.{bin,json}</code>.</small></p>
+        </div>
+      </section>
+
+      <!-- ---------------- 2. Before / after wipe ------------------------ -->
+      <section class="mars-lab__panel" id="demo-1" aria-labelledby="demo-1-h" hidden>
+        <span class="mars-lab__status is-soon">Coming soon</span>
+        <h1 id="demo-1-h">Before / after wipe</h1>
+        <p>Drag a divider between Poisson-trained and MaRS-trained
+          reconstructions, for both reflectivity and depth.</p>
+        <p style="color:var(--grey);font-size:0.9375rem;">Both tile sets are
+          already built and normalised to 720 × 720 in
+          <code>assets/img/res_refl_*</code> and
+          <code>assets/img/res_depth_*</code>, so this demo is asset-ready.</p>
+      </section>
+
+      <!-- ---------------- 3. The race, replayed ------------------------- -->
+      <section class="mars-lab__panel" id="demo-2" aria-labelledby="demo-2-h" hidden>
+        <span class="mars-lab__status is-soon">Coming soon</span>
+        <h1 id="demo-2-h">The race, replayed</h1>
+        <p>Two progress bars generate the same histogram cube from measured
+          timings — a labeled replay of real runtimes, not a live race.</p>
+        <p style="color:var(--grey);font-size:0.9375rem;">Timings: MaRS 1.01 s
+          vs. gold standard 40.8 s, for a 128×128×1024 histogram cube. The
+          gold standard is correct on every statistic; it is simply not
+          precomputable, which is the whole point of the comparison.</p>
+      </section>
+
+      <!-- ---------------- 4. Scene loops -------------------------------- -->
+      <section class="mars-lab__panel" id="demo-3" aria-labelledby="demo-3-h" hidden>
+        <span class="mars-lab__status is-soon">Coming soon</span>
+        <h1 id="demo-3-h">Scene loops</h1>
+        <p>Muted, autoplaying clips from the 15 per-scene video clips, one
+          beside each explanatory section of the main page.</p>
+        <p style="color:var(--grey);font-size:0.9375rem;">Source clips exist at
+          <code>video/clips/sNN.mp4</code> in the project folder. They are
+          1920 × 1080 with narration audio muxed in, so they need audio
+          stripped and re-cropping before they can be used as silent web
+          loops.</p>
+      </section>
+
+    </div><!-- /.mars-lab__main -->
+  </div><!-- /.mars-lab__body -->
+</div><!-- /.mars-lab -->
+
+<script>
+/* Plain panel swap keyed by index — the guide's `marsShowDemo(n)` pattern.
+ * Keyboard-operable (arrow keys move down the sidebar), `aria-current` marks
+ * the active item, and panels toggle with the `hidden` attribute. */
+(function () {
+  "use strict";
+  var items = Array.prototype.slice.call(
+    document.querySelectorAll(".mars-lab__item"));
+  var panels = Array.prototype.slice.call(
+    document.querySelectorAll(".mars-lab__panel"));
+
+  function marsShowDemo(n) {
+    items.forEach(function (b, i) {
+      b.setAttribute("aria-current", i === n ? "true" : "false");
+      b.tabIndex = i === n ? 0 : -1;
+    });
+    panels.forEach(function (p, i) { p.hidden = i !== n; });
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", "#demo-" + n);
+    }
+  }
+  window.marsShowDemo = marsShowDemo;
+
+  items.forEach(function (btn, i) {
+    btn.addEventListener("click", function () { marsShowDemo(i); });
+    btn.addEventListener("keydown", function (ev) {
+      var next = null;
+      if (ev.key === "ArrowDown" || ev.key === "ArrowRight") {
+        next = (i + 1) % items.length;
+      } else if (ev.key === "ArrowUp" || ev.key === "ArrowLeft") {
+        next = (i - 1 + items.length) % items.length;
+      }
+      if (next === null) return;
+      ev.preventDefault();
+      marsShowDemo(next);
+      items[next].focus();
+    });
+  });
+
+  var m = /^#demo-(\d+)$/.exec(window.location.hash || "");
+  marsShowDemo(m ? Math.min(parseInt(m[1], 10), items.length - 1) : 0);
+})();
+</script>
+</body>
+</html>

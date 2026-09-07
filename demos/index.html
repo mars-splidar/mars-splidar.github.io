@@ -12,6 +12,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<!-- Inline SVG favicon. Declared so the browser never falls back to
+     requesting /favicon.ico, which does not exist and 404s in production.
+     A data URI keeps it off the network entirely. Ink ground, gold M —
+     the nav wordmark at 32 px. Stage 1.5. -->
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="%2314181A"/><path d="M7 24V8h4l5 9 5-9h4v16h-4v-9l-5 9-5-9v9z" fill="%23CFB991"/></svg>'>
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="../css/mars.css">

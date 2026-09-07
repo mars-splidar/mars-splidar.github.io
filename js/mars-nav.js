@@ -1,5 +1,6 @@
-/* Sticky nav: hamburger toggle under 600px, plus the button row rendered from
- * window.MARS_CONFIG so that a null URL can never become a dead link.
+/* Sticky nav: hamburger toggle under 740px, a MEASURED mid-width tightening,
+ * plus the button row rendered from window.MARS_CONFIG so that a null URL can
+ * never become a dead link.
  *
  * THE NULL RULE (stage_01_foundation.md 3.2): a null URL renders as a
  * NON-CLICKABLE <span> pill with " · soon" appended. Rendering a <span> rather
@@ -23,6 +24,38 @@
        guide's ~600px. */
     var mq = window.matchMedia("(max-width: 740px)");
 
+    /* MEASURED MID-WIDTH TIGHTENING — stage 1.5.
+       Stage 01 triggered the tightened nav from a fixed 741-919px media query,
+       derived from a fixed list of eight anchors. The stub gate makes that
+       list variable, so the trigger is now the actual fit: tighten only when
+       the row genuinely overflows. Runs on load, on resize, and again once
+       the webfonts land, because Poppins is wider than the fallback stack and
+       the first measurement would otherwise be taken against the wrong font. */
+    var nav = burger.closest(".mars-nav");
+    var inner = nav ? nav.querySelector(".mars-nav__inner") : null;
+    var pending = false;
+
+    function fitNav() {
+      pending = false;
+      if (!nav || !inner) return;
+      if (mq.matches) { nav.classList.remove("is-tight"); return; }
+      nav.classList.remove("is-tight");
+      if (inner.scrollWidth > inner.clientWidth + 1) {
+        nav.classList.add("is-tight");
+      }
+    }
+
+    function scheduleFit() {
+      if (pending) return;
+      pending = true;
+      window.requestAnimationFrame(fitNav);
+    }
+
+    window.addEventListener("resize", scheduleFit);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(scheduleFit).catch(function () {});
+    }
+
     function apply() {
       if (mq.matches) {
         links.hidden = true;
@@ -31,6 +64,7 @@
         links.hidden = false;                 // always visible on wide screens
         burger.setAttribute("aria-expanded", "false");
       }
+      scheduleFit();
     }
 
     burger.addEventListener("click", function () {
@@ -143,20 +177,38 @@
       host.appendChild(li);
     });
 
-    /* Secondary full-resolution poster link, only when both copies exist. */
+    /* Secondary full-resolution links.
+     *
+     * Both the paper and the poster ship as a compressed web copy behind the
+     * button plus an untouched original behind a link here, so nobody is
+     * forced to pull 25 MB over conference wifi to read the paper and nobody
+     * who wants the print-resolution file is denied it. A pair only appears
+     * when BOTH of its copies exist, so a half-configured pair can never
+     * become a dead link. */
     var note = document.getElementById("mars-hero-note");
-    if (note && cfg.posterPdf && cfg.posterPdfFull) {
-      note.textContent = "";
-      note.appendChild(document.createTextNode("Poster also available at "));
+    if (!note) return;
+
+    var pairs = [
+      { label: cfg.paperPdfFullLabel || "paper", url: cfg.paperPdfFull,
+        web: cfg.paperPdf },
+      { label: cfg.posterPdfFullLabel || "poster", url: cfg.posterPdfFull,
+        web: cfg.posterPdf }
+    ].filter(function (x) { return x.url && x.web; });
+
+    if (!pairs.length) return;
+
+    note.textContent = "";
+    note.appendChild(document.createTextNode("Full-resolution originals: "));
+    pairs.forEach(function (x, i) {
+      if (i) note.appendChild(document.createTextNode(" \u00b7 "));
       var full = document.createElement("a");
-      full.href = cfg.posterPdfFull;
+      full.href = x.url;
       full.target = "_blank";
       full.rel = "noopener";
-      full.textContent = cfg.posterPdfFullLabel || "full resolution";
+      full.textContent = x.label;
       note.appendChild(full);
-      note.appendChild(document.createTextNode("."));
-      note.hidden = false;
-    }
+    });
+    note.hidden = false;
   }
 
   /* Fill the closing band's "Read the paper / Contact the authors" line and

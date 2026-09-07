@@ -121,9 +121,21 @@ tools/audit_claims.py
 - **`js/site.config.js` is the only place a URL belongs.** A `null` URL renders
   a non-clickable `· soon` pill. Never `href="#"`, never a link to a missing
   file — the audit greps for it.
-- **`--gold` (#CFB991) is only ever a fill or a display numeral ≥ 2rem.**
-  Gold-coloured *text* on a light surface uses `--aged` (#8E6F3E). Gold on
-  white measures 1.8:1.
+- **`--gold` (#CFB991) is ONLY EVER A FILL** — background, pill, bar,
+  underline, border. Never a text colour, at any size; the "display numeral ≥
+  2rem" exemption was removed in stage 1.5 because gold on mint measures
+  1.73:1, failing even the large-text bar. Gold-coloured *text* on a light
+  surface uses `var(--aged-fg)`, which resolves to `--aged` on paper (4.51:1)
+  and `--aged-text` #806438 on any mint surface (5.00:1). Gold text on **ink**
+  is legitimate at 9.36:1 and has its own token, `--ink-accent`.
+  `tools/audit_claims.py` fails on any `--gold` used as a `color:`, and checks
+  every other pair at 4.5:1.
+- **Unfinished sections are gated, not stubbed.** `sectionsLive` in
+  `js/site.config.js` lists the content bands that are finished; anything not
+  listed has its band *and* its nav anchor removed from the DOM. Same idea for
+  animations: `mediaAvailable` lists the media basenames that actually exist,
+  and a slot not listed requests nothing (a `<video poster>` pointing at a
+  missing file is fetched by the preload scanner and 404s).
 - **`--ink` appears in exactly two places on the main page:** the sticky nav
   strip and the closing BibTeX/footer band. The demo lab's dark sidebar is the
   third, sanctioned use, and it is deliberate — do not "fix" it.
@@ -154,3 +166,13 @@ Each build stage appends one line here.
   six stubbed content bands, five empty animation slots) and the
   `demos/index.html` shell. 27 of 28 verification checks pass; the 28th (V22)
   is expected to fail on the `mars-todo` stubs until stage 02.
+- **Stage 1.5 — conference launch (2026-09-07).** First push to production, for
+  the ECCV poster's QR code. Made `--gold` fill-only and re-treated the four
+  gains as dark numerals on gold plates (8.64:1); added `--aged-text` #806438
+  and the `--aged-fg` per-surface indirection; added a contrast pass to
+  `tools/audit_claims.py`, which now exits 0 for the first time. Added the
+  `sectionsLive` stub gate (`js/mars-sections.js`) and the `mediaAvailable`
+  media gate, removing the six unfinished bands, their nav anchors and all
+  five missing-poster 404s. Added the three-cube hook figure, an inline SVG
+  favicon, and the paper as a 2.97 MB web copy (300 dpi, lossless) plus the
+  25.3 MB original. All 17 W-checks pass.

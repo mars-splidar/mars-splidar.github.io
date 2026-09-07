@@ -15,9 +15,13 @@ Exit codes:
     0  every check passed
     1  at least one check failed (each failure printed as file:line)
 
-EXPECTED STATE AFTER STAGE 01: exit 1, with the ONLY failures being the
-`mars-todo` placeholders in the six stubbed content sections. Any other failure
-at that point is a real bug.
+EXPECTED STATE AFTER STAGE 1.5: exit 0. The `mars-todo` placeholders that made
+stage 01 exit 1 are gone — the stub gate removed them from the markup rather
+than hiding them — so this is the first stage at which the audit passes clean.
+Any failure from here on is a real bug.
+
+Pass 3 (contrast) was added in stage 1.5 to stop the GOLD/AGED contrast fix
+from silently regressing. It is the only pass that reads CSS rather than HTML.
 
 --------------------------------------------------------------------------
 Escape hatches a later stage may legitimately need to widen
@@ -29,6 +33,9 @@ Escape hatches a later stage may legitimately need to widen
   as the "simulat" half of the 85 ns / simulation-grid conflation check. The
   paper's own title ends in "Simulator", so without this the check would fire
   on the page title every time.
+* SURFACES / CONTRAST_EXEMPT — pass 3 (below) resolves every `color:` rule in
+  css/mars.css against the surface it is painted on. A new surface, or a rule
+  WCAG genuinely exempts, is declared there with a reason.
 """
 
 from __future__ import annotations
@@ -196,6 +203,314 @@ STRUCTURAL_NUMBERS = {
 # The four gain numerals, in their settled order (#11).
 GAIN_ORDER = ["30×", "1000×", "40×", "+17dB"]
 GAIN_ALIASES = {"+17dB": ["+17dB", "+17 dB"]}
+
+
+# ==========================================================================
+# Pass 3 — contrast (WEBSITE_BUILD_STATUS.md 3.6, added stage 1.5)
+# ==========================================================================
+#
+# Stage 01 measured that the guide asked for two things that cannot both hold:
+# "contrast >= 4.5:1" and "gold stat numerals". GOLD on MINT is 1.73:1, which
+# fails even the 3:1 large-text bar. The author's resolution was to make GOLD
+# fill-only and derive --aged-text for gold TEXT on mint. This pass is what
+# stops that fix from quietly eroding as later stages add copy.
+#
+# It does two things:
+#
+#   3a. HARD RULE — --gold (or its literal #CFB991) must never appear as the
+#       value of a `color:` declaration. Gold is a fill: background, pill, bar,
+#       underline, border. No exceptions, no size threshold. Gold used as TEXT
+#       on an ink surface is legitimate at 9.36:1, but it has its own token
+#       (--ink-accent) precisely so that this rule can stay absolute.
+#
+#   3b. Every `color:` rule in css/mars.css is resolved to a real hex, paired
+#       with the surface its selector is painted on, and checked at 4.5:1.
+#
+# 3b is the part that needs maintaining. There is no way to know from CSS text
+# alone what background a selector will actually sit on, so SURFACES below maps
+# selector patterns to surfaces, FIRST MATCH WINS, with PAPER as the default.
+# If a later stage introduces a new painted surface, add it here — an unmapped
+# selector is silently assumed to be on paper, which is the safe assumption for
+# this site but not a guarantee.
+
+CSS_FILE = "css/mars.css"
+CONTRAST_MIN = 4.5
+
+# HOW A RULE'S BACKGROUND IS DECIDED, in order:
+#
+#   1. If the rule declares its own `background` / `background-color` and that
+#      resolves to a hex, that is the surface. This is exact, needs no table,
+#      and covers most of the stylesheet — the skip link, the badge, the
+#      buttons, the plates.
+#   2. Otherwise the selector is matched against SURFACES below, first match
+#      wins. These are the rules that inherit a background from an ancestor,
+#      which CSS text alone cannot tell you about.
+#   3. Otherwise PAPER, the page's default ground.
+#
+# Patterns are deliberately prefix-shaped rather than \b-anchored: BEM class
+# names like `.mars-nav__brand` continue with an underscore, which is a word
+# character, so \b after `.mars-nav` would never match.
+SURFACES: list[tuple[str, str, str]] = [
+    # --- ink surfaces: the nav strip, the closing band, the lab sidebar ---
+    (r"\.mars-code",                 "#0d1113", "code block"),
+    (r"\.mars-nav",                  "--ink",   "nav strip"),
+    (r"\.mars-closing",              "--ink",   "closing band"),
+    (r"\.mars-lightbox",             "#0a0d0f", "video lightbox"),
+    (r"\.mars-lab__(sidebar|nav|item|tag)", "--ink", "demo lab sidebar"),
+    (r"\.mars-band\.is-ink",         "--ink",   "ink band"),
+    # --- mint surfaces: see the MINT SURFACES block in css/mars.css ---
+    (r"\.mars-media__(frame|placeholder)", "--mint", "media slot frame"),
+    (r"#playground-root",            "--mint",  "playground placeholder"),
+    (r"\.mars-lab__caveat",          "--mint",  "demo lab caveat"),
+    (r"\.mars-card",                 "--mint",  "contribution card"),
+    (r"\.mars-eq",                   "--mint",  "display equation"),
+    (r"\.mars-table thead",          "--mint",  "table header"),
+    (r"\.is-mint",                   "--mint",  "mint band"),
+    # --- gold-wash hover states, which repaint the ground under the label ---
+    (r"\.mars-(btn|switch__pill)[^,]*:hover", "--gold-soft", "gold-wash hover"),
+    # --- the skip link paints itself AGED but only in the :focus rule ---
+    (r"\.mars-skip",                 "--aged",  "skip link"),
+]
+DEFAULT_SURFACE = ("--paper", "paper band (default)")
+
+# Surfaces that count as MINT for the purpose of --aged-fg. A rule painted on
+# one of these resolves --aged-fg to --aged-text rather than to --aged, exactly
+# as the cascade does in the browser. The override VALUES are read out of the
+# stylesheet rather than hard-coded here, so the two cannot drift apart.
+MINT_SURFACE_HEXES = {"#ecf6ef", "#e2eee6"}
+
+# Rules WCAG genuinely exempts, or that are not text. Each needs a reason.
+# Keyed by the exact selector text as it appears in css/mars.css.
+CONTRAST_EXEMPT = {
+    ".mars-btn.is-soon":
+        "WCAG 1.4.3 exempts inactive UI components. These are the `· soon` "
+        "pills for URLs that do not exist yet — rendered as <span>, "
+        "aria-disabled, not focusable, nothing to activate.",
+    ".mars-btn.is-soon:hover": "same element as .mars-btn.is-soon",
+    ".mars-btn__soon":
+        "the `· soon` suffix inside an inactive UI component; same exemption",
+    ".mars-lab__status.is-soon":
+        "the `soon` badge on the three unbuilt demo panels; same exemption",
+}
+
+
+def _srgb_lin(channel: int) -> float:
+    c = channel / 255.0
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def relative_luminance(hex_colour: str) -> float:
+    h = hex_colour.lstrip("#")
+    if len(h) == 3:
+        h = "".join(ch * 2 for ch in h)
+    r, g, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
+    return (0.2126 * _srgb_lin(r) + 0.7152 * _srgb_lin(g)
+            + 0.0722 * _srgb_lin(b))
+
+
+def contrast_ratio(fg: str, bg: str) -> float:
+    a, b = relative_luminance(fg), relative_luminance(bg)
+    hi, lo = max(a, b), min(a, b)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+ROOT_TOKEN_RE = re.compile(r"(--[a-z0-9-]+)\s*:\s*([^;]+);")
+COLOR_DECL_RE = re.compile(r"(?<![-\w])color\s*:\s*([^;{}]+);")
+CSS_COMMENT_RE = re.compile(r"/\*.*?\*/", re.S)
+HEX_RE = re.compile(r"#[0-9a-fA-F]{3,8}\b")
+NAMED = {"white": "#ffffff", "black": "#000000", "transparent": None,
+         "inherit": None, "currentcolor": None, "initial": None,
+         "unset": None, "revert": None}
+
+
+def read_tokens(css: str) -> dict[str, str]:
+    """Resolve the :root custom properties down to concrete hex values.
+
+    Resolution is iterative because tokens are allowed to reference each other
+    — --aged-fg is literally `var(--aged)`, which is the whole point of it.
+    """
+    m = re.search(r":root\s*\{(.*?)\}", css, re.S)
+    if not m:
+        return {}
+    raw = {k: v.strip() for k, v in ROOT_TOKEN_RE.findall(m.group(1))}
+    resolved: dict[str, str] = {}
+    for _ in range(8):
+        changed = False
+        for key, val in raw.items():
+            if key in resolved:
+                continue
+            hexes = HEX_RE.findall(val)
+            if hexes:
+                resolved[key] = hexes[0]
+                changed = True
+                continue
+            ref = re.search(r"var\(\s*(--[a-z0-9-]+)", val)
+            if ref and ref.group(1) in resolved:
+                resolved[key] = resolved[ref.group(1)]
+                changed = True
+        if not changed:
+            break
+    return resolved
+
+
+def resolve_colour(value: str, tokens: dict[str, str]) -> str | None:
+    """Turn a declaration value into a hex, or None if it is not a colour."""
+    value = value.strip().lower()
+    if value in NAMED:
+        return NAMED[value]
+    hexes = HEX_RE.findall(value)
+    if hexes:
+        return hexes[0]
+    ref = re.search(r"var\(\s*(--[a-z0-9-]+)", value)
+    if ref:
+        return tokens.get(ref.group(1))
+    return None
+
+
+BACKGROUND_DECL_RE = re.compile(
+    r"(?<![-\w])background(?:-color)?\s*:\s*([^;{}]+);")
+
+
+def read_surface_overrides(css: str) -> dict[str, str]:
+    """Custom properties re-declared OUTSIDE :root — i.e. per-surface.
+
+    css/mars.css re-points --aged-fg to --aged-text on every mint surface, so
+    that gold TEXT darkens automatically wherever the ground is mint. The
+    browser resolves that through the cascade; this reads the same declaration
+    so the audit sees the same colour the visitor does.
+    """
+    out: dict[str, str] = {}
+    for selector, body, _ in iter_rules(css):
+        if selector == ":root":
+            continue
+        for key, value in ROOT_TOKEN_RE.findall(body):
+            out[key] = value.strip()
+    return out
+
+
+def surface_for(selector: str, body: str,
+                tokens: dict[str, str]) -> tuple[str, str] | None:
+    """The background this rule's text sits on, or None if it is not pinned.
+
+    None is the important return value. A selector like `.mars-eyebrow` is
+    used on PAPER bands and MINT bands alike, so there is no single answer —
+    and assuming paper is exactly how a 4.23:1 gold-on-mint eyebrow would slip
+    back in unnoticed. The caller checks unpinned rules against BOTH grounds.
+    """
+    for decl in BACKGROUND_DECL_RE.findall(body):
+        own = resolve_colour(decl, tokens)
+        if own:
+            return own, "its own background"
+    for pattern, surface, label in SURFACES:
+        if re.search(pattern, selector):
+            hexed = tokens.get(surface, surface)
+            if hexed and hexed.startswith("#"):
+                return hexed, label
+    return None
+
+
+def iter_rules(css: str):
+    """Yield (selector, body, line) for every top-level-ish rule.
+
+    Comments are stripped first — a `color: var(--gold)` written inside a
+    comment is documentation, not a declaration, and pass 3a would otherwise
+    fire on this file's own explanation of the rule.
+    """
+    stripped = CSS_COMMENT_RE.sub(lambda m: "\n" * m.group(0).count("\n"), css)
+    for m in re.finditer(r"([^{}]+)\{([^{}]*)\}", stripped):
+        selector = re.sub(r"\s+", " ", m.group(1)).strip()
+        if not selector or selector.startswith("@"):
+            continue
+        yield selector, m.group(2), stripped.count("\n", 0, m.start(2)) + 1
+
+
+def check_contrast(rep: Report) -> None:
+    path = REPO / CSS_FILE
+    if not path.exists():
+        rep.fail(CSS_FILE, "stylesheet missing [3.6]",
+                 "the contrast pass has nothing to check")
+        return
+    css = path.read_text(encoding="utf-8", errors="replace")
+    tokens = read_tokens(css)
+    overrides = read_surface_overrides(css)
+
+    if "--aged-text" not in tokens:
+        rep.fail(CSS_FILE, "--aged-text token missing [3.6]",
+                 "the derived gold-text-on-mint token is required")
+    elif tokens["--aged-text"].lower() != "#806438":
+        rep.fail(CSS_FILE, "--aged-text has the wrong value [3.6]",
+                 f"found {tokens['--aged-text']}, required #806438")
+
+    # The mint variant of the token table: same as `tokens`, except that any
+    # custom property the stylesheet re-declares on a mint surface takes its
+    # mint value. Today that is exactly --aged-fg -> --aged-text.
+    mint_tokens = dict(tokens)
+    for key, value in overrides.items():
+        resolved = resolve_colour(value, tokens)
+        if resolved:
+            mint_tokens[key] = resolved
+
+    checked = 0
+    exempted = 0
+    worst: tuple[float, str] | None = None
+
+    for selector, body, line in iter_rules(css):
+        if selector == ":root":
+            continue
+        for decl in COLOR_DECL_RE.findall(body):
+            value = decl.strip()
+
+            # ---- 3a: gold is never a text colour ----
+            if re.search(r"--gold(?![\w-])", value) or "#cfb991" in value.lower():
+                rep.fail(f"{CSS_FILE}:{line}",
+                         "--gold used as a text colour [3.6, hard rule]",
+                         f"{selector} {{ color: {value} }} — gold is FILL "
+                         f"ONLY. Gold text on ink uses --ink-accent.")
+                continue
+
+            if any(selector == k or k in [t.strip()
+                                          for t in selector.split(",")]
+                   for k in CONTRAST_EXEMPT):
+                exempted += 1
+                continue
+
+            pinned = surface_for(selector, body, tokens)
+            if pinned is not None:
+                grounds = [pinned]
+            else:
+                # Not pinned to one surface: this rule can land on either of
+                # the two content grounds, so it has to clear BOTH.
+                grounds = [
+                    (tokens.get("--paper", "#FAFBFA"), "paper band"),
+                    (tokens.get("--mint", "#ECF6EF"), "mint band"),
+                ]
+
+            for bg, surface_label in grounds:
+                table = (mint_tokens if bg.lower() in MINT_SURFACE_HEXES
+                         else tokens)
+                fg = resolve_colour(value, table)
+                if fg is None:
+                    continue
+
+                ratio = contrast_ratio(fg, bg)
+                checked += 1
+                if worst is None or ratio < worst[0]:
+                    worst = (ratio, f"{selector} on {surface_label}")
+                if ratio < CONTRAST_MIN:
+                    rep.fail(
+                        f"{CSS_FILE}:{line}",
+                        f"contrast {ratio:.2f}:1 below {CONTRAST_MIN}:1 [3.6]",
+                        f"{selector} — {fg} on {bg} ({surface_label}). "
+                        f"Either darken the text, use var(--aged-fg) so the "
+                        f"surface picks the right gold, pin the selector in "
+                        f"SURFACES, or declare the exemption in "
+                        f"CONTRAST_EXEMPT with a reason.")
+
+    rep.info.append(
+        f"contrast: {checked} in-use text/background pair(s) checked, all "
+        f">= {CONTRAST_MIN}:1"
+        + (f" (worst {worst[0]:.2f}:1 — {worst[1]})" if worst else "")
+        + f"; {exempted} WCAG-exempt rule(s) skipped")
 
 
 # ==========================================================================
@@ -433,6 +748,7 @@ def main() -> int:
 
     check_equation_count(files, rep)
     check_gain_order(rep)
+    check_contrast(rep)
 
     # ---- pass 2 coverage report -----------------------------------------
     if not args.quiet:

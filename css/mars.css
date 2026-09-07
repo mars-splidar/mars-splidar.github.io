@@ -5,10 +5,21 @@
 
    TWO HARD RULES, both encoded here and checked by tools/audit_claims.py:
 
-   1. --gold is ONLY EVER a fill (background / border-color) or a large display
-      numeral (font-size >= 2rem). Gold-coloured TEXT on a light surface uses
-      --aged. #CFB991 on white fails WCAG 4.5:1; this is an accessibility
-      failure, not a taste preference.
+   1. --gold is ONLY EVER A FILL — background, pill, bar, underline, border.
+      REVISED 2026-09-07 (stage 1.5, WEBSITE_BUILD_STATUS.md 3.6): the
+      "large display numeral" exemption is GONE. Gold on mint measures
+      1.73:1, which fails even the 3:1 large-text bar, so the four gain
+      numerals are now DARK on a GOLD PLATE (8.64:1) instead of gold on mint.
+
+      Gold-coloured TEXT on a light surface uses --aged-fg, which resolves to
+      --aged on PAPER (4.51:1) and --aged-text on every MINT surface (5.00:1).
+      Never write `color: var(--aged)` — write `color: var(--aged-fg)` and let
+      the surface pick. Fills keep `var(--aged)`.
+
+      --gold as a `color:` survives in exactly one role: gold TEXT ON INK,
+      which measures 9.36:1 and is the poster's wordmark. That role has its
+      own token, --ink-accent, so `--gold` never appears in a `color:`
+      declaration anywhere in this file and the fill-only rule stays greppable.
 
    2. --ink is used in EXACTLY TWO PLACES on the main page: the sticky nav strip
       and the closing BibTeX/footer band. The demo lab's sidebar is the third,
@@ -17,8 +28,8 @@
 
 :root {
   /* ---- palette ---- */
-  --gold:  #CFB991;   /* fills, pills, large display numerals ONLY */
-  --aged:  #8E6F3E;   /* gold-coloured TEXT and icons on light surfaces */
+  --gold:  #CFB991;   /* FILL ONLY — background, pill, bar, underline, border */
+  --aged:  #8E6F3E;   /* AGED gold: fills, borders, and TEXT on PAPER (4.51:1) */
   --dark:  #1F1F1F;   /* body text on light backgrounds */
   --mint:  #ECF6EF;   /* panel fill for alternating content bands */
   --green: #0E7A46;   /* Simulator / correct / fast */
@@ -27,6 +38,25 @@
   --grey:  #5A5A5A;   /* captions, secondary body text */
   --paper: #FAFBFA;   /* light content background — the default page ground */
   --ink:   #14181A;   /* dark — nav strip and closing band only */
+
+  /* ---- derived text tokens (stage 1.5) ---------------------------------
+     --aged-text is the ONLY new brand-adjacent value: same hue (36.7deg) and
+     saturation (39.2%) as --aged, lightness 4 points lower. Measured 5.00:1
+     on MINT and 5.33:1 on PAPER, against --aged's 4.23:1 on MINT.
+
+     --aged-fg is the indirection that makes it automatic: it holds the gold
+     TEXT colour for whatever surface you are currently on. :root sets it to
+     --aged (the PAPER default); every mint surface re-points it to
+     --aged-text a few rules below. Every gold-coloured TEXT rule in this file
+     uses var(--aged-fg); fills keep var(--aged).
+
+     --ink-accent is GOLD used as TEXT ON INK ONLY (9.36:1) — the nav wordmark,
+     the BibTeX heading, the closing links. It is a separate token so that
+     --gold itself never appears in a `color:` declaration.
+     -------------------------------------------------------------------- */
+  --aged-text:  #806438;   /* gold-coloured TEXT on MINT surfaces */
+  --aged-fg:    var(--aged);   /* per-surface gold TEXT colour; see above */
+  --ink-accent: #CFB991;   /* GOLD as TEXT, permitted on INK surfaces only */
 
   /* ---- derived / utility ---- */
   --ink-soft:   #20262a;   /* hairlines inside ink bands */
@@ -45,6 +75,28 @@
   --band-y: clamp(2.5rem, 5vw, 4.25rem);
   --radius: 10px;
   --radius-pill: 999px;
+}
+
+/* --------------------------------------------------------------------------
+   MINT SURFACES — the one place --aged-fg is re-pointed.
+
+   Anything in this list is painted --mint (or a near-mint tint), so gold
+   TEXT inside it must be --aged-text (5.00:1) rather than --aged (4.23:1).
+   The property cascades, so a mint card sitting on a paper band gets the
+   right value automatically and nothing has to be scoped by hand.
+
+   STAGE 02 AND LATER: if you introduce a NEW mint-painted surface, add its
+   selector here. Do not write `color: var(--aged-text)` at the use site —
+   write `color: var(--aged-fg)` and let this list decide.
+   -------------------------------------------------------------------------- */
+
+.mars-band.is-mint,
+.mars-card,
+.mars-eq,
+.mars-media__frame,
+.mars-lab__caveat,
+#playground-root {
+  --aged-fg: var(--aged-text);
 }
 
 /* --------------------------------------------------------------------------
@@ -80,7 +132,7 @@ h1, h2, h3, h4 {
 p { margin: 0 0 1em; }
 p:last-child { margin-bottom: 0; }
 
-a { color: var(--aged); }
+a { color: var(--aged-fg); }
 a:hover { color: var(--dark); }
 
 img, video { max-width: 100%; height: auto; display: block; }
@@ -144,7 +196,8 @@ img, video { max-width: 100%; height: auto; display: block; }
   font-weight: 700;
   font-size: 1.0625rem;
   letter-spacing: 0.01em;
-  color: var(--gold);          /* gold on INK: 8.4:1, passes comfortably */
+  color: var(--ink-accent);    /* GOLD as text on INK: 9.36:1 — the one
+                                  sanctioned gold-text role. See rule 1. */
   text-decoration: none;
   flex: 0 0 auto;
 }
@@ -221,37 +274,56 @@ img, video { max-width: 100%; height: auto; display: block; }
   cursor: pointer;
 }
 
-/* NAV BREAKPOINTS — measured, and a deliberate departure from the guide.
+/* NAV BREAKPOINTS.
    MARS_WEBSITE_BUILD_GUIDE.md 4.1 says the nav collapses to a hamburger
-   "under ~600px". It cannot: the eight anchors, the divider and the Demo lab
-   pill need 851px at full size and 688px at the smallest legible tightening
-   (12.5px anchors, 5px padding), while a 740px viewport only offers a 696px
-   content column. Between 600px and 740px the row therefore clips — at 700px
-   the earlier build cut "Limitations" to "Lim" behind the pill.
+   "under ~600px". Stage 01 measured that it cannot: with EIGHT anchors, the
+   divider and the Demo lab pill, the row needs 851px at full size and 688px
+   at the smallest legible tightening, while a 740px viewport only offers a
+   696px content column. Hence three regimes rather than two, and hamburger at
+   740px rather than 600px.
 
-   So there are three regimes instead of two:
-       >= 920px   full-size nav          (needs 851px, column >= 865px)
-       741-919px  tightened nav          (needs 688px, column >= 696px)
-       <= 740px   hamburger
-   Flagged in the stage 01 handoff. If the anchor list changes, re-run the
-   fit model: 8 anchors total 34.8 em of text, the pill 6.33 em.
+   STAGE 1.5 CHANGED HOW THE MIDDLE REGIME IS CHOSEN, and this is the point.
+   Stage 01's 741-919px range was a constant derived from a fixed list of
+   eight anchors. That list is no longer fixed: the stub gate removes a nav
+   anchor for every unfinished section, so the nav ships today with TWO
+   anchors and grows back towards eight as stage 02 lands. A hard-coded range
+   would tighten a two-anchor nav that has 400px of room to spare, and would
+   silently clip once the count went back up.
 
-   The anchors also sit in their own overflow-x scroller with the pill pinned
-   OUTSIDE it, so any residual overflow scrolls the anchors and can never hide
-   the pill. */
-@media (min-width: 741px) and (max-width: 919px) {
-  .mars-nav__inner { gap: 0.5rem; }
-  .mars-nav__links { gap: 0; min-width: 0; }
-  .mars-nav__scroll {
+   So the tightening is now MEASURED rather than assumed: js/mars-nav.js
+   compares the row's scrollWidth against its clientWidth and adds
+   `.mars-nav.is-tight` only when the content genuinely does not fit. The
+   styles below are unchanged from stage 01 — only their trigger moved. The
+   width guard keeps the tightened type off phones, where the hamburger owns
+   the layout instead.
+
+       fits at full size          full-size nav
+       does not fit, >= 741px     .is-tight  (measured, not assumed)
+       <= 740px                   hamburger
+
+   Nothing has to be re-measured when the anchor list changes again. The
+   anchors also sit in their own overflow-x scroller with the pill pinned
+   OUTSIDE it, so any residual overflow scrolls the anchors and can never
+   hide the pill. */
+@media (min-width: 741px) {
+  .mars-nav.is-tight .mars-nav__inner { gap: 0.5rem; }
+  .mars-nav.is-tight .mars-nav__links { gap: 0; min-width: 0; }
+  .mars-nav.is-tight .mars-nav__scroll {
     min-width: 0;
     overflow-x: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  .mars-nav__scroll::-webkit-scrollbar { display: none; }
-  .mars-nav__link { font-size: 0.78125rem; padding: 0.4rem 0.32rem; }
-  .mars-nav__divider { margin: 0.6rem 0.3rem; }
-  .mars-nav__pill { font-size: 0.75rem; padding: 0.34rem 0.62rem; }
+  .mars-nav.is-tight .mars-nav__scroll::-webkit-scrollbar { display: none; }
+  .mars-nav.is-tight .mars-nav__link {
+    font-size: 0.78125rem;
+    padding: 0.4rem 0.32rem;
+  }
+  .mars-nav.is-tight .mars-nav__divider { margin: 0.6rem 0.3rem; }
+  .mars-nav.is-tight .mars-nav__pill {
+    font-size: 0.75rem;
+    padding: 0.34rem 0.62rem;
+  }
 }
 
 @media (max-width: 740px) {
@@ -313,10 +385,10 @@ img, video { max-width: 100%; height: auto; display: block; }
   text-transform: uppercase;
   margin: 0 0 0.6rem;
 }
-.mars-eyebrow.is-neutral   { color: var(--aged); }
+.mars-eyebrow.is-neutral   { color: var(--aged-fg); }
 .mars-eyebrow.is-theory    { color: var(--blue); }
 .mars-eyebrow.is-simulator { color: var(--green); }
-.mars-eyebrow.is-utility   { color: var(--aged); }
+.mars-eyebrow.is-utility   { color: var(--aged-fg); }
 .mars-eyebrow.is-muted     { color: var(--grey); }
 
 .mars-eyebrow i { font-size: 1.15em; }
@@ -377,7 +449,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   white-space: nowrap;          /* the guide: must never wrap to two lines */
 }
 
-.mars-hl { color: var(--aged); font-weight: 500; }
+.mars-hl { color: var(--aged-fg); font-weight: 500; }
 
 /* Below ~380px, 51 characters at any legible size will not fit one line. The
    guide sanctions exactly one fallback: `MaRS` at full size with the full
@@ -392,7 +464,7 @@ img, video { max-width: 100%; height: auto; display: block; }
     font-family: var(--font-head);
     font-size: 2.75rem;
     font-weight: 500;
-    color: var(--aged);
+    color: var(--aged-fg);
     line-height: 1.05;
   }
   .mars-hero__title--narrow .mars-hero__full {
@@ -460,7 +532,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   text-decoration: none;
   cursor: pointer;
   background: transparent;
-  color: var(--aged);
+  color: var(--aged-fg);
   white-space: nowrap;
 }
 
@@ -492,8 +564,20 @@ img, video { max-width: 100%; height: auto; display: block; }
 
 /* --------------------------------------------------------------------------
    Four gains — .mars-stat
-   Gold display numerals (>= 2rem, so the contrast rule is satisfied by size),
-   grey captions, and deliberately NO circle badges (guide 4.3 dropped them).
+
+   RE-TREATED IN STAGE 1.5. Stage 01 built these as GOLD numerals on MINT,
+   which the guide asked for and which measures 1.73:1 — failing even the 3:1
+   large-text bar. WEBSITE_BUILD_STATUS.md 3.6 resolves it by moving the gold
+   BEHIND the numeral instead of inside it: each numeral now sits on a gold
+   rounded plate with a DARK numeral on top, at 8.64:1.
+
+   The plate is deliberately the poster's "gold rounded header bar per module,
+   mint rounded panel beneath" motif (PROJECT_BRIEF.md 6) — the gold sits on
+   top of the cell and the grey caption sits beneath it, so the band still
+   reads as the page's gold moment.
+
+   Still deliberately NO circle badges (guide 4.3 dropped them), and the
+   order is fixed: 30x -> 1000x -> 40x -> +17dB (non-negotiable #11).
    -------------------------------------------------------------------------- */
 
 .mars-stats {
@@ -507,19 +591,23 @@ img, video { max-width: 100%; height: auto; display: block; }
 
 .mars-stat { text-align: center; }
 
+/* The gold PLATE. Gold is the background; the numeral on it is --dark. */
 .mars-stat__num {
   display: block;
+  background: var(--gold);
+  border-radius: var(--radius);
+  padding: 0.55rem 0.5rem 0.6rem;
   font-family: var(--font-head);
   font-weight: 700;
-  font-size: clamp(2.05rem, 4.4vw, 3rem);   /* never below 2rem — see rule 1 */
-  line-height: 1.05;
-  color: var(--gold);
+  font-size: clamp(1.9rem, 4.1vw, 2.75rem);
+  line-height: 1.1;
+  color: var(--dark);            /* DARK on GOLD = 8.64:1 */
   letter-spacing: -0.02em;
 }
 
 .mars-stat__cap {
   display: block;
-  margin-top: 0.4rem;
+  margin-top: 0.55rem;
   font-size: 0.875rem;
   line-height: 1.4;
   color: var(--grey);
@@ -652,7 +740,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   font-weight: 500;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--aged);
+  color: var(--aged-fg);
   pointer-events: none;
 }
 .mars-media__placeholder small {
@@ -704,6 +792,35 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin-top: 0.55rem;
   font-size: 0.875rem;
   color: var(--grey);
+}
+
+/* --------------------------------------------------------------------------
+   The hook figure — stage 1.5.
+
+   One figure, one caption line, sitting between the four gains and the content
+   bands. It is `.mars-figure` plus a `.mars-hook` modifier rather than a new
+   component, so stage 02's static poster graphics keep the same base styling.
+
+   The caption is the page's one-line argument, so it is set larger and darker
+   than a normal figure caption and centred under the image. It is NOT a
+   `.mars-eq` and carries no numbers — see the markup comment in index.html for
+   why the teaser's timings stay off this caption.
+   -------------------------------------------------------------------------- */
+
+.mars-hook {
+  max-width: 900px;
+  margin: 0 auto;
+}
+.mars-hook img { border: 0; }
+
+.mars-hook__caption {
+  margin-top: 0.9rem;
+  text-align: center;
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: clamp(1rem, 2.2vw, 1.1875rem);
+  line-height: 1.45;
+  color: var(--dark);            /* DARK on PAPER = 15.89:1 */
 }
 
 /* EVERY data table scrolls inside its own container, never the page body. */
@@ -786,7 +903,7 @@ img, video { max-width: 100%; height: auto; display: block; }
    -------------------------------------------------------------------------- */
 
 .mars-closing__title {
-  color: var(--gold);            /* 2rem+ display heading on ink: fine */
+  color: var(--ink-accent);      /* GOLD text on INK: 9.36:1 */
   font-size: clamp(1.5rem, 3vw, 1.875rem);
   margin: 0 0 1rem;
 }
@@ -817,7 +934,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   border-radius: 6px;
   border: 1px solid var(--gold);
   background: transparent;
-  color: var(--gold);
+  color: var(--ink-accent);      /* GOLD text on #0d1113: 9.94:1 */
   cursor: pointer;
 }
 .mars-code__copy:hover { background: var(--gold); color: var(--ink); }
@@ -841,9 +958,12 @@ img, video { max-width: 100%; height: auto; display: block; }
   color: #b9c0bd;
   margin: 0 0 1rem;
 }
-.mars-closing__links a { color: var(--gold); text-decoration: none; }
+.mars-closing__links a { color: var(--ink-accent); text-decoration: none; }
 .mars-closing__links a:hover { color: #e2d3b6; text-decoration: underline; }
-.mars-closing__links .sep { color: #4a5256; margin: 0 0.5rem; }
+/* #4a5256 measured 2.24:1 on ink. Bumped to the same grey the muted
+   footer text already uses (4.73:1) — still clearly quieter than the
+   links it separates, but no longer a contrast failure. Stage 1.5. */
+.mars-closing__links .sep { color: #7d8583; margin: 0 0.5rem; }
 
 .mars-closing__footer {
   text-align: center;
@@ -900,8 +1020,9 @@ img, video { max-width: 100%; height: auto; display: block; }
   padding: 0.35rem 0.8rem;
   cursor: pointer;
 }
-.mars-lightbox__close:hover { border-color: var(--gold); color: var(--gold); }
-.mars-lightbox__srt { color: var(--gold); font-size: 0.8125rem; }
+.mars-lightbox__close:hover { border: 1px solid var(--gold);
+                              color: var(--ink-accent); }
+.mars-lightbox__srt { color: var(--ink-accent); font-size: 0.8125rem; }
 
 /* ==========================================================================
    Demo lab (demos/index.html)
@@ -928,7 +1049,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   font-family: var(--font-head);
   font-weight: 600;
   font-size: 0.9375rem;
-  color: var(--aged);
+  color: var(--aged-fg);
   text-decoration: none;
 }
 .mars-lab__back:hover { color: var(--dark); }
@@ -980,7 +1101,9 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-lab__item:hover { background: var(--ink-soft); color: #fff; }
 .mars-lab__item[aria-current="true"] {
   background: var(--ink-soft);
-  border-color: var(--gold);
+  border: 1px solid var(--gold);   /* a border is a FILL role; written as the
+                                      shorthand so the fill-only grep in
+                                      stage_015 W1 stays exact */
   color: #fff;
 }
 .mars-lab__tag {
@@ -992,7 +1115,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.mars-lab__tag.is-live { color: var(--gold); }
+.mars-lab__tag.is-live { color: var(--ink-accent); }
 .mars-lab__tag.is-soon { color: #7d8583; font-weight: 400; }
 
 .mars-lab__main {
@@ -1040,7 +1163,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   place-items: center;
   padding: 1.5rem;
   text-align: center;
-  color: var(--aged);
+  color: var(--aged-fg);
   font-family: var(--font-head);
   font-size: 0.875rem;
 }

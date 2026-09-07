@@ -177,7 +177,20 @@ def build_og_card(rows: list[list[str]], force: bool) -> None:
                  _size_str((IMG_OUT / "og_card.webp").stat().st_size)])
 
 
-def _gs_downsample(src: Path, dst: Path, dpi: int) -> bool:
+def _gs_downsample(src: Path, dst: Path, dpi: int,
+                   image_filter: str = "/DCTEncode") -> bool:
+    """Re-encode `src` with its raster content downsampled to `dpi`.
+
+    `image_filter` picks how the downsampled rasters are then stored:
+
+      /DCTEncode   JPEG. Much smaller, but it rings around hard edges, which
+                   is what plot axes, gridlines and small annotation text are
+                   made of. Fine for the poster, whose graphics are large.
+      /FlateEncode Lossless zip. Bigger, but the only artefact left is the
+                   downsample itself. Used for the PAPER, whose Fig. 5 and
+                   Fig. 7 are dense multi-panel plots captioned "best viewed
+                   in zoom" — see the note in build_docs().
+    """
     gs = shutil.which("gs")
     if gs is None:
         return False
@@ -191,8 +204,8 @@ def _gs_downsample(src: Path, dst: Path, dpi: int) -> bool:
         f"-dGrayImageResolution={dpi}",
         "-dDownsampleMonoImages=true", "-dMonoImageDownsampleType=/Subsample",
         f"-dMonoImageResolution={dpi * 4}",
-        "-dAutoFilterColorImages=false", "-dColorImageFilter=/DCTEncode",
-        "-dAutoFilterGrayImages=false", "-dGrayImageFilter=/DCTEncode",
+        "-dAutoFilterColorImages=false", f"-dColorImageFilter={image_filter}",
+        "-dAutoFilterGrayImages=false", f"-dGrayImageFilter={image_filter}",
         f"-sOutputFile={dst}", str(src),
     ]
     return subprocess.run(cmd, capture_output=True).returncode == 0
@@ -238,21 +251,90 @@ def build_docs(rows: list[list[str]], notes: list[str],
                      "150 dpi", f"{_size_str(web.stat().st_size)} (cached)"])
 
     # ---- paper ---------------------------------------------------------
+    #
+    # Same two-copy treatment the poster gets, added in stage 1.5 when
+    # paper/main.pdf arrived at 25.26 MB — far too heavy for the hero's
+    # primary button on conference wifi.
+    #
+    #   mars_paper.pdf       the web copy, the primary button's target
+    #   mars_paper_full.pdf  the untouched original, a secondary link
+    #
+    # WHY 300 dpi AND FlateEncode, AND NOT THE POSTER'S 150 dpi + JPEG.
+    # Nearly all of the 25 MB is embedded raster figures, so downsampling is
+    # enormously effective here — measured on the 18-page paper:
+    #
+    #     150 dpi, JPEG    0.75 MB      250 dpi, JPEG    0.99 MB
+    #     300 dpi, JPEG    1.15 MB      300 dpi, Flate   2.97 MB
+    #     400 dpi, Flate   5.41 MB      no downsample   32.36 MB
+    #
+    # The budget is 5 MB, so there is no reason to spend the quality: 300 dpi
+    # with LOSSLESS Flate lands at 2.97 MB, well inside it, and avoids JPEG
+    # ringing on exactly the content that would suffer from it — Fig. 5's
+    # four count-distribution panels with their inset D_KL values, and Fig. 7's
+    # three runtime plots with their small annotated timing boxes. Both are
+    # captioned "Best viewed in zoom" in the paper itself.
+    #
+    # Checked by eye at 400 dpi against the original before this was accepted
+    # (stage 1.5, check W11): every panel, legend, axis tick and inset number
+    # on pages 12, 13 and 15 is readable. If you raise the dpi, re-check the
+    # size; if you lower it, re-check the figures.
+    PAPER_WEB_DPI = 300
+    PAPER_WEB_BUDGET = 5 * 1024 * 1024
+
     paper_src = PROJECT / "paper" / "main.pdf"
     paper_out = DOC_OUT / "mars_paper.pdf"
+    paper_full = DOC_OUT / "mars_paper_full.pdf"
+
     if paper_src.exists():
-        if force or not paper_out.exists() \
-                or paper_out.stat().st_size != paper_src.stat().st_size:
-            shutil.copy2(paper_src, paper_out)
-        rows.append(["paper/main.pdf", "mars_paper.pdf", "—", "—",
-                     _size_str(paper_out.stat().st_size)])
-        notes.append(
-            "paper/main.pdf FOUND and copied. Set "
-            '`paperPdf: "assets/docs/mars_paper.pdf"` in js/site.config.js.'
-        )
-    else:
+        if force or not paper_full.exists() \
+                or paper_full.stat().st_size != paper_src.stat().st_size:
+            shutil.copy2(paper_src, paper_full)
+        rows.append(["paper/main.pdf", "mars_paper_full.pdf", "—", "—",
+                     _size_str(paper_full.stat().st_size)])
+
+        if skip_pdf and paper_out.exists():
+            rows.append(["paper/main.pdf", "mars_paper.pdf", "—",
+                         f"{PAPER_WEB_DPI} dpi",
+                         f"{_size_str(paper_out.stat().st_size)} (skipped)"])
+        elif force or not paper_out.exists():
+            ok = _gs_downsample(paper_src, paper_out, PAPER_WEB_DPI,
+                                image_filter="/FlateEncode")
+            if not ok:
+                notes.append(
+                    "WARNING: ghostscript not available or failed. No "
+                    "downsampled paper was produced. Point `paperPdf` at "
+                    "mars_paper_full.pdf and label its size (25 MB) in the "
+                    "button, or leave it null."
+                )
+                if paper_out.exists():
+                    paper_out.unlink()
+            else:
+                rows.append(["paper/main.pdf", "mars_paper.pdf", "—",
+                             f"{PAPER_WEB_DPI} dpi",
+                             _size_str(paper_out.stat().st_size)])
+                if paper_out.stat().st_size > PAPER_WEB_BUDGET:
+                    notes.append(
+                        f"WARNING: mars_paper.pdf is "
+                        f"{_size_str(paper_out.stat().st_size)}, over the "
+                        f"5 MB target. Lower PAPER_WEB_DPI — but re-check "
+                        f"Fig. 5 and Fig. 7 by eye afterwards."
+                    )
+        else:
+            rows.append(["paper/main.pdf", "mars_paper.pdf", "—",
+                         f"{PAPER_WEB_DPI} dpi",
+                         f"{_size_str(paper_out.stat().st_size)} (cached)"])
+
         if paper_out.exists():
-            paper_out.unlink()
+            notes.append(
+                "paper/main.pdf FOUND. Web copy and full-resolution copy both "
+                'written. js/site.config.js should carry `paperPdf: '
+                '"assets/docs/mars_paper.pdf"` and `paperPdfFull: '
+                '"assets/docs/mars_paper_full.pdf"`.'
+            )
+    else:
+        for stale in (paper_out, paper_full):
+            if stale.exists():
+                stale.unlink()
         notes.append(
             "WARNING: paper/main.pdf is ABSENT. No assets/docs/mars_paper.pdf "
             "was written. `paperPdf` must stay `null` in js/site.config.js so "

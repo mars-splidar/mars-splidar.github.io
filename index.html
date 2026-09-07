@@ -8,6 +8,12 @@
 <meta name="description" content="MaRS gives the first analytic photon-count distribution under detector dead time — matching the sequential gold standard 40× faster, and making physically faithful single-photon LiDAR training data practical. ECCV 2026.">
 <link rel="canonical" href="https://mars-splidar.github.io/">
 
+<!-- Inline SVG favicon. Declared so the browser never falls back to
+     requesting /favicon.ico, which does not exist and 404s in production.
+     A data URI keeps it off the network entirely. Ink ground, gold M —
+     the nav wordmark at 32 px. Stage 1.5. -->
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="%2314181A"/><path d="M7 24V8h4l5 9 5-9h4v16h-4v-9l-5 9-5-9v9z" fill="%23CFB991"/></svg>'>
+
 <!-- Open Graph / Twitter card. Image is the three-cube tradeoff hook. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MaRS">
@@ -23,9 +29,10 @@
 <meta name="twitter:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster. ECCV 2026.">
 <meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png">
 
-<!-- Google Scholar. citation_pdf_url is deliberately ABSENT while the paper
-     PDF has not been cleared for posting (site.config.js paperPdf === null).
-     Stage 06 adds it together with the PDF. -->
+<!-- Google Scholar. citation_pdf_url points at the WEB copy of the paper, the
+     same file the hero's Paper button serves; the full-resolution original is
+     a secondary link and is deliberately not advertised to crawlers. Added in
+     stage 1.5, when paper/main.pdf arrived. -->
 <meta name="citation_title" content="Markov-Renewal Single-Photon LiDAR Simulator">
 <meta name="citation_author" content="Zhang, Weijian">
 <meta name="citation_author" content="Chennuri, Prateek">
@@ -35,6 +42,7 @@
 <meta name="citation_conference_title" content="European Conference on Computer Vision (ECCV)">
 <meta name="citation_publication_date" content="2026">
 <meta name="citation_language" content="en">
+<meta name="citation_pdf_url" content="https://mars-splidar.github.io/assets/docs/mars_paper.pdf">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,6 +97,10 @@
 </script>
 
 <script src="js/site.config.js"></script>
+<!-- The stub gate runs HERE, in <head>, not with the modules at the end of
+     <body>: it has to hide the unfinished bands before they can paint. See the
+     header comment in the file. -->
+<script src="js/mars-sections.js"></script>
 </head>
 <body>
 
@@ -109,12 +121,12 @@
 
     <div class="mars-nav__links" id="mars-nav-links">
       <ul class="mars-nav__scroll">
-        <li><a class="mars-nav__link" href="#motivation">Motivation</a></li>
-        <li><a class="mars-nav__link" href="#approach">Approach</a></li>
-        <li><a class="mars-nav__link" href="#contributions">Contributions</a></li>
-        <li><a class="mars-nav__link" href="#theory">Theory</a></li>
-        <li><a class="mars-nav__link" href="#simulator">Simulator</a></li>
-        <li><a class="mars-nav__link" href="#utility">Utility</a></li>
+        <li data-mars-section="motivation"><a class="mars-nav__link" href="#motivation">Motivation</a></li>
+        <li data-mars-section="approach"><a class="mars-nav__link" href="#approach">Approach</a></li>
+        <li data-mars-section="contributions"><a class="mars-nav__link" href="#contributions">Contributions</a></li>
+        <li data-mars-section="theory"><a class="mars-nav__link" href="#theory">Theory</a></li>
+        <li data-mars-section="simulator"><a class="mars-nav__link" href="#simulator">Simulator</a></li>
+        <li data-mars-section="utility"><a class="mars-nav__link" href="#utility">Utility</a></li>
         <li><a class="mars-nav__link" href="#limitations">Limitations</a></li>
         <li><a class="mars-nav__link" href="#bibtex">BibTeX</a></li>
         <li aria-hidden="true"><span class="mars-nav__divider"></span></li>
@@ -200,16 +212,51 @@
 </section>
 
 <!-- ======================================================================
+     THE HOOK FIGURE (stage 1.5) — PAPER.
+
+     PROJECT_BRIEF.md 5.1 calls the teaser's bottom row "the single best hook
+     image in the project", and it is the one thing on the page that explains
+     the whole paper without prose. It sits between the four gains and the
+     content bands so that a QR-code visitor who scrolls once has already seen
+     the argument.
+
+     CLAIM HYGIENE, and it is easy to get wrong here (non-negotiable #2):
+     the gold standard's 16.1 s is the RIGHT answer, merely a slow one. The
+     caption contrasts POISSON's speed with CORRECTNESS, never the gold
+     standard with correctness.
+
+     The 0.2 / 16.1 / 0.3 s figures are the teaser's OWN single-cube workload
+     and are deliberately kept apart from the 1.013 s / 40.831 s benchmark
+     behind the 40x gain — video/README.md records why. So: no cube size, no
+     speedup factor, no timing table attached to this figure (#7).
+     ====================================================================== -->
+<section class="mars-band" aria-labelledby="hook-heading">
+  <div class="mars-band__inner">
+    <h2 class="mars-visually-hidden" id="hook-heading">The tradeoff MaRS
+      removes</h2>
+    <figure class="mars-figure mars-hook">
+      <picture>
+        <source srcset="assets/img/hook_tradeoff.webp" type="image/webp">
+        <img src="assets/img/hook_tradeoff.png" width="1600" height="443"
+             decoding="async"
+             alt="Three simulated photon-count cubes side by side. A Poisson simulator finishes in 0.2 seconds per cube but is physically wrong. The sequential gold standard is physically correct but takes 16.1 seconds per cube. MaRS is physically correct in 0.3 seconds per cube.">
+      </picture>
+      <figcaption class="mars-figure__caption mars-hook__caption">Fast, or
+        physically correct — until now, not both.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ======================================================================
      MOTIVATION (guide 4.4) — PAPER, neutral accent.  STUB: stage 02.
      ====================================================================== -->
-<section class="mars-band" id="motivation" aria-labelledby="motivation-heading">
+<section class="mars-band" id="motivation" data-mars-section="motivation"
+         aria-labelledby="motivation-heading">
   <div class="mars-band__inner">
     <p class="mars-eyebrow is-neutral">
       <i class="ti ti-clock-pause" aria-hidden="true"></i>Motivation</p>
     <h2 class="mars-section__title" id="motivation-heading">Why fast, accurate
       simulation is hard</h2>
-
-    <p class="mars-todo">Stage 02 fills this section.</p>
 
     <figure class="mars-media" data-media-id="anim_motivation_scaling">
       <div class="mars-media__frame">
@@ -219,9 +266,9 @@
         </p>
         <video class="mars-media__video" muted loop playsinline preload="none"
                width="1280" height="720"
-               poster="assets/media/anim_motivation_scaling.jpg">
-          <source src="assets/media/anim_motivation_scaling.webm" type="video/webm">
-          <source src="assets/media/anim_motivation_scaling.mp4" type="video/mp4">
+               data-poster="assets/media/anim_motivation_scaling.jpg">
+          <source data-src="assets/media/anim_motivation_scaling.webm" type="video/webm">
+          <source data-src="assets/media/anim_motivation_scaling.mp4" type="video/mp4">
         </video>
       </div>
       <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
@@ -232,14 +279,13 @@
 <!-- ======================================================================
      OUR APPROACH (guide 4.5) — MINT, neutral accent.  STUB: stage 02.
      ====================================================================== -->
-<section class="mars-band is-mint" id="approach" aria-labelledby="approach-heading">
+<section class="mars-band is-mint" id="approach" data-mars-section="approach"
+         aria-labelledby="approach-heading">
   <div class="mars-band__inner">
     <p class="mars-eyebrow is-neutral">
       <i class="ti ti-bulb" aria-hidden="true"></i>Our approach</p>
     <h2 class="mars-section__title" id="approach-heading">An analytical
       simulator</h2>
-
-    <p class="mars-todo">Stage 02 fills this section.</p>
   </div>
 </section>
 
@@ -247,11 +293,10 @@
      OUR CONTRIBUTIONS (guide 4.6) — PAPER.  No section icon; the two cards
      carry ti-math-function (BLUE) and ti-bolt (GREEN).  STUB: stage 02.
      ====================================================================== -->
-<section class="mars-band" id="contributions" aria-labelledby="contributions-heading">
+<section class="mars-band" id="contributions" data-mars-section="contributions"
+         aria-labelledby="contributions-heading">
   <div class="mars-band__inner">
     <h2 class="mars-section__title" id="contributions-heading">Our contributions</h2>
-
-    <p class="mars-todo">Stage 02 fills this section.</p>
   </div>
 </section>
 
@@ -259,13 +304,12 @@
      THEORY (guide 4.7) — MINT, BLUE accent, merged method + results.
      STUB: stage 02.  Two media slots live here, one per Method tab.
      ====================================================================== -->
-<section class="mars-band is-mint" id="theory" aria-labelledby="theory-heading">
+<section class="mars-band is-mint" id="theory" data-mars-section="theory"
+         aria-labelledby="theory-heading">
   <div class="mars-band__inner">
     <p class="mars-eyebrow is-theory">
       <i class="ti ti-math-function" aria-hidden="true"></i>Theory</p>
     <h2 class="mars-section__title" id="theory-heading">Theory</h2>
-
-    <p class="mars-todo">Stage 02 fills this section.</p>
 
     <figure class="mars-media" data-media-id="anim_theory_countlaw">
       <div class="mars-media__frame">
@@ -275,9 +319,9 @@
         </p>
         <video class="mars-media__video" muted loop playsinline preload="none"
                width="1280" height="720"
-               poster="assets/media/anim_theory_countlaw.jpg">
-          <source src="assets/media/anim_theory_countlaw.webm" type="video/webm">
-          <source src="assets/media/anim_theory_countlaw.mp4" type="video/mp4">
+               data-poster="assets/media/anim_theory_countlaw.jpg">
+          <source data-src="assets/media/anim_theory_countlaw.webm" type="video/webm">
+          <source data-src="assets/media/anim_theory_countlaw.mp4" type="video/mp4">
         </video>
       </div>
       <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
@@ -291,9 +335,9 @@
         </p>
         <video class="mars-media__video" muted loop playsinline preload="none"
                width="1280" height="720"
-               poster="assets/media/anim_theory_covariance.jpg">
-          <source src="assets/media/anim_theory_covariance.webm" type="video/webm">
-          <source src="assets/media/anim_theory_covariance.mp4" type="video/mp4">
+               data-poster="assets/media/anim_theory_covariance.jpg">
+          <source data-src="assets/media/anim_theory_covariance.webm" type="video/webm">
+          <source data-src="assets/media/anim_theory_covariance.mp4" type="video/mp4">
         </video>
       </div>
       <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
@@ -305,13 +349,12 @@
      SIMULATOR (guide 4.8) — PAPER, GREEN accent, merged method + results.
      STUB: stage 02.  Two media slots live here, one per Method tab.
      ====================================================================== -->
-<section class="mars-band" id="simulator" aria-labelledby="simulator-heading">
+<section class="mars-band" id="simulator" data-mars-section="simulator"
+         aria-labelledby="simulator-heading">
   <div class="mars-band__inner">
     <p class="mars-eyebrow is-simulator">
       <i class="ti ti-bolt" aria-hidden="true"></i>Simulator</p>
     <h2 class="mars-section__title" id="simulator-heading">Simulator</h2>
-
-    <p class="mars-todo">Stage 02 fills this section.</p>
 
     <figure class="mars-media" data-media-id="anim_sim_pipeline">
       <div class="mars-media__frame">
@@ -321,9 +364,9 @@
         </p>
         <video class="mars-media__video" muted loop playsinline preload="none"
                width="1280" height="720"
-               poster="assets/media/anim_sim_pipeline.jpg">
-          <source src="assets/media/anim_sim_pipeline.webm" type="video/webm">
-          <source src="assets/media/anim_sim_pipeline.mp4" type="video/mp4">
+               data-poster="assets/media/anim_sim_pipeline.jpg">
+          <source data-src="assets/media/anim_sim_pipeline.webm" type="video/webm">
+          <source data-src="assets/media/anim_sim_pipeline.mp4" type="video/mp4">
         </video>
       </div>
       <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
@@ -337,9 +380,9 @@
         </p>
         <video class="mars-media__video" muted loop playsinline preload="none"
                width="1280" height="720"
-               poster="assets/media/anim_sim_lut.jpg">
-          <source src="assets/media/anim_sim_lut.webm" type="video/webm">
-          <source src="assets/media/anim_sim_lut.mp4" type="video/mp4">
+               data-poster="assets/media/anim_sim_lut.jpg">
+          <source data-src="assets/media/anim_sim_lut.webm" type="video/webm">
+          <source data-src="assets/media/anim_sim_lut.mp4" type="video/mp4">
         </video>
       </div>
       <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
@@ -350,14 +393,13 @@
 <!-- ======================================================================
      UTILITY (guide 4.9) — MINT, AGED/GOLD accent.  STUB: stage 02.
      ====================================================================== -->
-<section class="mars-band is-mint" id="utility" aria-labelledby="utility-heading">
+<section class="mars-band is-mint" id="utility" data-mars-section="utility"
+         aria-labelledby="utility-heading">
   <div class="mars-band__inner">
     <p class="mars-eyebrow is-utility">
       <i class="ti ti-target" aria-hidden="true"></i>Utility</p>
     <h2 class="mars-section__title" id="utility-heading">Utility: accurate
       counts, better depth and reflectivity recovery</h2>
-
-    <p class="mars-todo">Stage 02 fills this section.</p>
   </div>
 </section>
 

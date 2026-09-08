@@ -19,7 +19,13 @@
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="%2314181A"/><path d="M7 24V8h4l5 9 5-9h4v16h-4v-9l-5 9-5-9v9z" fill="%23CFB991"/></svg>'>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<!-- Tabler icons — deliberately NON-render-blocking (stage 02, task 0).
+     Same treatment as index.html; the rationale and the measurements are in
+     the comment there. All 16 glyphs in use are decorative and aria-hidden.
+     Do not restore the plain <link> — it was the page's last render-blocker. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css"
+      media="print" onload="this.media='all';this.onload=null">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css"></noscript>
 <link rel="stylesheet" href="../css/mars.css">
 
 <script src="../js/site.config.js"></script>

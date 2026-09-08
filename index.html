@@ -48,7 +48,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<!-- Tabler icons — deliberately NON-render-blocking (stage 02, task 0).
+     `media="print"` keeps the browser from blocking first paint on it; the
+     onload flip applies it as soon as it arrives. All 16 glyphs in use are
+     decorative and aria-hidden, so arriving a moment late costs nothing.
+     MEASURED on the live site, Slow 3G / 4x CPU / 390x844, cold cache:
+     this stylesheet was the LAST render-blocker, finishing at 6151 ms and
+     putting FCP at 6172 ms. Off the critical path, FCP is bound by our own
+     css/mars.css instead. The <noscript> copy keeps icons for JS-disabled
+     readers. NOTE for stage 06: this does NOT shrink total load time — the
+     801 KB tabler-icons.woff2 is still fetched (20.4 s of the 26.6 s load on
+     this profile). Inlining the 16 glyphs as SVG is the fix for that, and it
+     is stage 06's call because it changes class names. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css"
+      media="print" onload="this.media='all';this.onload=null">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css"></noscript>
 <link rel="stylesheet" href="css/mars.css">
 
 <script type="application/ld+json">

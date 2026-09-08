@@ -106,7 +106,17 @@ FORBIDDEN: list[tuple[str, str, str, str, int]] = [
     # leftovers from the replaced placeholder page
     ("placeholder text survived", r"under\s+construction", "stage 01",
      "raw", re.I),
-    ("placeholder title survived", r"High[\s-]Flux", "stage 01", "raw", re.I),
+    # NARROWED IN STAGE 02. The placeholder page's title was "Markov-Renewal
+    # Simulator for High-Flux Single-Photon LiDAR", and `High[\s-]Flux` alone
+    # also matches the ordinary phrase "high flux" — which is standard
+    # terminology in this field and appears three times in stage 02's Theory
+    # copy ("at low and at high flux"). Requiring the rest of the placeholder
+    # title keeps the check exact: it still matches the placeholder string in
+    # every spelling the old pattern did, and no longer matches prose.
+    # Self-tested against the original placeholder title; see stage 02's
+    # handoff in WEBSITE_BUILD_STATUS.md section 5.
+    ("placeholder title survived",
+     r"High[\s-]Flux\s+Single[\s-]Photon", "stage 01", "raw", re.I),
     ("placeholder author survived", r"Author\s+[23]\b", "stage 01",
      "raw", re.I),
 
@@ -152,6 +162,19 @@ CANONICAL = [
     "0.0651", "0.0601", "7.5 MHz",
     # downstream transfer
     "+17 dB", "1.654", "0.074", "36.49", "7.02", "24.03", "24.25",
+    # COMPLETED IN STAGE 02 — these are EXACT values from PROJECT_BRIEF, not
+    # roundings, and belong in CANONICAL rather than in SANCTIONED_ROUNDINGS.
+    # The list previously carried only the Poisson and MaRS rows of the
+    # section 3.5 transfer table plus its headline; stage 02 renders the whole
+    # table, so the Renewal and Zhang et al. rows and both val columns are
+    # needed too. Without them the auditor flags real canonical numbers as
+    # near-misses of each other: 29.72 of "30x", 12.12 of "12x", 0.072 of
+    # 0.071, 0.054 of 0.074 and 0.053 of 0.013.
+    # section 3.5, the rest of the val->test table (SBR 0.6):
+    "0.072", "29.72", "12.12", "0.054", "0.096", "22.74", "22.54",
+    "0.053", "0.082",
+    # section 3.4, count-distribution mean / variance difference:
+    "0.269", "1.588", "0.282", "64.558",
 ]
 
 # Rounded forms that APPROVED copy genuinely uses. Each needs a reason.

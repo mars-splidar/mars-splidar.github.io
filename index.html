@@ -262,7 +262,8 @@
 </section>
 
 <!-- ======================================================================
-     MOTIVATION (guide 4.4) — PAPER, neutral accent.  STUB: stage 02.
+     MOTIVATION (guide 4.4) — PAPER, neutral accent.  Stage 02.
+     Body copy is VERBATIM from MARS_WEBSITE_BUILD_GUIDE.md 4.4.
      ====================================================================== -->
 <section class="mars-band" id="motivation" data-mars-section="motivation"
          aria-labelledby="motivation-heading">
@@ -272,11 +273,15 @@
     <h2 class="mars-section__title" id="motivation-heading">Why fast, accurate
       simulation is hard</h2>
 
+    <p class="mars-section__lede">Training networks needs abundant histogram
+      cubes. The sequential gold standard examines every photon with Monte
+      Carlo rejection sampling, then repeats that per pixel and per random
+      realization — it cannot scale in flux, resolution, or dataset size.</p>
+
     <figure class="mars-media" data-media-id="anim_motivation_scaling">
       <div class="mars-media__frame">
-        <p class="mars-media__placeholder">Animation slot ·
-          anim_motivation_scaling
-          <small>Stage 05 supplies assets/media/anim_motivation_scaling.{mp4,webm,jpg}</small>
+        <p class="mars-media__placeholder">Animation coming soon
+          <small>This frame is a placeholder until the animation is published.</small>
         </p>
         <video class="mars-media__video" muted loop playsinline preload="none"
                width="1280" height="720"
@@ -285,13 +290,23 @@
           <source data-src="assets/media/anim_motivation_scaling.mp4" type="video/mp4">
         </video>
       </div>
-      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
+      <figcaption class="mars-media__caption">Video: the sequential gold standard&rsquo;s cost, growing with flux, with pixel count and with every added realization.</figcaption>
     </figure>
   </div>
 </section>
 
 <!-- ======================================================================
-     OUR APPROACH (guide 4.5) — MINT, neutral accent.  STUB: stage 02.
+     OUR APPROACH (guide 4.5) — MINT, neutral accent.  Stage 02.
+     Body copy is VERBATIM from MARS_WEBSITE_BUILD_GUIDE.md 4.5.
+
+     DEVIATION, and it is deliberate: guide 4.5 asks for `approach_decouple`
+     stacked ABOVE `hook_tradeoff` here. `hook_tradeoff` was promoted to its
+     own band between the four gains and this section in stage 1.5, roughly
+     one screen up. Showing the identical 1600x443 graphic twice on one scroll
+     reads as a mistake rather than as emphasis, and the hook band already
+     carries the page's one-line argument in a larger centred caption. Stage
+     1.5's handoff hands this decision to stage 02 explicitly and recommends
+     dropping it here; that is what this does. Restoring it is one <figure>.
      ====================================================================== -->
 <section class="mars-band is-mint" id="approach" data-mars-section="approach"
          aria-labelledby="approach-heading">
@@ -300,23 +315,87 @@
       <i class="ti ti-bulb" aria-hidden="true"></i>Our approach</p>
     <h2 class="mars-section__title" id="approach-heading">An analytical
       simulator</h2>
+
+    <p class="mars-section__lede">The temporal shape of a registered histogram
+      was already solved. We solve the missing piece — the photon count — in
+      closed form, enabling direct synthesis across every pixel at once.</p>
+
+    <figure class="mars-figure">
+      <picture>
+        <source srcset="assets/img/approach_decouple.webp" type="image/webp">
+        <img src="assets/img/approach_decouple.png" width="1600" height="442"
+             loading="lazy" decoding="async"
+             alt="A conventional simulator draws photon arrivals one at a time and tests each one against the detector&rsquo;s dead time before it can build a single histogram. MaRS instead treats a histogram as a photon count multiplied by a temporal shape: a statistical engine supplies the count distribution and the temporal PDF, and the histogram is sampled directly from them.">
+      </picture>
+      <figcaption class="mars-figure__caption">Histogram = count &times; shape. Prior work solved the shape. The count was the open problem, and it is what sets the histogram&rsquo;s scale.</figcaption>
+    </figure>
   </div>
 </section>
 
 <!-- ======================================================================
-     OUR CONTRIBUTIONS (guide 4.6) — PAPER.  No section icon; the two cards
-     carry ti-math-function (BLUE) and ti-bolt (GREEN).  STUB: stage 02.
+     OUR CONTRIBUTIONS (guide 4.6) — PAPER.  Stage 02.
+     No section icon and no subtext line; the two cards carry the icons.
+     Card copy — eyebrows, headings, bullets and link labels — is VERBATIM
+     from MARS_WEBSITE_BUILD_GUIDE.md 4.6.
+
+     `Read the derivation` targets #theory, so PUBLISHING #contributions
+     WITHOUT #theory would leave an anchor pointing at a band the section gate
+     has removed. Keep the two together in `sectionsLive`, or drop this link.
      ====================================================================== -->
 <section class="mars-band" id="contributions" data-mars-section="contributions"
          aria-labelledby="contributions-heading">
   <div class="mars-band__inner">
     <h2 class="mars-section__title" id="contributions-heading">Our contributions</h2>
+
+    <div class="mars-cards">
+      <div class="mars-card is-theory">
+        <p class="mars-eyebrow is-theory">
+          <i class="ti ti-math-function" aria-hidden="true"></i>The theory</p>
+        <h3 class="mars-card__title">The first analytic photon-count law under
+          dead time.</h3>
+        <ul class="mars-card__list">
+          <li>Registration modeled as a Markov-renewal process</li>
+          <li>Closed-form mean and variance via a CLT</li>
+          <li>Spectral truncation makes the variance cheap</li>
+        </ul>
+        <a class="mars-card__link" href="#theory">Read the derivation &darr;</a>
+      </div>
+
+      <div class="mars-card is-simulator">
+        <p class="mars-eyebrow is-simulator">
+          <i class="ti ti-bolt" aria-hidden="true"></i>The simulator</p>
+        <h3 class="mars-card__title">MaRS turns the theory into a 40&times;
+          faster tool.</h3>
+        <ul class="mars-card__list">
+          <li>Delay invariance shrinks the lookup table 1000&times;</li>
+          <li>Pixel-parallel cube generation, no per-photon loop</li>
+          <li>Trained networks transfer to gold-standard physics</li>
+        </ul>
+        <!-- href is the same relative path the nav pill and the closing band
+             use; data-mars-config-href lets js/mars-nav.js keep it in step
+             with MARS_CONFIG.demoLabUrl without ever leaving it empty. -->
+        <a class="mars-card__link" href="demos/"
+           data-mars-config-href="demoLabUrl">Try the demo lab &rarr;</a>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ======================================================================
      THEORY (guide 4.7) — MINT, BLUE accent, merged method + results.
-     STUB: stage 02.  Two media slots live here, one per Method tab.
+     Stage 02.
+
+     THE ONE EQUATION ON THE WHOLE SITE lives here, in the single `.mars-eq`
+     container (non-negotiable #5). It is marked-up TEXT rather than the
+     `theory_clt` image, so a screen reader can read it and it reflows on a
+     phone; the stage doc sanctions either, but not both. `theory_clt` is
+     therefore unused — do not add it as well, or the site has two equations.
+
+     85 ns (REAL HARDWARE) appears exactly once on this page, in the Results
+     "Real validation" tab. 75 ns (the MODEL GRID) appears exactly once, in
+     the Simulator band's LUT tab. They are in different sections on purpose:
+     non-negotiable #4 forbids them reading interchangeably, and the auditor
+     enforces it as a proximity check. Do not move either one closer.
      ====================================================================== -->
 <section class="mars-band is-mint" id="theory" data-mars-section="theory"
          aria-labelledby="theory-heading">
@@ -325,43 +404,253 @@
       <i class="ti ti-math-function" aria-hidden="true"></i>Theory</p>
     <h2 class="mars-section__title" id="theory-heading">Theory</h2>
 
-    <figure class="mars-media" data-media-id="anim_theory_countlaw">
-      <div class="mars-media__frame">
-        <p class="mars-media__placeholder">Animation slot ·
-          anim_theory_countlaw
-          <small>Stage 04 supplies assets/media/anim_theory_countlaw.{mp4,webm,jpg}</small>
-        </p>
-        <video class="mars-media__video" muted loop playsinline preload="none"
-               width="1280" height="720"
-               data-poster="assets/media/anim_theory_countlaw.jpg">
-          <source data-src="assets/media/anim_theory_countlaw.webm" type="video/webm">
-          <source data-src="assets/media/anim_theory_countlaw.mp4" type="video/mp4">
-        </video>
-      </div>
-      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
-    </figure>
+    <p class="mars-section__lede">Dead time is not a nuisance — it destroys
+      independence between detections, which is why the registered photon
+      count is not Poisson and why standard renewal theory does not rescue
+      it. Treating registration as a Markov-renewal process is what makes the
+      count tractable again.</p>
 
-    <figure class="mars-media" data-media-id="anim_theory_covariance">
-      <div class="mars-media__frame">
-        <p class="mars-media__placeholder">Animation slot ·
-          anim_theory_covariance
-          <small>Stage 04 supplies assets/media/anim_theory_covariance.{mp4,webm,jpg}</small>
-        </p>
-        <video class="mars-media__video" muted loop playsinline preload="none"
-               width="1280" height="720"
-               data-poster="assets/media/anim_theory_covariance.jpg">
-          <source data-src="assets/media/anim_theory_covariance.webm" type="video/webm">
-          <source data-src="assets/media/anim_theory_covariance.mp4" type="video/mp4">
-        </video>
+    <!-- ---------------- METHOD ---------------- -->
+    <div class="mars-subsection">
+      <p class="mars-eyebrow is-theory">Method</p>
+      <h3 class="mars-subhead">Counting is the inverse of waiting</h3>
+
+      <figure class="mars-figure">
+        <picture>
+          <source srcset="assets/img/theory_mrp.webp" type="image/webp">
+          <img src="assets/img/theory_mrp.png" width="1600" height="803"
+               loading="lazy" decoding="async"
+               alt="Detections arrive at irregular times. An embedded Markov chain describes where the next detection lands within the laser period, and a holding time describes how long the wait was on the absolute clock. Across many realizations the average holding time settles to a constant, so the total elapsed time grows linearly in the number of detections, and inverting that relation makes the photon count itself Gaussian.">
+        </picture>
+        <figcaption class="mars-figure__caption">Registration as a
+          Markov-renewal process. The average wait between detections settles
+          to a constant, elapsed time grows linearly in the number of
+          detections, and inverting that gives a Gaussian law for the
+          count.</figcaption>
+      </figure>
+
+      <!-- THE ONE EQUATION. `class="mars-eq"` must occur exactly once across
+           every HTML file on this site; tools/audit_claims.py counts it. -->
+      <div class="mars-eq">
+        <span class="mars-eq__law" aria-hidden="true">N(t) &rarr; &#x1D4A9;(&thinsp;t&thinsp;/&thinsp;&mu;,&ensp;t&thinsp;&middot;&thinsp;&sigma;&sup2;&thinsp;/&thinsp;&mu;&sup3;&thinsp;)</span>
+        <span class="mars-visually-hidden">The photon count N of t converges
+          to a normal distribution whose mean is t divided by mu and whose
+          variance is t times sigma squared divided by mu cubed.</span>
       </div>
-      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
-    </figure>
+
+      <p class="mars-section__lede">Over an exposure of length <em>t</em>, the
+        registered count converges to a Gaussian. Its mean is the exposure
+        divided by the average wait between registrations; its variance
+        follows from how that wait varies. Both have closed forms, and that is
+        what makes a precomputed table possible at all.</p>
+
+      <div class="mars-switch" data-switch="theory-method" role="tablist"
+           aria-label="Theory method">
+        <button class="mars-switch__pill is-active" role="tab"
+                aria-selected="true"
+                data-target="theory-method-countlaw">Closed-form count law</button>
+        <button class="mars-switch__pill" role="tab" aria-selected="false"
+                data-target="theory-method-covariance">Long-lag variance</button>
+      </div>
+      <div class="mars-panels" data-panels="theory-method">
+
+        <div class="mars-panel is-active" id="theory-method-countlaw"
+             role="tabpanel">
+          <p class="mars-panel__desc">The embedded Markov chain says
+            <em>where</em> the next detection lands; the holding time says
+            <em>when</em> it happens on the absolute clock. Because the chain
+            mixes quickly, the total elapsed time obeys a central limit
+            theorem — and counting is the inverse of waiting, so the count
+            inherits a Gaussian law with closed-form mean and variance.</p>
+          <figure class="mars-media" data-media-id="anim_theory_countlaw">
+            <div class="mars-media__frame">
+              <p class="mars-media__placeholder">Animation coming soon
+                <small>Waiting times accumulating into a count, and the count settling into a Gaussian.</small>
+              </p>
+              <video class="mars-media__video" muted loop playsinline preload="none"
+                     width="1280" height="720"
+                     data-poster="assets/media/anim_theory_countlaw.jpg">
+                <source data-src="assets/media/anim_theory_countlaw.webm" type="video/webm">
+                <source data-src="assets/media/anim_theory_countlaw.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption class="mars-media__caption">Video: the closed-form
+              count law</figcaption>
+          </figure>
+        </div>
+
+        <div class="mars-panel" id="theory-method-covariance" role="tabpanel"
+             hidden>
+          <p class="mars-panel__desc">Consecutive waits are correlated, so the
+            variance carries a long tail of covariance terms. The tail decays
+            geometrically — but the decay pattern swings with signal,
+            background and dead time, so no fixed cutoff works. A spectral
+            truncation rule sums the remainder instead, reaching a mean
+            absolute error of 10.00 against 125.91 for the best fixed cutoff:
+            12&times; closer.</p>
+          <div class="mars-figrow">
+            <figure class="mars-figure">
+              <picture>
+                <source srcset="assets/img/theory_covdecay.webp" type="image/webp">
+                <img src="assets/img/theory_covdecay.png" width="1400" height="785"
+                     loading="lazy" decoding="async"
+                     alt="Covariance against lag order for four dead times. With no dead time the covariance oscillates and is still large twenty lags out; as dead time grows the oscillation collapses to almost nothing within a few lags. The shape of the decay is completely different in each case, so there is no single lag at which the series can be cut.">
+              </picture>
+              <figcaption class="mars-figure__caption">The covariance tail for
+                four dead times. Each decays, but none decays the same way —
+                which is why a fixed cutoff cannot work.</figcaption>
+            </figure>
+            <figure class="mars-figure">
+              <picture>
+                <source srcset="assets/img/theory_covaccuracy.webp" type="image/webp">
+                <img src="assets/img/theory_covaccuracy.png" width="1400" height="994"
+                     loading="lazy" decoding="async"
+                     alt="Mean absolute error of the predicted covariance against the lag at which the naive series is cut. The naive error falls from above one thousand to 125.91 at its best cutoff and never goes lower. The spectral truncation rule sits flat at 10.00, twelve times closer than the best the naive approach ever reaches.">
+              </picture>
+              <figcaption class="mars-figure__caption">Averaged over the grid,
+                the best a fixed cutoff ever reaches is 125.91. The spectral
+                rule sits at 10.00 regardless of where the series is
+                cut.</figcaption>
+            </figure>
+          </div>
+          <figure class="mars-media" data-media-id="anim_theory_covariance">
+            <div class="mars-media__frame">
+              <p class="mars-media__placeholder">Animation coming soon
+                <small>Why the covariance tail cannot be cut at a fixed lag, and how the spectral rule sums it instead.</small>
+              </p>
+              <video class="mars-media__video" muted loop playsinline preload="none"
+                     width="1280" height="720"
+                     data-poster="assets/media/anim_theory_covariance.jpg">
+                <source data-src="assets/media/anim_theory_covariance.webm" type="video/webm">
+                <source data-src="assets/media/anim_theory_covariance.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption class="mars-media__caption">Video: taming the long-lag
+              variance</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------- RESULTS ---------------- -->
+    <div class="mars-subsection">
+      <p class="mars-eyebrow is-theory">Results</p>
+      <h3 class="mars-subhead">Does the theory hold up?</h3>
+
+      <div class="mars-switch" data-switch="theory-results" role="tablist"
+           aria-label="Theory results">
+        <button class="mars-switch__pill is-active" role="tab"
+                aria-selected="true"
+                data-target="theory-results-table">Table</button>
+        <button class="mars-switch__pill" role="tab" aria-selected="false"
+                data-target="theory-results-figure">Figure</button>
+        <button class="mars-switch__pill" role="tab" aria-selected="false"
+                data-target="theory-results-real">Real validation</button>
+      </div>
+      <div class="mars-panels" data-panels="theory-results">
+
+        <div class="mars-panel is-active" id="theory-results-table"
+             role="tabpanel">
+          <p class="mars-panel__desc">KL to ground truth: Poisson 24.208,
+            Renewal 18.821, Zhang 0.409, MaRS 0.013 — 30&times; closer than
+            the best prior model.</p>
+          <figure class="mars-figure">
+            <div class="mars-table-wrap">
+              <table class="mars-table">
+                <caption class="mars-visually-hidden">Divergence of each count
+                  model&rsquo;s predicted photon-count distribution from ground
+                  truth. Lower is better.</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Count model</th>
+                    <th scope="col">KL to ground truth</th>
+                    <th scope="col">Wasserstein distance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">Poisson</th><td>24.208</td><td>7966.130</td></tr>
+                  <tr><th scope="row">Renewal</th><td>18.821</td><td>207.565</td></tr>
+                  <tr><th scope="row">Zhang et al.</th><td>0.409</td><td>2.337</td></tr>
+                  <tr class="is-ours"><th scope="row">MaRS</th><td>0.013</td><td>0.309</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <figcaption class="mars-figure__caption">Distance from the true
+              photon-count distribution; lower is better in both columns. The
+              mean and the variance come apart: MaRS differs from ground truth
+              by 0.269 in the mean and 1.588 in the variance, against 0.282
+              and 64.558 for Zhang et al. The mean was already close. The
+              variance was not.</figcaption>
+          </figure>
+        </div>
+
+        <div class="mars-panel" id="theory-results-figure" role="tabpanel"
+             hidden>
+          <p class="mars-panel__desc">Registered count distributions at low
+            and at high flux, including the variance failure mode of the best
+            prior model.</p>
+          <figure class="mars-figure">
+            <picture>
+              <source srcset="assets/img/theory_count.webp" type="image/webp">
+              <img src="assets/img/theory_count.png" width="1600" height="446"
+                   loading="lazy" decoding="async"
+                   alt="Two predicted count distributions against the true histogram. At low flux the renewal model puts its peak in the wrong place while Zhang et al. and MaRS both sit on the histogram. At high flux the renewal model is far off to one side, Zhang et al. finds the right centre but predicts a distribution several times too wide, and MaRS matches both the centre and the width.">
+            </picture>
+            <figcaption class="mars-figure__caption">At low flux the renewal
+              model misses the centre of the count distribution outright. At
+              high flux the best prior model recovers the centre but spreads
+              the distribution several times too wide — the inset is that
+              failure. MaRS tracks the true histogram in both
+              regimes.</figcaption>
+          </figure>
+        </div>
+
+        <div class="mars-panel" id="theory-results-real" role="tabpanel"
+             hidden>
+          <p class="mars-panel__desc">Validated on a real SPAD: 85 ns dead
+            time, 7.5 MHz laser, TV distance 0.065 (bright) and 0.060 (dark)
+            against measured histograms.</p>
+          <figure class="mars-figure">
+            <picture>
+              <source srcset="assets/img/theory_real.webp" type="image/webp">
+              <img src="assets/img/theory_real.png" width="1600" height="502"
+                   loading="lazy" decoding="async"
+                   alt="On the left, a retroreflective stop sign on an optical bench in front of a single-photon detector and a pulsed laser. On the right, measured count histograms for one bright pixel on the sign and one dark pixel off it, each with the predicted curve drawn over it. The prediction lies on the measured data in both cases, with no fitting.">
+            </picture>
+            <figcaption class="mars-figure__caption">A bright pixel on the
+              target and a dark pixel beside it, measured on an optical bench
+              rather than modelled. The predicted count distribution lies on
+              the measured histogram in both, with nothing fitted to the
+              measurement. Real hardware is the hardest test the count law
+              gets, because everything the model leaves out is present in the
+              data.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ======================================================================
      SIMULATOR (guide 4.8) — PAPER, GREEN accent, merged method + results.
-     STUB: stage 02.  Two media slots live here, one per Method tab.
+     Stage 02.
+
+     75 ns is the MODEL GRID and it appears exactly once on this page, in the
+     LUT tab below. 85 ns is the REAL HARDWARE dead time and appears exactly
+     once, up in the Theory band's "Real validation" tab. Keeping them in
+     different sections is deliberate — non-negotiable #4 — and the auditor
+     enforces it as a proximity check.
+
+     Two more hygiene rules bite in the LUT tab and are written into the copy
+     there rather than left to the reader:
+       #1 one table PER SENSOR CONFIGURATION, reused for every pixel and
+          depth. Never "any scene, any depth" — that phrase was rejected in
+          poster review and the auditor greps for it.
+       #8 delay invariance holds CONDITIONED ON FIXED (S,B), not on scene
+          geometry. Note that `sim_lut.png` itself is headlined "A depth
+          change only shifts the registered histogram", which read alone is
+          the unqualified form #8 forbids; the surrounding copy and the alt
+          text both restate the condition. Flagged for stage 06.
      ====================================================================== -->
 <section class="mars-band" id="simulator" data-mars-section="simulator"
          aria-labelledby="simulator-heading">
@@ -370,42 +659,220 @@
       <i class="ti ti-bolt" aria-hidden="true"></i>Simulator</p>
     <h2 class="mars-section__title" id="simulator-heading">Simulator</h2>
 
-    <figure class="mars-media" data-media-id="anim_sim_pipeline">
-      <div class="mars-media__frame">
-        <p class="mars-media__placeholder">Animation slot ·
-          anim_sim_pipeline
-          <small>Stage 05 supplies assets/media/anim_sim_pipeline.{mp4,webm,jpg}</small>
-        </p>
-        <video class="mars-media__video" muted loop playsinline preload="none"
-               width="1280" height="720"
-               data-poster="assets/media/anim_sim_pipeline.jpg">
-          <source data-src="assets/media/anim_sim_pipeline.webm" type="video/webm">
-          <source data-src="assets/media/anim_sim_pipeline.mp4" type="video/mp4">
-        </video>
-      </div>
-      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
-    </figure>
+    <p class="mars-section__lede">A count law only pays off if a full
+      histogram cube can be rendered from it. MaRS precomputes the closed
+      forms into a lookup table, then samples every pixel of a cube at
+      once — no per-photon loop anywhere in the path.</p>
 
-    <figure class="mars-media" data-media-id="anim_sim_lut">
-      <div class="mars-media__frame">
-        <p class="mars-media__placeholder">Animation slot ·
-          anim_sim_lut
-          <small>Stage 05 supplies assets/media/anim_sim_lut.{mp4,webm,jpg}</small>
-        </p>
-        <video class="mars-media__video" muted loop playsinline preload="none"
-               width="1280" height="720"
-               data-poster="assets/media/anim_sim_lut.jpg">
-          <source data-src="assets/media/anim_sim_lut.webm" type="video/webm">
-          <source data-src="assets/media/anim_sim_lut.mp4" type="video/mp4">
-        </video>
+    <!-- ---------------- METHOD ---------------- -->
+    <div class="mars-subsection">
+      <p class="mars-eyebrow is-simulator">Method</p>
+
+      <div class="mars-switch" data-switch="sim-method" role="tablist"
+           aria-label="Simulator method">
+        <button class="mars-switch__pill is-active" role="tab"
+                aria-selected="true"
+                data-target="sim-method-pipeline">The full pipeline</button>
+        <button class="mars-switch__pill" role="tab" aria-selected="false"
+                data-target="sim-method-lut">Solving the LUT limit</button>
       </div>
-      <figcaption class="mars-media__caption"><!-- stage 02 caption --></figcaption>
-    </figure>
+      <div class="mars-panels" data-panels="sim-method">
+
+        <div class="mars-panel is-active" id="sim-method-pipeline"
+             role="tabpanel">
+          <h3 class="mars-panel__title">From closed-form equations to a
+            rendered cube</h3>
+          <p class="mars-panel__desc">Batched lookup, temporal alignment, then
+            multinomial sampling — fully vectorized across every pixel, with
+            no per-photon loop.</p>
+          <figure class="mars-figure">
+            <picture>
+              <source srcset="assets/img/sim_alg.webp" type="image/webp">
+              <img src="assets/img/sim_alg.png" width="1600" height="329"
+                   loading="lazy" decoding="async"
+                   alt="Three stages in sequence for one full histogram cube: a batched lookup of the count and shape statistics, a temporal alignment that applies each pixel's delay, then a multinomial sample that fills the histogram. The three add up to about a second, against about forty for the sequential gold standard.">
+            </picture>
+            <figcaption class="mars-figure__caption">Three stages, each
+              vectorized across all pixels at once: batched lookup, temporal
+              alignment, multinomial sampling. Nothing in the path visits an
+              individual photon.</figcaption>
+          </figure>
+          <figure class="mars-media" data-media-id="anim_sim_pipeline">
+            <div class="mars-media__frame">
+              <p class="mars-media__placeholder">Animation coming soon
+                <small>A cube being built stage by stage, from batched lookup to sampled histogram.</small>
+              </p>
+              <video class="mars-media__video" muted loop playsinline preload="none"
+                     width="1280" height="720"
+                     data-poster="assets/media/anim_sim_pipeline.jpg">
+                <source data-src="assets/media/anim_sim_pipeline.webm" type="video/webm">
+                <source data-src="assets/media/anim_sim_pipeline.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption class="mars-media__caption">Video: the three-stage
+              pipeline, batched lookup to sampled cube</figcaption>
+          </figure>
+        </div>
+
+        <div class="mars-panel" id="sim-method-lut" role="tabpanel" hidden>
+          <h3 class="mars-panel__title">A table too big to store — until
+            now</h3>
+          <p class="mars-panel__desc">A naive lookup table over signal,
+            background, and depth is 108 GB. Delay invariance removes depth
+            entirely: 105 MB.</p>
+          <p class="mars-panel__desc">The invariance holds at a
+            <em>fixed</em> signal and background level: with those held, moving
+            the delay leaves the count&rsquo;s mean and variance untouched and
+            only shifts the temporal shape around the laser period. So one
+            table is built per sensor configuration — laser period, bin count,
+            pulse width and dead time — and then reused for every pixel and
+            every depth. The tables behind this page&rsquo;s model figures use a
+            simulation grid at 75 ns dead time.</p>
+          <figure class="mars-figure">
+            <picture>
+              <source srcset="assets/img/sim_lut.webp" type="image/webp">
+              <img src="assets/img/sim_lut.png" width="1600" height="500"
+                   loading="lazy" decoding="async"
+                   alt="Two registered histograms recorded at different delays but at the same signal and background level. They have the same count mean and the same count variance, and the second is the first shifted around the laser period. Because the delay axis is recoverable by a shift, it drops out of the lookup table and the table falls from 108 gigabytes to 105 megabytes.">
+            </picture>
+            <figcaption class="mars-figure__caption">At a fixed signal and
+              background level, two delays give the same count mean and the
+              same count variance, and temporal shapes that are circular
+              shifts of one another. That is what lets the delay axis come out
+              of the table.</figcaption>
+          </figure>
+          <figure class="mars-media" data-media-id="anim_sim_lut">
+            <div class="mars-media__frame">
+              <p class="mars-media__placeholder">Animation coming soon
+                <small>Why a table over signal, background and depth cannot be stored, and how delay invariance removes an axis.</small>
+              </p>
+              <video class="mars-media__video" muted loop playsinline preload="none"
+                     width="1280" height="720"
+                     data-poster="assets/media/anim_sim_lut.jpg">
+                <source data-src="assets/media/anim_sim_lut.webm" type="video/webm">
+                <source data-src="assets/media/anim_sim_lut.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption class="mars-media__caption">Video: why a naive LUT
+              fails, delay invariance solves it</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------- RESULTS ---------------- -->
+    <div class="mars-subsection">
+      <p class="mars-eyebrow is-simulator">Results</p>
+      <h3 class="mars-subhead">Does it deliver in practice?</h3>
+
+      <div class="mars-switch" data-switch="sim-results" role="tablist"
+           aria-label="Simulator results">
+        <button class="mars-switch__pill is-active" role="tab"
+                aria-selected="true"
+                data-target="sim-results-figure">Figure</button>
+        <button class="mars-switch__pill" role="tab" aria-selected="false"
+                data-target="sim-results-table">Table</button>
+      </div>
+      <div class="mars-panels" data-panels="sim-results">
+
+        <div class="mars-panel is-active" id="sim-results-figure"
+             role="tabpanel">
+          <!-- Guide 4.8 writes this line as "the naive simulator does not".
+               Changed to "sequential": the brief reserves "naive" for the
+               naive LUT and the naive covariance cutoff, and applying it to
+               the gold standard brushes non-negotiable #2. Same meaning, and
+               it matches the figure's own "Conventional" legend. -->
+          <p class="mars-panel__desc">Runtime stays nearly flat as flux,
+            realizations, and pixel count scale up — the sequential simulator
+            does not.</p>
+          <figure class="mars-figure">
+            <picture>
+              <source srcset="assets/img/sim_runtime.webp" type="image/webp">
+              <img src="assets/img/sim_runtime.png" width="1600" height="255"
+                   loading="lazy" decoding="async"
+                   alt="Runtime plotted against laser cycles, against number of realizations, and against pixel count. On all three axes MaRS stays almost flat across five orders of magnitude, while the sequential simulator's runtime is flat at first and then turns sharply upward, ending one to three orders of magnitude above MaRS.">
+            </picture>
+            <figcaption class="mars-figure__caption">Runtime against flux,
+              against realizations and against pixel count. MaRS stays nearly
+              flat across five orders of magnitude on all three axes; the
+              sequential curve is flat until the workload gets real, then
+              turns sharply upward.</figcaption>
+          </figure>
+          <figure class="mars-figure">
+            <picture>
+              <source srcset="assets/img/sim_pixels.webp" type="image/webp">
+              <img src="assets/img/sim_pixels.png" width="1400" height="674"
+                   loading="lazy" decoding="async"
+                   alt="Runtime against pixel count, enlarged. At a single pixel the sequential simulator is the quicker of the two. By a quarter of a million pixels MaRS has barely lifted off the axis while the sequential simulator has climbed to the top of the chart.">
+            </picture>
+            <figcaption class="mars-figure__caption">The pixel-count panel,
+              enlarged. At one pixel the sequential simulator is the quicker
+              of the two — MaRS pays for its table up front. By a quarter of a
+              million pixels MaRS has barely left the axis and the sequential
+              curve has run off the top of the chart.</figcaption>
+          </figure>
+        </div>
+
+        <div class="mars-panel" id="sim-results-table" role="tabpanel" hidden>
+          <p class="mars-panel__desc">1.013 s &plusmn; 0.071 s per cube versus
+            40.831 s &plusmn; 8.045 s for the gold standard, on a
+            128&times;128&times;1024 histogram cube — a measured
+            40&times;.</p>
+          <figure class="mars-figure">
+            <div class="mars-table-wrap">
+              <table class="mars-table">
+                <caption class="mars-visually-hidden">Wall-clock time to
+                  generate one 128 by 128 by 1024 histogram cube, mean and
+                  standard deviation.</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Simulator</th>
+                    <th scope="col">Seconds per cube</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">Sequential gold standard</th><td>40.831 &plusmn; 8.045</td></tr>
+                  <tr class="is-ours"><th scope="row">MaRS</th><td>1.013 &plusmn; 0.071</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <figcaption class="mars-figure__caption">One
+              128&times;128&times;1024 cube, on an AMD Ryzen 7 9700X (8 cores,
+              16 threads) with NumPy on CPU. MaRS&rsquo;s 1.013 s divides into
+              batched lookup 0.020 s, temporal alignment 0.144 s and histogram
+              sampling 0.849 s. This is a moderate workload for the sequential
+              simulator; the gap widens with flux, with realizations and with
+              pixel count.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ======================================================================
-     UTILITY (guide 4.9) — MINT, AGED/GOLD accent.  STUB: stage 02.
+     UTILITY (guide 4.9) — MINT, AGED/GOLD accent.  Stage 02.
+
+     THE TWO CLAIM-HYGIENE TRAPS ON THIS PAGE ARE BOTH HERE.
+
+     #2 The gold standard is CORRECT. Its row in the capability matrix is the
+        whole argument: right on every statistic, and not precomputable
+        because it is Monte Carlo. The caption says exactly that. Never
+        "wrong", never "inaccurate", never "deficient".
+     #3 MaRS MATCHES the gold standard. The accuracy claim is against
+        Poisson / Renewal / Zhang. "The only row with every checkmark" is the
+        guide's approved line and is true of the MATRIX — the checkmark the
+        gold standard lacks is precomputability, not correctness — and the
+        caption makes that explicit so the line cannot be misread.
+
+     The transfer table is an ISOLATION STUDY, not a leaderboard: Renewal and
+     Zhang et al. share the same accurate temporal PDF and differ only in
+     their count model, so the val-to-test gap can only come from the count
+     model. MaRS does NOT have the largest val number and the caption says so.
+
+     SBR 0.6 only — settled decision, PROJECT_BRIEF 8. All ten tiles are
+     cropped from the SBR 0.6 half of the figure; there is no SBR 1.0 asset in
+     assets/img/ at all.
      ====================================================================== -->
 <section class="mars-band is-mint" id="utility" data-mars-section="utility"
          aria-labelledby="utility-heading">
@@ -414,6 +881,239 @@
       <i class="ti ti-target" aria-hidden="true"></i>Utility</p>
     <h2 class="mars-section__title" id="utility-heading">Utility: accurate
       counts, better depth and reflectivity recovery</h2>
+
+    <p class="mars-section__lede">Two things follow from getting the count
+      right. The first is <strong>the precomputability test</strong>: several
+      simulators are individually accurate, but only one is both accurate and
+      precomputable into a table fast enough to train on. The second is
+      <strong>count-model isolation</strong>: pair the same proven temporal
+      shape with different count models and the count model is the only thing
+      left varying, so whatever happens downstream can only be coming from
+      it.</p>
+
+    <div class="mars-switch" data-switch="utility" role="tablist"
+         aria-label="Utility">
+      <button class="mars-switch__pill is-active" role="tab"
+              aria-selected="true"
+              data-target="utility-capability">Capability matrix</button>
+      <button class="mars-switch__pill" role="tab" aria-selected="false"
+              data-target="utility-ablation">Count ablation</button>
+      <button class="mars-switch__pill" role="tab" aria-selected="false"
+              data-target="utility-visual">Visual results</button>
+    </div>
+    <div class="mars-panels" data-panels="utility">
+
+      <div class="mars-panel is-active" id="utility-capability"
+           role="tabpanel">
+        <h3 class="mars-panel__title">Correct statistics, or practical speed —
+          until now, not both</h3>
+        <p class="mars-panel__desc">A capability matrix across five simulators
+          shows which ones get the mean, variance, and temporal PDF right, and
+          which ones can be precomputed into a lookup table fast enough for
+          training. MaRS is the only row with every checkmark.</p>
+        <figure class="mars-figure">
+          <div class="mars-table-wrap">
+            <table class="mars-table">
+              <caption class="mars-visually-hidden">Which simulators get the
+                count mean, the count variance and the temporal PDF right, and
+                which can be precomputed into a lookup table.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Simulator</th>
+                  <th scope="col">Mean &mu;</th>
+                  <th scope="col">Variance &sigma;&sup2;</th>
+                  <th scope="col">Temporal PDF &pi;</th>
+                  <th scope="col">Precomputable</th>
+                </tr>
+              </thead>
+              <tbody>
+                  <tr><th scope="row">Poisson</th><td><span aria-hidden="true">&#10007;</span><span class="mars-visually-hidden">no</span></td><td><span aria-hidden="true">&#10007;</span><span class="mars-visually-hidden">no</span></td><td><span aria-hidden="true">&#10007;</span><span class="mars-visually-hidden">no</span></td><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td></tr>
+                  <tr><th scope="row">Renewal</th><td><span aria-hidden="true">&#10007;</span><span class="mars-visually-hidden">no</span></td><td><span aria-hidden="true">&#10007;</span><span class="mars-visually-hidden">no</span></td><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10003;*</span><span class="mars-visually-hidden">yes, enabled by our lookup-table construction</span></td></tr>
+                  <tr><th scope="row">Zhang et al.</th><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10007;</span><span class="mars-visually-hidden">no</span></td><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10003;*</span><span class="mars-visually-hidden">yes, enabled by our lookup-table construction</span></td></tr>
+                  <tr><th scope="row">Gold standard</th><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10007;</span><span class="mars-visually-hidden">no</span></td></tr>
+                  <tr class="is-ours"><th scope="row">MaRS</th><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="mars-visually-hidden">yes</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption class="mars-figure__caption">The gold-standard row is
+            the argument. It is right on all three statistics — it is the
+            reference the other four are measured against — and the one thing
+            it cannot do is be precomputed, because it works by Monte Carlo
+            rejection sampling, one photon at a time. MaRS matches those same
+            statistics; what it adds is that they fit in a table.
+            <span aria-hidden="true">*</span> Precomputability for the renewal
+            and Zhang et al. rows is enabled by our LUT
+            construction.</figcaption>
+        </figure>
+      </div>
+
+      <div class="mars-panel" id="utility-ablation" role="tabpanel" hidden>
+        <h3 class="mars-panel__title">Does the count model alone make the
+          difference?</h3>
+        <p class="mars-panel__desc">Pairing an accurate temporal PDF with
+          different count models isolates the effect of the count model itself
+          on unbiased estimation and transfer to gold-standard test data.</p>
+        <p class="mars-panel__desc">The renewal and Zhang et al. rows below
+          carry the same accurate temporal shape and differ only in their
+          count model, so the distance between a row&rsquo;s two columns can
+          only be coming from the count model.</p>
+        <figure class="mars-figure">
+          <div class="mars-table-wrap">
+            <table class="mars-table">
+              <caption class="mars-visually-hidden">The same network trained
+                once per simulator, then evaluated on its own simulator (val)
+                and on gold-standard data (test), at a signal-to-background
+                ratio of 0.6.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Training simulator</th>
+                  <th scope="col">Reflectivity PSNR, val (dB)</th>
+                  <th scope="col">Reflectivity PSNR, test (dB)</th>
+                  <th scope="col">Depth RMSE, val (m)</th>
+                  <th scope="col">Depth RMSE, test (m)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Poisson</th><td>36.49</td><td>7.02</td><td>0.072</td><td>1.654</td></tr>
+                <tr><th scope="row">Renewal</th><td>29.72</td><td>12.12</td><td>0.054</td><td>0.096</td></tr>
+                <tr><th scope="row">Zhang et al.</th><td>22.74</td><td>22.54</td><td>0.053</td><td>0.082</td></tr>
+                <tr class="is-ours"><th scope="row">MaRS</th><td>24.03</td><td>24.25</td><td>0.053</td><td>0.074</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption class="mars-figure__caption">One network architecture,
+            trained once on each simulator&rsquo;s data. <em>val</em> is tested
+            on the same simulator it trained on; <em>test</em> is tested on
+            gold-standard data. Signal-to-background ratio 0.6 throughout.
+            <strong>The number that matters is the distance between a
+            row&rsquo;s two columns, not the height of the val column.</strong>
+            A network trained on Poisson data scores 36.49 dB on Poisson data
+            and 7.02 dB on gold-standard data — it learned the wrong physics
+            very well. MaRS has neither the highest val reflectivity nor the
+            lowest val depth error, and it is the only row that barely moves
+            when the physics underneath it changes.</figcaption>
+        </figure>
+      </div>
+
+      <div class="mars-panel" id="utility-visual" role="tabpanel" hidden>
+        <h3 class="mars-panel__title">Seeing the difference</h3>
+        <p class="mars-panel__desc">Reflectivity and depth reconstructions
+          across simulators, side by side, for both training tasks.</p>
+
+        <figure class="mars-figure">
+            <div class="mars-tiles">
+              <figure class="mars-tile">
+                <span class="mars-tile__label">Ground truth</span>
+                <picture>
+                  <source srcset="assets/img/res_refl_gt.webp" type="image/webp">
+                  <img src="assets/img/res_refl_gt.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Ground-truth reflectivity: a study interior, with a bookcase, a dark armchair and a stack of books on a table edge.">
+                </picture>
+              </figure>
+              <figure class="mars-tile">
+                <span class="mars-tile__label">Poisson</span>
+                <picture>
+                  <source srcset="assets/img/res_refl_poisson.webp" type="image/webp">
+                  <img src="assets/img/res_refl_poisson.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Reflectivity recovered by the network trained on the Poisson simulator: almost entirely black, with no recoverable scene.">
+                </picture>
+              </figure>
+              <figure class="mars-tile">
+                <span class="mars-tile__label">Renewal</span>
+                <picture>
+                  <source srcset="assets/img/res_refl_renewal.webp" type="image/webp">
+                  <img src="assets/img/res_refl_renewal.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Reflectivity recovered by the network trained on the renewal simulator: the scene is there but washed out and far too dim.">
+                </picture>
+              </figure>
+              <figure class="mars-tile">
+                <span class="mars-tile__label">Zhang et al.</span>
+                <picture>
+                  <source srcset="assets/img/res_refl_zhang.webp" type="image/webp">
+                  <img src="assets/img/res_refl_zhang.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Reflectivity recovered by the network trained on Zhang et al.&rsquo;s simulator: close to ground truth, with slightly flattened contrast.">
+                </picture>
+              </figure>
+              <figure class="mars-tile">
+                <span class="mars-tile__label">MaRS</span>
+                <picture>
+                  <source srcset="assets/img/res_refl_mars.webp" type="image/webp">
+                  <img src="assets/img/res_refl_mars.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Reflectivity recovered by the network trained on MaRS: closest to ground truth in both brightness and detail.">
+                </picture>
+              </figure>
+            </div>
+          <figcaption class="mars-figure__caption">Reflectivity, recovered by
+            the same network trained on each simulator and then run on
+            gold-standard data at a signal-to-background ratio of 0.6. The
+            Poisson-trained network collapses to near black. The
+            renewal-trained one finds the structure but at badly wrong
+            brightness. The networks trained on Zhang et al. and on MaRS both
+            recover the scene, with MaRS closest to ground
+            truth.</figcaption>
+        </figure>
+
+        <figure class="mars-figure">
+            <div class="mars-tiles">
+              <figure class="mars-tile">
+                <span class="mars-tile__label">Ground truth</span>
+                <picture>
+                  <source srcset="assets/img/res_depth_gt.webp" type="image/webp">
+                  <img src="assets/img/res_depth_gt.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Ground-truth depth: the armchair stands clearly in front of the bookcase and the table edge sweeps into the foreground.">
+                </picture>
+              </figure>
+              <figure class="mars-tile">
+                <span class="mars-tile__label">Poisson</span>
+                <picture>
+                  <source srcset="assets/img/res_depth_poisson.webp" type="image/webp">
+                  <img src="assets/img/res_depth_poisson.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Depth recovered by the network trained on the Poisson simulator: depths are globally wrong and the chair barely separates from the wall behind it.">
+                </picture>
+              </figure>
+              <figure class="mars-tile">
+                <span class="mars-tile__label">Renewal</span>
+                <picture>
+                  <source srcset="assets/img/res_depth_renewal.webp" type="image/webp">
+                  <img src="assets/img/res_depth_renewal.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Depth recovered by the network trained on the renewal simulator: the geometry is back, with softened edges.">
+                </picture>
+              </figure>
+              <figure class="mars-tile">
+                <span class="mars-tile__label">Zhang et al.</span>
+                <picture>
+                  <source srcset="assets/img/res_depth_zhang.webp" type="image/webp">
+                  <img src="assets/img/res_depth_zhang.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Depth recovered by the network trained on Zhang et al.&rsquo;s simulator: close to ground truth.">
+                </picture>
+              </figure>
+              <figure class="mars-tile">
+                <span class="mars-tile__label">MaRS</span>
+                <picture>
+                  <source srcset="assets/img/res_depth_mars.webp" type="image/webp">
+                  <img src="assets/img/res_depth_mars.png" width="720" height="720"
+                       loading="lazy" decoding="async"
+                       alt="Depth recovered by the network trained on MaRS: closest to ground truth, and the lowest error of the four on gold-standard test data.">
+                </picture>
+              </figure>
+            </div>
+          <figcaption class="mars-figure__caption">Depth, from the same four
+            networks on the same data. The Poisson-trained network&rsquo;s
+            depths are globally wrong. The other three recover the geometry,
+            and MaRS has the lowest error on gold-standard test
+            data.</figcaption>
+        </figure>
+      </div>
+    </div>
   </div>
 </section>
 

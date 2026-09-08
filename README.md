@@ -181,3 +181,20 @@ Each build stage appends one line here.
   the poster 404s. All 17 W-checks pass. FCP on Slow 3G is 6.2 s against
   the guide's 1.5 s budget; stage 06 owns it, the diagnosis is in the
   stage 1.5 handoff.
+- **Stage 02 — main-page content (2026-09-08).** Wrote the six content bands —
+  Motivation, Approach, Contributions, Theory, Simulator, Utility — with final
+  copy, twelve static figures, four real HTML tables (count accuracy,
+  cube runtime, capability matrix, val→test transfer, all cell-checked against
+  `PROJECT_BRIEF.md`), five working switch bars over twelve panels, the ten
+  SBR 0.6 result tiles, and the site's single display equation as marked-up
+  text rather than an image. The five animation slots moved into their Method
+  panels unchanged. **`sectionsLive` is deliberately still empty: the bands are
+  written but not published, and turning them on is the author's call.**
+  Pushed separately and first, on its own: the render-blocking-font fix — the
+  Tabler stylesheet is now `media="print"` with an `onload` flip, which took
+  FCP on Slow 3G from 6.17 s to 4.94 s. It did **not** shrink total load; the
+  801 KB Tabler webfont is still fetched and is 20.5 s of the 26.6 s load, so
+  inlining the 16 glyphs as SVG is the remaining win. `audit_claims.py` still
+  exits 0, with `CANONICAL` completed from the brief's §3.5 table and the
+  stage-01 placeholder grep narrowed so it stops matching the phrase
+  "high flux". All 17 W-checks pass.

@@ -852,7 +852,10 @@ img, video { max-width: 100%; height: auto; display: block; }
   color: var(--dark);
 }
 .mars-table tbody tr:last-child td { border-bottom: 0; }
-.mars-table tr.is-ours td { background: var(--gold-soft); font-weight: 600; }
+/* `> *` rather than `td`: stage 02's tables put the model name in a
+   <th scope="row"> so screen readers announce it with every cell, and a
+   `td`-only selector left that first cell unwashed on the MaRS row. */
+.mars-table tr.is-ours > * { background: var(--gold-soft); font-weight: 600; }
 
 /* --------------------------------------------------------------------------
    The one display equation on the whole site.
@@ -871,6 +874,113 @@ img, video { max-width: 100%; height: auto; display: block; }
   font-size: 1.0625rem;
   overflow-x: auto;
 }
+
+/* STAGE 02. The equation lives in the Theory band, which is MINT, so the
+   mint ground above made it disappear into the band and left only the gold
+   bar. Paper here, exactly as .mars-media__frame and .mars-table-wrap already
+   do on a mint band, so it reads as a panel. .mars-eq stays in the MINT
+   SURFACES list at the top of this file: it carries no gold text, and
+   --aged-text measures 5.33:1 on paper, so nothing regresses either way. */
+.mars-band.is-mint .mars-eq {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+}
+
+/* The law itself, one step up in size and kept on one line — an equation
+   broken mid-expression is worse than one the container scrolls. .mars-eq is
+   already overflow-x: auto, so the page body never scrolls sideways. */
+.mars-eq__law {
+  display: block;
+  font-size: clamp(1.0625rem, 2.4vw, 1.375rem);
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   STAGE 02 COMPONENTS
+   Four new patterns, all needed by the six content bands and none of them
+   expressible with what stage 01 shipped. Nothing here paints a NEW mint
+   surface, so the MINT SURFACES list at the top of this file is unchanged —
+   every one of these inherits its ground from the band it sits in, and the
+   audit's pass 3 checks an unpinned rule against BOTH paper and mint.
+   -------------------------------------------------------------------------- */
+
+/* 1. Sub-blocks — the METHOD / RESULTS pairs in Theory and Simulator
+   (guide 4.7-4.8). The section's own <h2> stays the top level, so a sub-block
+   heading is one step down; inheriting .mars-section__title's size would make
+   the hierarchy read flat. */
+
+.mars-subsection { margin-top: 2rem; }
+.mars-subsection + .mars-subsection { margin-top: 2.75rem; }
+
+.mars-subhead {
+  font-size: clamp(1.1875rem, 2.2vw, 1.5rem);
+  margin: 0 0 0.75rem;
+}
+
+/* 2. Two figures side by side — the covariance pair in Theory Method, where
+   the two panels are evidence for one point and read better together than
+   stacked. Collapses to one column before either gets too small to read. */
+
+.mars-figrow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+@media (max-width: 760px) {
+  .mars-figrow { grid-template-columns: 1fr; }
+}
+.mars-figrow > .mars-figure:last-child { margin-bottom: 0; }
+
+/* 3. Result-tile strips — Utility "Visual results". Five 720x720 tiles per row
+   (ground truth plus four simulators), one row for reflectivity and one for
+   depth. Each tile keeps its own visible label, so the row still reads once it
+   has wrapped, and its own alt text, so a screen reader gets a finding per
+   tile rather than one caption for ten images. */
+
+.mars-tiles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+}
+@media (max-width: 880px) {
+  .mars-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 540px) {
+  .mars-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.mars-tile { margin: 0; }
+.mars-tile img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+/* NOT text-transform: uppercase, deliberately. One of these labels is
+   "MaRS", and uppercasing it renders "MARS" on screen — which breaks the
+   casing convention even though the SOURCE spells it correctly and so passes
+   the auditor's grep. Sentence case throughout instead. */
+.mars-tile__label {
+  display: block;
+  margin: 0 0 0.3rem;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  color: var(--grey);            /* GREY on PAPER 6.65:1 / on MINT 6.24:1 */
+}
+
+/* 4. A caption under a data table. Deliberately a sibling of
+   .mars-table-wrap rather than a <caption> inside the table: the wrapper is
+   the horizontal scroller with a 34rem min-width, so a caption inside it
+   would be dragged to that width and scroll away with the table. Each table
+   still carries a visually-hidden <caption> for its accessible name. */
+
+.mars-figure > .mars-table-wrap { margin-bottom: 0; }
 
 /* --------------------------------------------------------------------------
    Stage placeholder — removed by stage 02, and audited for in stage 06

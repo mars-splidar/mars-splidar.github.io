@@ -233,6 +233,19 @@
     }
   }
 
+  /* Any in-page link whose destination lives in MARS_CONFIG carries
+   * data-mars-config-href="<key>" alongside a real fallback href. Stage 02's
+   * `Try the demo lab` card link is the first user. The fallback is what the
+   * null rule needs: an unset key leaves the hand-written href alone rather
+   * than blanking it, so the link is never dead. */
+  function applyConfigHrefs() {
+    var nodes = document.querySelectorAll("[data-mars-config-href]");
+    for (var i = 0; i < nodes.length; i++) {
+      var key = nodes[i].getAttribute("data-mars-config-href");
+      if (key && cfg[key]) nodes[i].setAttribute("href", cfg[key]);
+    }
+  }
+
   function ready(fn) {
     if (document.readyState !== "loading") fn();
     else document.addEventListener("DOMContentLoaded", fn);
@@ -242,5 +255,6 @@
     initNav();
     buildButtons();
     buildClosingLinks();
+    applyConfigHrefs();
   });
 })();

@@ -88,9 +88,14 @@ window.MARS_CONFIG = {
      band — it waits for anim_motivation_scaling, and stage 06 turns it on.
      Note `contributions` cannot go live without `theory`: its card links
      "Read the derivation" into it, and the gate would otherwise leave an
-     orphan anchor. */
-  sectionsLive: ["approach", "contributions", "theory", "simulator",
-                 "utility"],
+     orphan anchor.
+
+     PUBLISHED IN FULL 2026-09-14 (stage 06 task 0). All six bands are live.
+     `motivation` is FIRST in document order, so turning it on is what a
+     visitor now meets immediately below the hero band; its animation landed
+     with stage 05, which is what the hold was waiting for. */
+  sectionsLive: ["motivation", "approach", "contributions", "theory",
+                 "simulator", "utility"],
 
   /* ---- media gate (stage 1.5) ----
      The same idea one level down, and it exists for one concrete reason: a
@@ -109,9 +114,16 @@ window.MARS_CONFIG = {
      anim_sim_pipeline and anim_sim_lut.
 
      The two Theory loops landed 2026-09-13 (stage 05 task 0c), re-rendered at
-     §3.2's raised meaning-bearing type floor. The other three are built but
-     stay off until stage 06 publishes them with the Motivation band. */
-  mediaAvailable: ["anim_theory_countlaw", "anim_theory_covariance"],
+     §3.2's raised meaning-bearing type floor. ALL FIVE are live as of
+     2026-09-14 (stage 06 task 0) — the contract is complete and this list
+     should not shrink again. Note that as of stage 06 a listed basename no
+     longer costs anything at page load: js/mars-media.js defers promotion and
+     video.load() to the first IntersectionObserver hit (Q14), so a cold load
+     fetches zero bytes of media and a closed switch panel fetches nothing
+     until it is opened. */
+  mediaAvailable: ["anim_motivation_scaling", "anim_theory_countlaw",
+                   "anim_theory_covariance", "anim_sim_pipeline",
+                   "anim_sim_lut"],
 
   projectPage: "https://mars-splidar.github.io/",
   demoLabUrl: "demos/",

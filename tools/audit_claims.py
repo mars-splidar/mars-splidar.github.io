@@ -313,7 +313,9 @@ CONTRAST_EXEMPT = {
     ".mars-btn__soon":
         "the `· soon` suffix inside an inactive UI component; same exemption",
     ".mars-lab__status.is-soon":
-        "the `soon` badge on the three unbuilt demo panels; same exemption",
+        "the `soon` badge on the unbuilt demo panels — all FOUR of them as of "
+        "stage 06, since stage 03 is deferred and the dead-time playground "
+        "ships unbuilt too; same exemption",
 }
 
 

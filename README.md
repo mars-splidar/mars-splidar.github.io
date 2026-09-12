@@ -89,6 +89,34 @@ Two escape hatches, both documented at the top of the script:
 
 `--quiet` skips the coverage report and prints failures only.
 
+### The other three checks
+
+```bash
+python tools/check_links.py https://mars-splidar.github.io
+```
+
+**The base URL is a required argument** — run bare, `check_links.py` tracebacks
+rather than printing usage. Stages 04, 05 and 06 each hit that; it is recorded
+here so the next session does not. It resolves every `href`, `src` and
+`srcset` on both pages plus the URLs `js/site.config.js` injects, and reports
+external links without following them. Point it at `http://localhost:8731`
+to check a working tree before pushing.
+
+```bash
+python ../../build_instructions/reference/w6_table_diff.py    # run from HERE, the repo root
+python ../../video/web/provenance.py                          # needs the Dead_time env
+```
+
+`w6_table_diff.py` parses the expected values straight out of
+`PROJECT_BRIEF.md` §3.4/§3.5/§3.6 and diffs them against the rendered cells of
+all four HTML tables plus the runtime caption's stage breakdown; an empty diff
+is the pass. It reads `index.html` from the current directory, so run it from
+the repo root, not from `build_instructions/`. `provenance.py` recomputes every
+number burned into all five animation frames and exits non-zero on drift —
+neither script can see numbers burned into the twelve static poster graphics,
+which is why stage 06's handoff carries a hand-built provenance table for
+those.
+
 ## How to preview locally
 
 ```bash
@@ -236,3 +264,49 @@ Each build stage appends one line here.
   band. `audit_claims.py` exits 0 and `check_links.py` reports zero broken
   against the live URL — note it takes that URL as an argument:
   `python tools/check_links.py https://mars-splidar.github.io`.
+- **Stage 06 — integration, claim audit, performance, accessibility, launch
+  (2026-09-14). THE SITE IS COMPLETE.** Deliberately a different session from
+  every build stage, so that one independent pass checked every headline
+  number and interactive claim before publishing. Six commits.
+  **Published the rest:** `sectionsLive` is all six bands (`motivation`, the
+  first one, was the last hold-out) and `mediaAvailable` is all five
+  animations. **Q14:** `js/mars-media.js` no longer promotes `data-poster` /
+  `data-src` or calls `video.load()` at init — that cost a measured 1.52 MB
+  at `scrollY === 0`, five posters and five *entire* `.webm` files, including
+  for a slot in a `hidden` tab panel. Promotion moved to a second
+  IntersectionObserver at threshold 0 with a 300 px `rootMargin`, so a cold
+  load now fetches **zero bytes** of media and the 35 % play/pause rule is
+  untouched. **Q10:** the Tabler icon webfont is gone — 801 KB in one request,
+  20.5 s of a 26.6 s Slow-3G load, for **nine** glyphs in **eleven** elements,
+  now inline `<svg class="mars-ico">` with `stroke="currentColor"`. Every doc
+  predicted a class-wide rename; it was three files and one CSS rule.
+  **Q16:** the demo lab was advertising the dead-time playground as **Live**,
+  over an empty div whose body read "Stage 03 supplies
+  `demos/js/playground.js`" — a false capability claim plus a leaked build
+  note on a page public since stage 1.5. All four panels now read "Coming
+  soon" and the playground panel describes what it will do.
+  **Q11:** `sim_lut.png`'s burned-in headline was "A depth change only shifts
+  the registered histogram", the unqualified form the brief rejects;
+  regenerated to "At fixed signal and background, a delay change only shifts
+  the histogram". The **printed** poster still carries the old line.
+  **The runtime axis:** the resolution sweep and the 40.831 s cube are
+  different benchmarks, and both the Motivation animation's figcaption and
+  `sim_pixels.png`'s caption now say so. **Accessibility:** the hero had no
+  `<h1>` in the accessibility tree below 380 px (the fallback used
+  `display:none` and its visible replacement is `aria-hidden`), and the
+  fallback's breakpoint was 10 px narrower than an iPhone, so the title
+  rendered at 13.3 px on a 390 px phone. Both fixed. **E4 resolved** — arXiv
+  2512.04924, verified against arxiv.org before wiring. **E5 deferred** —
+  `Code · soon` is the one hero button still a pill. Gates: `audit_claims.py`
+  exits 0, `check_links.py` zero broken, `w6_table_diff.py` empty,
+  `video/web/provenance.py` exits 0, no body overflow at 320 px with every
+  tab open, `prefers-reduced-motion` suppresses all five loops.
+  **One method note that matters for anyone verifying this site in a headless
+  or non-compositing browser:** `requestAnimationFrame` never fires there, so
+  the nav's *measured* tightening silently does not apply and a width sweep
+  will report a phantom 59–136 px overflow at 741–919 px. Shim rAF to
+  `setTimeout` before trusting any layout measurement. Same root cause as the
+  `IntersectionObserver` failure that cost three earlier sessions.
+  Also fixed: `tools/build_web_assets.py` was **unrunnable** — it resolved the
+  v1 video filenames that stage 04 superseded, through a check that fired
+  before `--skip-video` could spare it, so the whole script exited 1.

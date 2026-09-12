@@ -274,11 +274,28 @@
           <source data-src="assets/media/anim_motivation_scaling.mp4" type="video/mp4">
         </video>
       </div>
+      <!-- THE WORKLOAD CLAUSE, added stage 06. This loop plots the paper's
+           RESOLUTION SWEEP (runtime_scaling_num_pixels.npz), whose y axis
+           carries readable decades — so a reader can read roughly 100 s off
+           the sequential curve at its 128x128 tick while the Simulator band's
+           runtime table two sections down states 40.831 s for a
+           128x128x1024 cube. Both numbers are the paper's own; they are
+           different benchmarks, and the sweep's own 128x128 point is
+           108.19 s. Stage 06 took the "accept, and name it" option: the
+           animation is NOT re-rendered (its furniture has no room and the
+           .npz carries no configuration metadata to name), and the caption
+           says which benchmark this is instead. sim_pixels.png's caption in
+           the Simulator band carries the same clause and the two must keep
+           saying the same thing. -->
       <figcaption class="mars-media__caption"><span class="mars-media__title">Correct,
         but it does not scale</span> &mdash; the measured cost of both
         simulators as the image grows, from 1&times;1 to 512&times;512 pixels
         on the same workload. The sequential gold standard is correct at every
-        point on that curve; it simply examines every photon.</figcaption>
+        point on that curve; it simply examines every photon. This is the
+        resolution sweep, a separate benchmark from the single
+        128&times;128&times;1024 cube timed in the Simulator band &mdash; read
+        it for the shape of the two curves rather than for an absolute number
+        of seconds.</figcaption>
     </figure>
   </div>
 </section>
@@ -641,10 +658,15 @@
           depth. Never "any scene, any depth" — that phrase was rejected in
           poster review and the auditor greps for it.
        #8 delay invariance holds CONDITIONED ON FIXED (S,B), not on scene
-          geometry. Note that `sim_lut.png` itself is headlined "A depth
-          change only shifts the registered histogram", which read alone is
-          the unqualified form #8 forbids; the surrounding copy and the alt
-          text both restate the condition. Flagged for stage 06.
+          geometry. RESOLVED IN STAGE 06 (Q11): `sim_lut.png` used to be
+          headlined "A depth change only shifts the registered histogram",
+          which read alone is the unqualified form #8 forbids. The graphic was
+          regenerated and its burned-in headline now reads "At fixed signal
+          and background, a delay change only shifts the histogram". The
+          source is poster&slides/scripts/gen_graphics_v2.py; the surrounding
+          copy and the alt text restated the condition all along. NOTE: the
+          PRINTED poster and the two poster PDFs this site serves still carry
+          the old line — an author item for any future printing.
      ====================================================================== -->
 <section class="mars-band" id="simulator" data-mars-section="simulator"
          aria-labelledby="simulator-heading">
@@ -805,11 +827,21 @@
                    loading="lazy" decoding="async"
                    alt="Runtime against pixel count, enlarged. At a single pixel the sequential simulator is the quicker of the two. By a quarter of a million pixels MaRS has barely lifted off the axis while the sequential simulator has climbed to the top of the chart.">
             </picture>
+            <!-- Same workload clause as the Motivation animation's
+                 figcaption, and for the same reason: this raster burns
+                 "0.010 seconds", "0.078 seconds" and "29.762 seconds" onto a
+                 linear axis from the resolution sweep, which is NOT the
+                 benchmark the Table tab beside it reports. Keep the two
+                 captions saying the same thing. Stage 06. -->
             <figcaption class="mars-figure__caption">The pixel-count panel,
               enlarged. At one pixel the sequential simulator is the quicker
               of the two — MaRS pays for its table up front. By a quarter of a
               million pixels MaRS has barely left the axis and the sequential
-              curve has run off the top of the chart.</figcaption>
+              curve has run off the top of the chart. The seconds annotated
+              here belong to this resolution sweep, which is a separate
+              benchmark from the single 128&times;128&times;1024 cube in the
+              Table tab; the two are not the same run and their timings should
+              not be read against each other.</figcaption>
           </figure>
         </div>
 

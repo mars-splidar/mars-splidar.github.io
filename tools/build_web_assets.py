@@ -342,8 +342,20 @@ def build_docs(rows: list[list[str]], notes: list[str],
         )
 
     # ---- video ---------------------------------------------------------
-    vid_src = _need(PROJECT / "video" / "out" / "MaRS_ECCV2026_5min.mp4")
-    srt_src = _need(PROJECT / "video" / "out" / "MaRS_ECCV2026_5min.srt")
+    # NOTE, stage 06: the v1 filenames below no longer exist. Stage 04 task 0
+    # swapped the site's video for MaRS_ECCV2026_5min_v3_voice_0.9x.mp4 (the
+    # author-narrated cut) and wrote assets/docs/mars_5min.{mp4,srt,vtt}
+    # directly, plus tools/retime_srt.py to keep the .vtt in step. Nothing
+    # updated this block, so `_need()` fired before the `skip_video` check
+    # below could spare it and the WHOLE SCRIPT exited 1 -- taking the image
+    # jobs' report with it even though they had already succeeded. Resolving
+    # the sources is now deferred until they are actually about to be read,
+    # so `--skip-video` does what its help text says and the script is
+    # runnable again.
+    #
+    # WHOEVER RE-POINTS THIS: the current serving file is
+    # video/out/MaRS_ECCV2026_5min_v3_voice_0.9x.mp4 with .srt and .vtt
+    # sidecars. Do not hard-code v1 names again.
     vid_out = DOC_OUT / "mars_5min.mp4"
     srt_out = DOC_OUT / "mars_5min.srt"
 
@@ -351,17 +363,23 @@ def build_docs(rows: list[list[str]], notes: list[str],
         rows.append(["MaRS_ECCV2026_5min.mp4", "mars_5min.mp4", "—", "—",
                      f"{_size_str(vid_out.stat().st_size)} (skipped)"])
     else:
+        vid_src = _need(PROJECT / "video" / "out" / "MaRS_ECCV2026_5min.mp4")
         if force or not vid_out.exists() \
                 or vid_out.stat().st_size != vid_src.stat().st_size:
             shutil.copy2(vid_src, vid_out)
         rows.append(["MaRS_ECCV2026_5min.mp4", "mars_5min.mp4", "—", "—",
                      _size_str(vid_out.stat().st_size)])
 
-    if force or not srt_out.exists() \
-            or srt_out.stat().st_size != srt_src.stat().st_size:
-        shutil.copy2(srt_src, srt_out)
-    rows.append(["MaRS_ECCV2026_5min.srt", "mars_5min.srt", "—", "—",
-                 _size_str(srt_out.stat().st_size)])
+    if skip_video and srt_out.exists():
+        rows.append(["MaRS_ECCV2026_5min.srt", "mars_5min.srt", "—", "—",
+                     f"{_size_str(srt_out.stat().st_size)} (skipped)"])
+    else:
+        srt_src = _need(PROJECT / "video" / "out" / "MaRS_ECCV2026_5min.srt")
+        if force or not srt_out.exists() \
+                or srt_out.stat().st_size != srt_src.stat().st_size:
+            shutil.copy2(srt_src, srt_out)
+        rows.append(["MaRS_ECCV2026_5min.srt", "mars_5min.srt", "—", "—",
+                     _size_str(srt_out.stat().st_size)])
 
 
 def _print_table(rows: list[list[str]]) -> None:

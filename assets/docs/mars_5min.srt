@@ -1,404 +1,404 @@
 1
-00:00:00,350 --> 00:00:01,557
+00:00:00,389 --> 00:00:01,322
 Watch closely.
 
 2
-00:00:01,907 --> 00:00:06,017
-Every time this single photon detector
+00:00:01,711 --> 00:00:05,422
+Every time this single-photon detector
 fires, it goes blind.
 
 3
-00:00:06,367 --> 00:00:10,779
+00:00:05,811 --> 00:00:09,656
 And every photon that arrives during that
 blind window is gone forever.
 
 4
-00:00:11,279 --> 00:00:14,650
-This is Mars, the Markov renewal single
-photon lidar
+00:00:10,211 --> 00:00:12,460
+This is MaRS, the Markov-Renewal
 
 5
-00:00:14,650 --> 00:00:18,280
-simulator, presented at E C C V two
-thousand twenty six.
+00:00:12,460 --> 00:00:16,256
+Single-Photon LiDAR Simulator, presented
+at ECCV 2026.
 
 6
-00:00:18,780 --> 00:00:21,750
-A single photon lidar fires a pulse and
-records
+00:00:16,811 --> 00:00:21,011
+A single-photon LiDAR fires a pulse and
+times individual returning photons.
 
 7
-00:00:21,750 --> 00:00:24,910
-the arrival times of individual returning
-photons.
+00:00:21,400 --> 00:00:25,733
+Over many cycles each pixel builds a
+timing histogram, and the array builds a
+cube.
 
 8
-00:00:25,260 --> 00:00:27,716
-Over many cycles each pixel builds a
-timing
+00:00:26,289 --> 00:00:28,289
+Here is what that blindness does to the
+data.
 
 9
-00:00:27,716 --> 00:00:30,972
-histogram, and the array builds a three
-dimensional cube.
+00:00:28,678 --> 00:00:31,248
+The recorded histogram is not a scaled
+copy of the
 
 10
-00:00:31,322 --> 00:00:35,200
-That cube feeds every learned depth and
-reflectivity pipeline.
+00:00:31,248 --> 00:00:33,767
+true one: the peak is clipped and pulled
+earlier.
 
 11
-00:00:35,700 --> 00:00:37,639
-So how do you simulate that cube?
+00:00:34,156 --> 00:00:37,733
+And the recorded count is far smaller,
+with a variance nothing like Poisson.
 
 12
-00:00:37,989 --> 00:00:43,538
-A Poisson model is fast, but it ignores
-dead time, so the physics is simply wrong.
+00:00:38,122 --> 00:00:40,567
+Any network trained on this learns the
+wrong physics.
 
 13
-00:00:43,888 --> 00:00:46,956
-The sequential gold standard is correct,
-but it
+00:00:41,122 --> 00:00:42,700
+So how do you simulate that cube?
 
 14
-00:00:46,956 --> 00:00:50,808
-examines every photon one at a time, and
-it does not scale.
+00:00:43,089 --> 00:00:45,642
+A Poisson model is fast, but it ignores
+dead
 
 15
-00:00:51,158 --> 00:00:53,329
-Until now, you had to pick one.
+00:00:45,642 --> 00:00:48,311
+time, so under high flux the physics is
+wrong.
 
 16
-00:00:53,829 --> 00:00:57,753
+00:00:48,700 --> 00:00:51,123
+The sequential gold standard is correct,
+but
+
+17
+00:00:51,123 --> 00:00:53,767
+it examines every photon, and it does not
+scale.
+
+18
+00:00:54,322 --> 00:00:57,567
 Our key idea is to factor the histogram
 into two parts.
 
-17
-00:00:58,103 --> 00:01:02,039
-A count: how many photons the detector
-actually registers.
-
-18
-00:01:02,389 --> 00:01:04,885
-And a shape: where in time they land.
-
 19
-00:01:05,235 --> 00:01:07,778
-Earlier work already solved the shape.
+00:00:57,956 --> 00:01:00,489
+A count: how many photons actually
+register.
 
 20
-00:01:08,128 --> 00:01:10,635
-The count under dead time was an open
-problem.
+00:01:00,878 --> 00:01:02,944
+And a shape: where in time they land.
 
 21
-00:01:10,985 --> 00:01:12,483
-Mars solves the count.
+00:01:03,333 --> 00:01:04,733
+Earlier work solved the shape.
 
 22
-00:01:12,833 --> 00:01:15,527
-That one change makes everything else
-possible.
+00:01:05,122 --> 00:01:06,944
+The count under dead time was open.
 
 23
-00:01:16,027 --> 00:01:17,652
-Here is why the count is hard.
+00:01:07,333 --> 00:01:08,644
+MaRS solves the count.
 
 24
-00:01:18,002 --> 00:01:22,762
-Dead time couples each detection to the
-next, so classical tools break down.
+00:01:09,200 --> 00:01:10,822
+Here is why the count is hard.
 
 25
-00:01:23,112 --> 00:01:25,350
-Detections are not independent, and the
+00:01:11,211 --> 00:01:13,442
+Dead time couples each detection to the
+next:
 
 26
-00:01:25,350 --> 00:01:27,989
-waiting times are not identically
-distributed.
+00:01:13,442 --> 00:01:16,567
+detections are neither independent nor
+identically distributed.
 
 27
-00:01:28,339 --> 00:01:31,682
-So we model registration as a Markov
-renewal process.
+00:01:16,956 --> 00:01:20,133
+So we propose a formulation built for
+exactly that coupling.
 
 28
-00:01:32,032 --> 00:01:37,617
-An embedded Markov chain says where the
-next photon lands; a holding time says
-when.
+00:01:20,522 --> 00:01:23,300
+An embedded chain says where the next
+photon lands.
 
 29
-00:01:38,117 --> 00:01:40,044
-And here is the key insight.
+00:01:23,689 --> 00:01:25,178
+A holding time says when.
 
 30
-00:01:40,394 --> 00:01:42,414
-Counting is the inverse of waiting.
+00:01:25,567 --> 00:01:27,767
+Together: a Markov renewal process.
 
 31
-00:01:42,764 --> 00:01:45,012
-If you know how long you typically wait
+00:01:28,322 --> 00:01:29,767
+And here is the key insight.
 
 32
-00:01:45,012 --> 00:01:47,664
-between detections, you know how many you
-get.
+00:01:30,156 --> 00:01:31,711
+Counting is the inverse of waiting.
 
 33
-00:01:48,014 --> 00:01:50,306
+00:01:32,100 --> 00:01:34,266
 The embedded chain mixes quickly, so the
 
 34
-00:01:50,306 --> 00:01:53,401
+00:01:34,266 --> 00:01:37,189
 cumulative waiting time obeys a central
 limit theorem.
 
 35
-00:01:53,751 --> 00:01:56,607
+00:01:37,578 --> 00:01:40,067
 Inverting that relationship gives the
 photon count.
 
 36
-00:01:56,957 --> 00:01:59,777
-This is the first closed form count
-distribution
+00:01:40,456 --> 00:01:44,389
+The first closed form count distribution
+under dead time, with no per photon loop.
 
 37
-00:01:59,777 --> 00:02:02,715
-under dead time, with no per photon loop
-anywhere.
+00:01:44,944 --> 00:01:48,300
+The variance is an infinite series of
+covariance terms.
 
 38
-00:02:03,215 --> 00:02:05,049
-But the variance hides a subtlety.
+00:01:48,689 --> 00:01:53,422
+They decay at wildly different rates, so
+any fixed cutoff is biased or expensive.
 
 39
-00:02:05,399 --> 00:02:08,980
-It is an infinite series of covariance
-terms, and depending
+00:01:53,811 --> 00:01:57,767
+Instead we sum the tail in closed form,
+from five dominant eigenmodes.
 
 40
-00:02:08,980 --> 00:02:12,621
-on flux and dead time, they decay at
-wildly different rates.
+00:01:58,156 --> 00:01:59,578
+Twelve times lower error.
 
 41
-00:02:12,971 --> 00:02:15,711
-A fixed cutoff is either biased or
-expensive.
-
-42
-00:02:16,061 --> 00:02:20,531
-Instead we sum the tail in closed form
-using the five dominant eigenmodes.
-
-43
-00:02:20,881 --> 00:02:23,934
-Twelve times lower error, at lower cost.
-
-44
-00:02:24,434 --> 00:02:28,776
-Because the statistics are closed form, we
-can precompute them once.
-
-45
-00:02:29,126 --> 00:02:33,293
-But a table over signal, background and
-depth would need a hundred and
-
-46
-00:02:33,293 --> 00:02:37,520
-eight gigabytes, since depth must be
-sampled at full timing resolution.
-
-47
-00:02:37,870 --> 00:02:43,048
-Then we noticed: changing depth only
-shifts the registered histogram in time.
-
-48
-00:02:43,398 --> 00:02:45,372
-The count statistics do not move.
-
-49
-00:02:45,722 --> 00:02:48,495
-So we drop depth from the table, and a
-hundred and
-
-50
-00:02:48,495 --> 00:02:51,434
-eight gigabytes becomes a hundred and five
-megabytes.
-
-51
-00:02:51,934 --> 00:02:52,677
+00:02:00,133 --> 00:02:00,844
 Does it work?
 
+42
+00:02:01,233 --> 00:02:04,336
+Against the gold standard, our count
+distribution matches
+
+43
+00:02:04,336 --> 00:02:07,656
+in centre and spread, where earlier models
+miss the variance.
+
+44
+00:02:08,044 --> 00:02:12,578
+KL divergence 0.013 — thirty times better
+than the best prior model.
+
+45
+00:02:12,967 --> 00:02:15,526
+And on a real SPAD with an 85 ns dead
+time,
+
+46
+00:02:15,526 --> 00:02:18,144
+our prediction lands on the measured
+counts.
+
+47
+00:02:18,700 --> 00:02:20,300
+So the statistics are right.
+
+48
+00:02:20,689 --> 00:02:23,222
+Now they have to be fast enough to make
+training data.
+
+49
+00:02:23,778 --> 00:02:26,378
+Because everything is closed form, we can
+precompute it.
+
+50
+00:02:26,767 --> 00:02:30,567
+Each entry stores the count's mean and
+variance, and the whole temporal PDF.
+
+51
+00:02:30,956 --> 00:02:33,756
+Those depend only on signal, background
+and delay.
+
 52
-00:02:53,027 --> 00:02:57,006
-Against the sequential gold standard, our
-predicted count distribution
+00:02:34,144 --> 00:02:37,063
+But delay has to be sampled at full timing
 
 53
-00:02:57,006 --> 00:03:01,212
-matches in both centre and spread, where
-earlier models miss the variance.
+00:02:37,063 --> 00:02:40,122
+resolution, so even a modest grid is 108
+GB.
 
 54
-00:03:01,562 --> 00:03:04,452
-The K L divergence is zero point zero one
-three,
+00:02:40,678 --> 00:02:41,833
+Then we noticed something.
 
 55
-00:03:04,452 --> 00:03:07,402
-thirty times better than the best previous
-model.
+00:02:42,222 --> 00:02:45,444
+Changing the delay only shifts the
+registered PDF — circularly.
 
 56
-00:03:07,752 --> 00:03:11,514
-And on real hardware, a single photon
-detector with an eighty five
+00:02:45,833 --> 00:02:47,544
+The mean and the variance do not move.
 
 57
-00:03:11,514 --> 00:03:15,275
-nanosecond dead time, our prediction lands
-on the measured counts.
+00:02:47,933 --> 00:02:53,178
+So delay drops out of the table: 108 GB
+becomes 105 MB.
 
 58
-00:03:15,625 --> 00:03:19,596
-This is hardware evidence, not just
-agreement between simulators.
+00:02:53,733 --> 00:02:55,067
+Here is the whole simulator.
 
 59
-00:03:20,096 --> 00:03:21,129
-Now the payoff.
+00:02:55,456 --> 00:02:58,522
+Reflectivity sets the signal flux; depth
+sets the delay.
 
 60
-00:03:21,479 --> 00:03:24,949
-Generating one histogram cube of one
-twenty eight by one twenty
+00:02:58,911 --> 00:03:02,889
+One batched lookup gives every pixel its
+mean, variance and temporal shape.
 
 61
-00:03:24,949 --> 00:03:28,088
-eight by one thousand twenty four takes
-forty point eight
+00:03:03,278 --> 00:03:05,678
+A circular shift moves each peak to its
+own depth.
 
 62
-00:03:28,088 --> 00:03:31,998
-seconds for the gold standard, and one
-point zero one seconds for Mars.
+00:03:06,067 --> 00:03:10,156
+One Gaussian draw gives the count, one
+multinomial spreads it over the bins.
 
 63
-00:03:32,348 --> 00:03:35,159
-And here is the real point: the gold
-standard
+00:03:10,544 --> 00:03:12,256
+No per photon loop anywhere.
 
 64
-00:03:35,159 --> 00:03:38,095
-is Monte Carlo, so it can never be
-precomputed.
+00:03:12,811 --> 00:03:13,744
+Now the payoff.
 
 65
-00:03:38,445 --> 00:03:41,127
-Correct statistics, or practical speed.
+00:03:14,133 --> 00:03:20,578
+One histogram cube, 128×128×1024: 40.8 s
+for the gold standard.
 
 66
-00:03:41,477 --> 00:03:43,195
-Until now, not both.
+00:03:20,967 --> 00:03:23,256
+MaRS, 1.01 s.
 
 67
-00:03:43,695 --> 00:03:45,286
-And it matters downstream.
+00:03:23,644 --> 00:03:27,644
+40× faster — that is what makes training
+data at scale possible.
 
 68
-00:03:45,636 --> 00:03:47,974
-We train the same network on data from
-each
+00:03:28,200 --> 00:03:31,267
+So we can ask what an accurate count model
+is actually worth.
 
 69
-00:03:47,974 --> 00:03:51,127
-simulator, then test all of them on gold
-standard physics.
+00:03:31,656 --> 00:03:34,656
+The Poisson simulator gets both the count
+and the shape wrong.
 
 70
-00:03:51,477 --> 00:03:54,486
-The Poisson trained network collapses, to
-seven
+00:03:35,044 --> 00:03:38,711
+Renewal pairs the right shape with a count
+whose mean and variance are both off.
 
 71
-00:03:54,486 --> 00:03:58,199
-decibels, with a depth error of one point
-six five metres.
+00:03:39,100 --> 00:03:41,900
+Zhang et al. gets the mean right, but not
+the variance.
 
 72
-00:03:58,549 --> 00:04:01,080
-Mars transfers almost perfectly.
+00:03:42,456 --> 00:03:43,811
+And it matters downstream.
 
 73
-00:04:01,430 --> 00:04:04,972
-It has the smallest gap between its own
-domain and the gold
+00:03:44,200 --> 00:03:46,333
+We train the same network on each
+simulator,
 
 74
-00:04:04,972 --> 00:04:09,174
-standard, and the best absolute result on
-both reflectivity and depth.
+00:03:46,333 --> 00:03:48,467
+then test them all on gold standard
+physics.
 
 75
-00:04:09,674 --> 00:04:10,858
-To summarize.
+00:03:48,856 --> 00:03:54,411
+The Poisson-trained network collapses — 7
+dB, and a depth error of 1.65 m.
 
 76
-00:04:11,208 --> 00:04:14,389
-Thirty times closer to the true photon
-count law.
+00:03:54,800 --> 00:03:56,689
+MaRS transfers almost perfectly.
 
 77
-00:04:14,739 --> 00:04:17,131
-A thousand times smaller lookup table.
+00:03:57,078 --> 00:03:59,989
+Smallest gap, and the best absolute result
+on both.
 
 78
-00:04:17,481 --> 00:04:19,861
-Forty times faster than the gold standard.
+00:04:00,544 --> 00:04:02,944
+30× closer to the true photon-count law.
 
 79
-00:04:20,211 --> 00:04:23,462
-And seventeen decibels better downstream
-reconstruction.
+00:04:03,333 --> 00:04:05,333
+1000× smaller lookup table.
 
 80
-00:04:23,962 --> 00:04:25,390
-A few honest limits.
+00:04:05,722 --> 00:04:07,678
+40× faster than the gold standard.
 
 81
-00:04:25,740 --> 00:04:28,087
-We assume a non paralyzable detector,
+00:04:08,067 --> 00:04:10,800
+And 17 dB better downstream
+reconstruction.
 
 82
-00:04:28,087 --> 00:04:31,638
-negligible after pulsing, and a single
-return per pixel.
+00:04:11,356 --> 00:04:12,644
+A few honest limits.
 
 83
-00:04:31,988 --> 00:04:35,227
-Our prototype runs in num pie on a C P U.
+00:04:13,033 --> 00:04:15,029
+We assume a nonparalyzable detector,
 
 84
-00:04:35,577 --> 00:04:41,475
-A G P U version, a compact table, and
-paralyzable detectors are natural next
-steps.
+00:04:15,029 --> 00:04:18,078
+negligible afterpulsing, and a single
+return per pixel.
 
 85
-00:04:41,975 --> 00:04:46,004
+00:04:18,467 --> 00:04:22,600
+A GPU version, a compact table, and
+paralyzable detectors are next.
+
+86
+00:04:23,156 --> 00:04:26,756
 The paper, the code, and the project page
 are all linked below.
 
-86
-00:04:46,354 --> 00:04:47,480
+87
+00:04:27,144 --> 00:04:28,144
 Thank you for watching.
-

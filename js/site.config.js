@@ -62,6 +62,13 @@ window.MARS_CONFIG = {
   videoYoutubeId: null,
   videoSrtUrl: "assets/docs/mars_5min.srt",
 
+  /* videoVttUrl — ADDED 2026-09-12 (stage 04 task 0). Same cues as the .srt,
+     in the one subtitle format a browser can actually render. `videoSrtUrl`
+     stays: it is the sidecar people download. This one is wired into the
+     player as <track kind="captions">, so the CC button in the video controls
+     works. Keep the two in step — tools/retime_srt.py writes both. */
+  videoVttUrl: "assets/docs/mars_5min.vtt",
+
   /* ---- stub gate (stage 1.5) — see the note above ---- */
 
   /* The six gate-able content bands, in document order. Each has a matching

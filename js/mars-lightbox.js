@@ -41,10 +41,23 @@
     video.setAttribute("playsinline", "");
     video.src = cfg.videoSelfUrl;
     if (cfg.videoSrtUrl) {
-      /* .srt is not a browser-native track format (WebVTT is), so it is
-         offered as a download beside the player rather than wired as a
-         <track>. Converting it to .vtt is a stage 06 nicety. */
+      /* .srt is not a browser-native track format, so it stays what it always
+         was: a sidecar offered for download beside the player. */
       video.setAttribute("data-captions", cfg.videoSrtUrl);
+    }
+    if (cfg.videoVttUrl) {
+      /* ADDED stage 04 task 0. WebVTT is the format a <track> can render, so
+         this is what puts a working CC button in the controls. Same cues as
+         the .srt; both are written by tools/retime_srt.py from one source.
+         `default` is deliberately NOT set — captions are offered, not forced.
+         Note this only works same-origin or with CORS; the file sits beside
+         the video, so on GitHub Pages it always is. */
+      var track = document.createElement("track");
+      track.kind = "captions";
+      track.label = "English";
+      track.srclang = "en";
+      track.src = cfg.videoVttUrl;
+      video.appendChild(track);
     }
     body.appendChild(video);
     var p = video.play();

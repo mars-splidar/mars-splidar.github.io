@@ -42,10 +42,27 @@ window.MARS_CONFIG = {
   paperPdfFull: "assets/docs/mars_paper_full.pdf",
   paperPdfFullLabel: "paper (25 MB)",
 
-  /* arxivUrl — open question E4. Null until an ID exists AND posting is cleared. */
-  arxivUrl: null,
+  /* arxivUrl — E4 RESOLVED 2026-09-14. The author supplied 2512.04924 and it
+     was verified against arxiv.org before being wired up here, because the
+     ID arrived hedged ("I think this is the arxiv id") and a hero button
+     pointing at the wrong paper is worse than one that says `· soon`:
+     arxiv.org/abs/2512.04924 returns the title "Markov-Renewal Single-Photon
+     LiDAR Simulator" and all five authors in order, eess.SP. Public posting
+     is therefore cleared by the arXiv record itself.
 
-  /* codeUrl — open question E5. Null until the release + licence are decided. */
+     `citation_pdf_url` deliberately still points at this site's own
+     assets/docs/mars_paper.pdf rather than at arXiv — Google Scholar wants
+     the host copy — and the arXiv link is carried in the JSON-LD as
+     `sameAs` plus an `identifier` PropertyValue, and in a
+     `citation_arxiv_id` meta tag. */
+  arxivUrl: "https://arxiv.org/abs/2512.04924",
+
+  /* codeUrl — open question E5, STILL OPEN at launch and knowingly deferred.
+     Null until the release and the licence are decided, so the hero renders
+     `Code · soon` as a non-clickable pill. PROJECT_BRIEF.md §7.7.2 is
+     explicit that this is the right failure mode: the old placeholder page
+     promised code, and "coming soon" beats linking to nothing. When it
+     lands, set this AND add the licence line to the BibTeX/footer band. */
   codeUrl: null,
 
   /* Poster: web copy is the primary target (3.0 MB, 150 dpi raster); the

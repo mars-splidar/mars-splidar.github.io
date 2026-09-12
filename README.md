@@ -214,3 +214,25 @@ Each build stage appends one line here.
   still empty, so nothing on the rendered page requests them yet. Every number
   in them recomputes from `video/data.py`; the count-law animation contains no
   equation, by construction rather than by inspection.
+- **Stage 05 — simulator + motivation animations (2026-09-13).** Pushed, first
+  and on its own: **the site's first real content.** `sectionsLive` now carries
+  `approach`, `contributions`, `theory`, `simulator` and `utility`, and
+  `mediaAvailable` the two Theory animations — so the page grew from a hero,
+  four gains and a citation to five bands, seven nav anchors and two playing
+  loops. Before publishing, the §3.2 type floor was split in two — meaning-
+  bearing text (title, callout) to 5.5% of frame height, plot furniture
+  unchanged at 2.5% — because the media frame is only 343 CSS px wide on a
+  375 px phone; both Theory animations were re-rendered against it, which moved
+  their callouts from 32/37 px to 47 px and cost `anim_theory_countlaw`'s two
+  words. Each slot's `<figcaption>` now repeats its animation's title as **real
+  text**, since text burned into a video cannot be selected, translated or read
+  by a screen reader. Committed but **not** published: the last three
+  animations — `anim_motivation_scaling` (6.0 s, both measured runtime curves
+  from `runtime_scaling_num_pixels.npz`), `anim_sim_pipeline` (6.0 s, the three
+  vectorized stages with their measured costs and their `our_sim.py` entry
+  points) and `anim_sim_lut` (7.0 s, the delay axis leaving the table,
+  108 GB → 105 MB). None compresses time, so none carries a badge.
+  `motivation` stays gated until they go live, because its slot is the whole
+  band. `audit_claims.py` exits 0 and `check_links.py` reports zero broken
+  against the live URL — note it takes that URL as an argument:
+  `python tools/check_links.py https://mars-splidar.github.io`.

@@ -290,7 +290,11 @@
           <source data-src="assets/media/anim_motivation_scaling.mp4" type="video/mp4">
         </video>
       </div>
-      <figcaption class="mars-media__caption">Video: the sequential gold standard&rsquo;s cost, growing with flux, with pixel count and with every added realization.</figcaption>
+      <figcaption class="mars-media__caption"><span class="mars-media__title">Correct,
+        but it does not scale</span> &mdash; the measured cost of both
+        simulators as the image grows, from 1&times;1 to 512&times;512 pixels
+        on the same workload. The sequential gold standard is correct at every
+        point on that curve; it simply examines every photon.</figcaption>
     </figure>
   </div>
 </section>
@@ -715,8 +719,11 @@
                 <source data-src="assets/media/anim_sim_pipeline.mp4" type="video/mp4">
               </video>
             </div>
-            <figcaption class="mars-media__caption">Video: the three-stage
-              pipeline, batched lookup to sampled cube</figcaption>
+            <figcaption class="mars-media__caption"><span class="mars-media__title">Three
+              stages, no per-photon loop</span> &mdash; batched lookup, then a
+              circular temporal shift, then one multinomial draw per pixel:
+              0.020&nbsp;s, 0.144&nbsp;s and 0.849&nbsp;s, summing to the
+              1.013&nbsp;s cube.</figcaption>
           </figure>
         </div>
 
@@ -759,8 +766,11 @@
                 <source data-src="assets/media/anim_sim_lut.mp4" type="video/mp4">
               </video>
             </div>
-            <figcaption class="mars-media__caption">Video: why a naive LUT
-              fails, delay invariance solves it</figcaption>
+            <figcaption class="mars-media__caption"><span class="mars-media__title">Delay
+              drops out of the table</span> &mdash; the delay axis leaves the
+              product and the same table falls from 108&nbsp;GB to 105&nbsp;MB.
+              One table per sensor configuration, reused for every pixel and
+              depth.</figcaption>
           </figure>
         </div>
       </div>

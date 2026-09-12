@@ -198,3 +198,19 @@ Each build stage appends one line here.
   exits 0, with `CANONICAL` completed from the brief's §3.5 table and the
   stage-01 placeholder grep narrowed so it stops matching the phrase
   "high flux". All 17 W-checks pass.
+- **Stage 04 — web-loop harness + Theory animations (2026-09-12).** Pushed, on
+  its own and first: the Video button now serves the author-narrated
+  `v3_voice_0.9x` cut (24.70 MB, 4:30.9) in place of the v1 one, with captions
+  scaled from the un-slowed v3-voice `.srt` by exactly 10/9 — a ratio that is
+  exact by construction, since both files decode to the same 7316 frames at
+  30 fps and 27 fps, and was checked against frame alignment and 77 detected
+  speech onsets before it was trusted. `tools/retime_srt.py` is the script.
+  The `.srt` is now accompanied by a `.vtt` wired into the lightbox as
+  `<track kind="captions">`, because SRT is not a format any browser renders
+  and the player had no CC button at all. Committed but **not** published: the
+  two Theory animations, `anim_theory_countlaw` (6.5 s) and
+  `anim_theory_covariance` (6.0 s), built from the film's `s06_clt` and
+  `s07_covariance` by the new harness in `video/web/` — `mediaAvailable` is
+  still empty, so nothing on the rendered page requests them yet. Every number
+  in them recomputes from `video/data.py`; the count-law animation contains no
+  equation, by construction rather than by inspection.

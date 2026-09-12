@@ -80,8 +80,17 @@ window.MARS_CONFIG = {
              "theory", "simulator", "utility"],
 
   /* Finished and rendered. Empty at the 2026-09-07 conference launch: stage 01
-     built these six as shells and stage 02 writes their content. */
-  sectionsLive: [],
+     built these six as shells and stage 02 writes their content.
+
+     PUBLISHED 2026-09-13 (stage 05 task 0c), on the author's decision recorded
+     in WEBSITE_BUILD_STATUS.md §2. Five of the six go live. `motivation` stays
+     out because its animation slot is 576 px tall and is essentially the whole
+     band — it waits for anim_motivation_scaling, and stage 06 turns it on.
+     Note `contributions` cannot go live without `theory`: its card links
+     "Read the derivation" into it, and the gate would otherwise leave an
+     orphan anchor. */
+  sectionsLive: ["approach", "contributions", "theory", "simulator",
+                 "utility"],
 
   /* ---- media gate (stage 1.5) ----
      The same idea one level down, and it exists for one concrete reason: a
@@ -97,8 +106,12 @@ window.MARS_CONFIG = {
      STAGES 04 AND 05: drop your files into assets/media/ AND add the basename
      here. Both, or the slot stays a placeholder. The five contract basenames
      are anim_motivation_scaling, anim_theory_countlaw, anim_theory_covariance,
-     anim_sim_pipeline and anim_sim_lut. */
-  mediaAvailable: [],
+     anim_sim_pipeline and anim_sim_lut.
+
+     The two Theory loops landed 2026-09-13 (stage 05 task 0c), re-rendered at
+     §3.2's raised meaning-bearing type floor. The other three are built but
+     stay off until stage 06 publishes them with the Motivation band. */
+  mediaAvailable: ["anim_theory_countlaw", "anim_theory_covariance"],
 
   projectPage: "https://mars-splidar.github.io/",
   demoLabUrl: "demos/",

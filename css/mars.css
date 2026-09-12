@@ -391,7 +391,35 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-eyebrow.is-utility   { color: var(--aged-fg); }
 .mars-eyebrow.is-muted     { color: var(--grey); }
 
-.mars-eyebrow i { font-size: 1.15em; }
+/* ICONS — inline SVG, not a webfont (Q10, stage 06).
+   The site used the Tabler icons webfont from jsDelivr for nine decorative
+   glyphs. Measured on the live site at Slow 3G: ONE request, 801 KB of
+   tabler-icons.woff2, 20.5 s of a 26.6 s load — the whole remaining gap
+   between DCL and load, for nine outline shapes. The nine are now inline
+   <svg class="mars-ico"> in the markup, taken from the same Tabler 3.31.0
+   outline set the font was built from, so nothing external is fetched.
+
+   Two things this rule has to preserve, because the webfont gave them away
+   for free and an SVG does not:
+     - COLOUR. Tabler outline glyphs are strokes, so every inline SVG carries
+       stroke="currentColor" and fill="none". That is what keeps the five
+       .mars-eyebrow colour variants (blue / green / aged / grey) working.
+       Never hard-code a stroke colour on one of these.
+     - SIZE. A webfont glyph is 1em by definition. `width/height: 1em` plus
+       the baseline nudge reproduces that in every context the icons appear
+       in — the nav burger (1.25rem), the gold demo-lab pill (0.8125rem), the
+       section eyebrows (0.75rem) and the lab back-link (0.9375rem) all size
+       their icon from their own font-size, exactly as before. The width and
+       height ATTRIBUTES in the markup are only a no-CSS fallback: CSS beats a
+       presentation attribute, so 1em still governs. */
+.mars-ico {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  flex: 0 0 auto;
+}
+
+.mars-eyebrow .mars-ico { width: 1.15em; height: 1.15em; vertical-align: 0; }
 
 .mars-section__title {
   font-size: clamp(1.5rem, 3vw, 2rem);

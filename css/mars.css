@@ -777,6 +777,20 @@ img, video { max-width: 100%; height: auto; display: block; }
   color: var(--grey);
 }
 
+/* The animation's own burned-in title, repeated here as REAL text (§3.2,
+   revised 2026-09-13). Not a duplicate: text inside a video cannot be
+   selected, translated, searched or read by a screen reader, and at a 375 px
+   viewport the media frame is only 343 CSS px wide, so the burned-in plot
+   furniture is decorative anyway. The caption is what carries the point to a
+   phone reader and to assistive technology; the burned-in title is what keeps
+   the file self-contained when someone downloads it. Both, always.
+   Deliberately NOT gold: this sits on PAPER inside a mint frame's figure, and
+   --dark keeps it out of the --aged-fg mint-surface list entirely. */
+.mars-media__title {
+  color: var(--dark);
+  font-weight: 700;
+}
+
 /* --------------------------------------------------------------------------
    Figures (static images) and tables
    -------------------------------------------------------------------------- */

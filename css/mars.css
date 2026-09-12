@@ -484,8 +484,40 @@ img, video { max-width: 100%; height: auto; display: block; }
    title smaller beneath it. */
 .mars-hero__title--narrow { display: none; }
 
-@media (max-width: 380px) {
-  .mars-hero__title { display: none; }
+/* THE NARROW HERO TITLE — breakpoint and a11y both corrected in stage 06.
+   Two measured findings, both in the band of widths that is most of the
+   conference's phone traffic:
+
+   1. The breakpoint was 380px, and the wide title's clamp() floor is 0.8rem
+      = 12.8px. So between 381px and 467px the <h1> rendered BELOW body size
+      while the narrow fallback built for exactly this case stayed switched
+      off — measured 14.36px at 420px and 13.3px at 390px, against 16px body
+      copy and a 17px subhead. 381-467px covers essentially every mainstream
+      phone in portrait: 390, 393, 402, 414, 428, 430. The breakpoint is now
+      467px, which is the width where the nowrap title reaches exactly 1rem
+      (3.42vw = 16.006px at 468px). The rule is therefore principled rather
+      than picked: the narrow fallback owns every width at which the single
+      line would be smaller than the body text it sits above.
+
+   2. `display: none` on the <h1> took it out of the ACCESSIBILITY TREE, and
+      the narrow replacement below is aria-hidden="true" — so below the
+      breakpoint the page had NO <h1> at all for assistive technology. The
+      first heading a screen reader met was the visually-hidden "Headline
+      results" <h2>. Measured at 375px before this change. The <h1> is now
+      visually hidden instead (the same declarations as
+      .mars-visually-hidden), so it stays in the tree and keeps naming the
+      hero <section> through aria-labelledby, while the narrow block carries
+      the visual treatment. */
+@media (max-width: 467px) {
+  .mars-hero__title {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
   .mars-hero__title--narrow { display: block; }
   .mars-hero__title--narrow .mars-hero__acronym {
     display: block;

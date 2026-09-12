@@ -310,3 +310,11 @@ Each build stage appends one line here.
   Also fixed: `tools/build_web_assets.py` was **unrunnable** — it resolved the
   v1 video filenames that stage 04 superseded, through a check that fired
   before `--skip-video` could spare it, so the whole script exited 1.
+  **One consequence of the media deferral to know before adding a sixth
+  animation:** `.has-media` is now set at init for every basename in
+  `mediaAvailable`, so a *missing* file no longer falls back to the labelled
+  placeholder — it renders as an empty white 16:9 frame, permanently, and
+  nothing catches it. A cold load requests nothing from `assets/media/` by
+  design, and `check_links.py` cannot see those URLs because they ship as
+  `data-poster` / `data-src`. **Verify `assets/media/` by path.** All 15 files
+  were confirmed 200 with byte-exact sizes against production at launch.

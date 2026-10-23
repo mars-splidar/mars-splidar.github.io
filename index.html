@@ -234,10 +234,16 @@
            legible on a phone and a screen reader reads it. Hidden while the
            raster shows: the raster already carries these labels.
            THE WORKLOAD LINE (Q17): the paper's Fig. 1 caption gives the three
-           timings and NO workload — no resolution, bins, cycles or dead time
-           — and nothing else in paper/ states one. So this line says only
-           what is sourced. Stage 08/09 may tighten it if the Fig. 1 data
-           (Q18) turns out to record the workload. -->
+           timings and NO workload, and nothing else in paper/ states one.
+           Stage 08 (WEBSITE_BUILD_STATUS 5, Q17/Q18) recovered it from the
+           paper's own Fig. 1 data files, which store the timings
+           (0.2024 / 16.0622 / 0.3002 s): one 128 x 128 x 256-bin cube,
+           N = 100 cycles, t_d 75 ns, B = 0.5, one realization. The line
+           names the cube and the cycles and keeps the dead time off `/`
+           (non-negotiable #4 lives on /details/). No machine is named: the
+           files do not record one, so the 9700X is NOT this run's.
+           16.1 / 0.3 = 54x on this small cube — never set beside the 40x as
+           one claim; the line says they are different runs. -->
       <div class="mars-teaser__labels" id="mars-teaser-labels" hidden>
         <dl class="mars-teaser__cols">
           <div class="mars-teaser__col">
@@ -253,9 +259,9 @@
             <dd>correct and fast · <strong>0.3 s</strong></dd>
           </div>
         </dl>
-        <p class="mars-teaser__workload">Seconds per cube for the example in
-          the paper&rsquo;s Fig. 1 — a separate run from the
-          128&times;128&times;1024 benchmark behind the 40&times;.</p>
+        <p class="mars-teaser__workload">Seconds per
+          128&times;128&times;256-bin cube at 100 laser cycles, from the
+          paper&rsquo;s Fig. 1 — not the benchmark behind the 40&times;.</p>
       </div>
 
       <figcaption class="mars-teaser__tagline">Physically correct
@@ -343,9 +349,9 @@
                loading="lazy" decoding="async"
                alt="Two predicted count distributions against the true histogram. At low flux the renewal model puts its peak in the wrong place while Zhang et al. and MaRS both sit on the histogram. At high flux the renewal model is far off to one side, Zhang et al. finds the right centre but predicts a distribution several times too wide, and MaRS matches both the centre and the width.">
         </picture>
-        <figcaption class="mars-demo__note">The paper&rsquo;s Fig. 5 at two
-          single operating points; the KLs printed on it are per point, not the
-          grid average.</figcaption>
+        <figcaption class="mars-demo__note">Paper Fig. 5 at two single
+          operating points: its KLs are per point, not
+          grid-averaged.</figcaption>
       </figure>
     </article>
 
@@ -422,9 +428,8 @@
                  label="English">
         </video>
       </div>
-      <figcaption class="mars-video__meta">Captions are built into the
-        player, or <a href="assets/docs/mars_5min.srt" download>download them
-        as .srt</a>.</figcaption>
+      <figcaption class="mars-video__meta">Captions in the player ·
+        <a href="assets/docs/mars_5min.srt" download>download .srt</a></figcaption>
     </figure>
   </div>
 </section>

@@ -21,6 +21,12 @@ Budgets (guide 0.1), and exactly how each is measured:
      source: the hero button labels and the "Full-resolution originals" line,
      which js/mars-nav.js renders from js/site.config.js — read here from
      those two files, so a new button is counted.
+     ONE DELIBERATE EXCEPTION to the `hidden` rule: the teaser's HTML label
+     row (`.mars-teaser__labels`) is counted although it ships `hidden`.
+     It is hidden only while the interim raster shows; js/mars-main.js
+     un-hides it at RUNTIME the moment stage 09's video loads, so a static
+     gate that skipped it would pass a page whose rendered final state is
+     over budget. The gate holds the page to its final state.
      A WORD is a whitespace-separated token containing at least one letter or
      digit. So "—", "·", "→" and "↓" are not words; a hyphenated or
      ×-joined compound ("single-photon", "128×128×1024") is one word; "40×"
@@ -127,7 +133,8 @@ def excluded(n: Node) -> bool:
     for x in [n, *n.ancestors()]:
         if x.tag in SKIP_TAGS or x.tag in ("nav", "pre"):
             return True
-        if "hidden" in x.attrs or x.attrs.get("aria-hidden") == "true":
+        if ("hidden" in x.attrs and "mars-teaser__labels" not in x.classes) \
+                or x.attrs.get("aria-hidden") == "true":
             return True
         if "mars-visually-hidden" in x.classes:
             return True

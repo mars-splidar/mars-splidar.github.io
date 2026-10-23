@@ -97,14 +97,20 @@
   /* ---------------- hero button row ---------------- */
 
   /* Each entry: label, the config key holding its URL, and how to behave when
-   * that URL is present. `kind` "link" navigates, "lightbox" defers to
-   * mars-lightbox.js, "anchor" is an in-page jump that always exists. */
+   * that URL is present. `kind` "link" navigates, "lightbox" renders a
+   * [data-mars-lightbox] button (v1's lightbox script that handled it was
+   * deleted in stage 09), "anchor" is an in-page jump that always exists.
+   *
+   * STAGE 07 (v2): `Video` is now an "anchor" to the inline #video band
+   * (guide 0.3). The "lightbox" kind below is kept, unused; bringing the
+   * lightbox back would also mean restoring its script and CSS from git
+   * history (removed in stage 09, decision of 2026-10-23). */
   var BUTTONS = [
     { label: "Paper",   key: "paperPdf",  kind: "link",     newTab: true,
       primaryWhenReady: true },
     { label: "arXiv",   key: "arxivUrl",  kind: "link",     newTab: true },
     { label: "Code",    key: "codeUrl",   kind: "link",     newTab: true },
-    { label: "Video",   key: "videoSelfUrl", kind: "lightbox" },
+    { label: "Video",   kind: "anchor", href: "#video" },
     { label: "Poster",  key: "posterPdf", kind: "link",     newTab: true },
     { label: "BibTeX ↓", kind: "anchor", href: "#bibtex" }
   ];

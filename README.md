@@ -9,8 +9,8 @@ Purdue University.
 
 ## What this is and where it deploys
 
-A static, dependency-free site: plain HTML, one CSS file, four small vanilla-JS
-modules. No build step, no framework, no bundler.
+A static, dependency-free site: plain HTML, one CSS file, a handful of small
+vanilla-JS modules. No build step, no framework, no bundler.
 
 - **Deploys to:** GitHub Pages at <https://mars-splidar.github.io/>, from the
   `main` branch of `git@github.com:mars-splidar/mars-splidar.github.io.git`.
@@ -18,12 +18,13 @@ modules. No build step, no framework, no bundler.
   and stops it silently dropping any path beginning with `_`.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
-Two pages:
+Three pages (v2, `v2.0`, 2026-10-23):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The main page — one long scroll with a sticky nav |
-| `demos/index.html` | The demo lab — heavier interactive work, kept off the main page so the main page's first contentful paint stays fast |
+| `index.html` | The lean main page: the hero teaser, *In short* + four gains, two result demos, the film inline, BibTeX |
+| `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
+| `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
 
 ## Source assets live outside this repo and are never modified
 
@@ -89,6 +90,60 @@ Two escape hatches, both documented at the top of the script:
 
 `--quiet` skips the coverage report and prints failures only.
 
+Since stage 07 the site has **two public pages**, `/` and `/details/`, and the
+audit says so: both must exist, neither may link to `/demos/`, 85 ns and
+75 ns may not share a band on `/details/`, the gain order is read from the
+gains strip on `/`, and "exactly one `.mars-eq`" counts across both.
+
+### The two v2 gates (stage 07)
+
+```bash
+python tools/page_budget.py          # the main page's budgets, guide 0.1
+python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
+```
+
+`page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1 —
+visible words ≤ 350, four media slots above BibTeX, zero switch bars, zero
+display equations, and each demo's title and single sentence — and exits
+non-zero on a breach. Its docstring defines exactly what counts as a word and
+as a media item. `details_move_diff.py` extracts each of the seven bands,
+banner comment included, from `git show v1.0-launch:index.html` and from
+`details/index.html`, undoes the `../` path prefix and diffs them; the only
+allowed difference is the Simulator card's demo-lab link.
+
+### The Demo 2 graphic (stage 09)
+
+```bash
+python tools/build_demo_count.py            # needs the Dead_time env
+python tools/build_demo_count.py --check    # writes nothing; the gate form
+```
+
+Regenerates `assets/img/demo_count.svg` from the repo's stored count results
+(through `video/data.py::count_distributions()`, at S = B = 8.2,
+t_d = 75 ns) and splices the same SVG into `index.html` between the
+`demo_count:start` / `demo_count:end` markers, so never edit it by hand.
+It prints the operating point, the realization count and every model's
+stored vs plotted mean and variance, asserts that no `<text>` node or the
+`aria-label` carries a digit, and exits non-zero on any mismatch or, with
+`--check`, on drift between the script, the file and the inline copy.
+
+### The hero teaser (stages 08, 09b)
+
+`assets/media/anim_hero_cubes{,_960}.{webm,mp4,jpg}` are built **outside this
+repo**, in the project folder's `video/web/hero/`, from the paper's own Fig. 1
+cubes. To rebuild them, run this in the `Dead_time` env (about 2-3 min):
+
+```bash
+cd /home/weijianz399/OneDrive/MaRS_presentations/video/web/hero
+python final.py
+```
+
+That writes `out/anim_hero_cubes{,_960}.*` and `out/provenance.json`, and runs
+every `WEBSITE_BUILD_STATUS.md` §3.7 check. Then copy the six files into
+`assets/media/` byte for byte, and confirm the copy with md5 against
+`provenance.json`. `video/web/hero/README.md` is the full reference. No
+`mediaAvailable` entry is needed: the teaser is not a `.mars-media` slot.
+
 ### The other three checks
 
 ```bash
@@ -99,7 +154,12 @@ python tools/check_links.py https://mars-splidar.github.io
 rather than printing usage. Stages 04, 05 and 06 each hit that; it is recorded
 here so the next session does not. It resolves every `href`, `src` and
 `srcset` on both pages plus the URLs `js/site.config.js` injects, and reports
-external links without following them. Point it at `http://localhost:8731`
+external links without following them. With no page arguments it checks `/`
+and `/details/`; since stage 07 it also HEAD-checks every `data-src` /
+`data-poster` whose basename is declared in `mediaAvailable`, resolved against
+the page that carries it — the by-path sweep stage 06 asked for, because a
+missing animation file otherwise renders as a blank frame that nothing
+reports. Point it at `http://localhost:8731`
 to check a working tree before pushing.
 
 ```bash
@@ -110,8 +170,10 @@ python ../../video/web/provenance.py                          # needs the Dead_t
 `w6_table_diff.py` parses the expected values straight out of
 `PROJECT_BRIEF.md` §3.4/§3.5/§3.6 and diffs them against the rendered cells of
 all four HTML tables plus the runtime caption's stage breakdown; an empty diff
-is the pass. It reads `index.html` from the current directory, so run it from
-the repo root, not from `build_instructions/`. `provenance.py` recomputes every
+is the pass. It reads `index.html` and `details/index.html` from the current
+directory (all four tables live on `/details/` since stage 07, and each must
+appear exactly once across the two), so run it from the repo root, not from
+`build_instructions/`. `provenance.py` recomputes every
 number burned into all five animation frames and exits non-zero on drift —
 neither script can see numbers burned into the twelve static poster graphics,
 which is why stage 06's handoff carries a hand-built provenance table for
@@ -129,19 +191,29 @@ file directly — `file://` breaks the clipboard API and relative asset paths.
 ## Repository layout
 
 ```
-index.html              main page
-demos/index.html        demo lab
+index.html              main page — the lean v2 pitch (stage 07)
+details/index.html      the seven v1 technical bands, moved verbatim (stage 07)
+demos/index.html        demo lab — unlinked from public pages since v2
 css/mars.css            design tokens + every component
-js/site.config.js       EVERY external URL, in one object
+js/site.config.js       EVERY external URL, in one object (resolved against
+                        the site root, so it works from /details/ too)
+js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
-js/mars-switchbar.js    the switch-bar (tab) pattern
-js/mars-media.js        scroll-triggered animation slots
-js/mars-lightbox.js     video lightbox + BibTeX copy button
-assets/img/             generated *.webp + *.png
-assets/media/           the five section animations (stages 04, 05)
+js/mars-main.js         main page only: teaser, video poster, BibTeX copy
+js/mars-compare.js      main page only: Demo 3 before/after slider (stage 09)
+js/mars-sections.js     the stub gate (now loaded by /details/ only)
+js/mars-switchbar.js    the switch-bar (tab) pattern (/details/)
+js/mars-media.js        scroll-triggered animation slots (/details/)
+assets/img/             generated *.webp + *.png, + video_poster.jpg
+assets/media/           the five section animations (stages 04, 05) + the
+                        hero teaser anim_hero_cubes (stage 08, landed 09)
 assets/docs/            poster PDFs, paper PDF, overview video + captions
 tools/build_web_assets.py
-tools/audit_claims.py
+tools/audit_claims.py   claim hygiene, both public pages
+tools/check_links.py    every reference, both public pages
+tools/page_budget.py    the main page's guide-0.1 budgets (stage 07)
+tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 09)
+tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
 
 ## Editing rules that are not obvious from the code
@@ -318,6 +390,27 @@ Each build stage appends one line here.
   design, and `check_links.py` cannot see those URLs because they ship as
   `data-poster` / `data-src`. **Verify `assets/media/` by path.** All 15 files
   were confirmed 200 with byte-exact sizes against production at launch.
+- **Stage 07 — v2 restructure: a lean `/` and a `/details/` page
+  (2026-10-23).** On branch `v2-redesign`, not pushed. The seven technical
+  bands moved **verbatim** to `details/index.html` (`tools/details_move_diff.py`
+  proves it: six bands identical, one allowed edit — the Simulator card's
+  demo-lab link now reads *See the simulator ↓*). `/` was rebuilt to guide §0.3
+  with interim media: hero + teaser slot (`hook_tradeoff` as the LCP image;
+  stage 09 drops in `anim_hero_cubes` with no other edit, and a missing file
+  leaves the raster showing rather than a blank box), *In short* + the four
+  gains, two result demos (`theory_count`; a Poisson-/MaRS-trained two-up),
+  the film inline with a deferred title-card poster and `.vtt` captions, *Go
+  deeper*, BibTeX. 343 visible words against v1's ≈2,440 — counted in
+  the final state, with the teaser's label row that stage 09 un-hides (303 as
+  rendered today); `tools/page_budget.py` gates it at 350. Old `/#theory`-style
+  anchors redirect to `/details/` (`js/mars-redirect.js`). `site.config.js`
+  now resolves its URLs against the site root, which is what makes "Read the
+  paper" work from `/details/`. Fixed a v1 defect stage 06 could not see: the
+  tables' visually-hidden `<caption>` leaked 206 px of body overflow at 320 px
+  in real Chrome. New gate `tools/page_budget.py`; `audit_claims.py`,
+  `check_links.py` and `w6_table_diff.py` now cover both pages. All
+  measurements came from real headless Google Chrome 154 via Playwright, with
+  no rAF shim; they are in `build_instructions/review/stage07/`.
 - **Stage 07h — live hotfix, mobile horizontal overflow (2026-10-23),
   `v1.0.1`.** Every phone had the whole page scrolling sideways — 206 px of
   overflow at 320 px, 151 at 375, 136 at 390, 96 at 430 — because each table's
@@ -330,3 +423,37 @@ Each build stage appends one line here.
   visually hidden. Stage 06 had measured 0 here through iframe probes in a
   non-compositing pane; stage 07 found it in real Chrome. The same line is on
   `v2-redesign`.
+- **Stage 09 — v2 core demos (2026-10-23).** On `v2-redesign`, not pushed;
+  `main` (07h) merged in first. `/` is now content-complete: the hero shows
+  stage 08's `anim_hero_cubes` over its own poster (the LCP; the video is
+  started by `js/mars-main.js`, never under reduced motion or Save-Data, and
+  a missing file leaves the poster and the HTML label row on screen); Demo 2
+  is a generated, inlined count-distribution SVG with no number inside it
+  (`tools/build_demo_count.py`, which reads `video/data.py` and checks its
+  own provenance); Demo 3 is a keyboard-operable before/after slider
+  (`js/mars-compare.js`) with the test-set numbers on each side.
+  `js/mars-lightbox.js` deleted; the head descriptions attach the 128×128×1024
+  workload to the 40×. 348/350 words. All gates exit 0; review pack in
+  `build_instructions/review/stage09/`.
+- **Stage 09b — polish (2026-10-23).** Demo 2 now leads with the reference:
+  gold-standard bars as the anchor, MaRS the strongest line on top, the two
+  prior models lighter and thinner (Zhang et al. dashed). The teaser is
+  cropped to 1920 × 448 from the unchanged render, so the label row ends on
+  the first 1280 × 800 screen (773 px), and phones load
+  `anim_hero_cubes_960.*` (a 390-px cold load fell from 1.75 MB to 660 KB).
+  348/350 words; all gates exit 0; review pack in
+  `build_instructions/review/stage09b/`.
+- **Stage 10 — independent review, merge and launch (2026-10-23), `v2.0`.**
+  A session that built none of v2 re-measured it:
+  - every gate, on both pages;
+  - the twelve non-negotiables, page by page;
+  - a number-provenance table for `/`;
+  - the teaser stepped frame by frame, and Demo 2's SVG grepped;
+  - real headless Chrome and Firefox, at eight widths;
+  - Lighthouse, mobile and desktop.
+
+  It found no rule violation. One fix: the hero button row now reserves its
+  space while it is empty, so `js/mars-nav.js` filling it no longer pushes the
+  teaser down; mobile CLS on `/` fell from 0.11-0.27 to 0.05-0.20.
+  `v2-redesign` was merged into `main` and tagged `v2.0`. The review pack and
+  the author's phone checklist are in `build_instructions/review/stage10/`.

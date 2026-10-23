@@ -1,7 +1,7 @@
 /* Media slots — scroll-triggered autoplay for the five section animations.
  *
  * CONTRACT ADDITION (stage 01): WEBSITE_BUILD_STATUS.md section 3.1 lists
- * mars-nav.js, mars-switchbar.js and mars-lightbox.js but no home for the
+ * mars-nav.js, mars-switchbar.js and v1's lightbox script but no home for the
  * IntersectionObserver behaviour that section 3.3 requires. This file is that
  * home. It is purely additive — nothing in section 3 was renamed. Flagged in
  * the stage 01 handoff entry.

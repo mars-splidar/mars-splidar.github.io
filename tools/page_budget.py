@@ -22,11 +22,15 @@ Budgets (guide 0.1), and exactly how each is measured:
      which js/mars-nav.js renders from js/site.config.js — read here from
      those two files, so a new button is counted.
      ONE DELIBERATE EXCEPTION to the `hidden` rule: the teaser's HTML label
-     row (`.mars-teaser__labels`) is counted although it ships `hidden`.
-     It is hidden only while the interim raster shows; js/mars-main.js
-     un-hides it at RUNTIME the moment stage 09's video loads, so a static
-     gate that skipped it would pass a page whose rendered final state is
-     over budget. The gate holds the page to its final state.
+     row (`.mars-teaser__labels`) is counted even if it ships `hidden`.
+     Stage 07 shipped it hidden behind an interim raster and un-hid it at
+     runtime; since stage 09 it is visible from first paint, so the
+     exception no longer changes the count, and stays only so the gate
+     cannot be gamed by re-hiding it.
+     JS-SWAPPED TEXT (stage 09): Demo 3's Reflectivity / Depth toggle swaps
+     its side labels and note from data-depth attributes. The gate counts
+     the Reflectivity state the HTML ships; the Depth state has the same
+     word count (measured in the browser, stage 09 measurements.txt).
      A WORD is a whitespace-separated token containing at least one letter or
      digit. So "—", "·", "→" and "↓" are not words; a hyphenated or
      ×-joined compound ("single-photon", "128×128×1024") is one word; "40×"

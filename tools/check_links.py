@@ -28,6 +28,18 @@ TAG = re.compile(r"<(\w+)((?:\s+[-\w:]+(?:\s*=\s*(?:\"[^\"]*\"|'[^']*'|[^\s>]+))
 ATTR = re.compile(r"([-\w:]+)\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>]+)")
 URL_META = {"og:image", "twitter:image", "citation_pdf_url", "og:url"}
 
+# Files `/` depends on that no HTML attribute names, HEAD-checked BY PATH
+# (stage 09). The teaser's sources are attributes too, but they are the main
+# page's LCP and its one autoplay, so they are named here as well; and
+# demo_count.svg ships INLINED in index.html, so nothing on the page
+# references the committed file that tools/build_demo_count.py writes.
+BY_PATH_MAIN = [
+    "assets/media/anim_hero_cubes.jpg",
+    "assets/media/anim_hero_cubes.webm",
+    "assets/media/anim_hero_cubes.mp4",
+    "assets/img/demo_count.svg",
+]
+
 
 def attrs(blob):
     out = {}
@@ -131,7 +143,8 @@ def main():
 
         # Deferred media URLs, by path (stage 07 — see the docstring).
         deferred = sorted(set(html.unescape(v) for v in re.findall(
-            r'\bdata-(?:src|poster)\s*=\s*["\']([^"\']+)["\']', body)))
+            r'\bdata-(?:src|poster)(?:-[a-z]+)?\s*=\s*["\']([^"\']+)["\']',
+            body)))   # data-src-refl / data-src-depth: Demo 3 (stage 09)
         if deferred:
             print("  -- deferred media (data-src / data-poster), by path --")
         for u in deferred:
@@ -156,6 +169,14 @@ def main():
         # stage 07: site.config.js itself resolves them against the site root
         # at runtime, so /details/ renders the same absolute URLs as `/`.
         if page.rstrip("/") in ("", "/"):
+            print("  -- by path (stage 09) --")
+            for u in BY_PATH_MAIN:
+                code, size = head(urllib.parse.urljoin(base, u))
+                if code != 200:
+                    bad += 1
+                    print(f"  ** {code:<5} {u}")
+                else:
+                    print(f"  {code:<7} {u}  ({size} B)")
             cfg_url = urllib.parse.urljoin(page_url, "js/site.config.js")
             try:
                 creq = urllib.request.Request(

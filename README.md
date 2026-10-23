@@ -110,6 +110,22 @@ banner comment included, from `git show v1.0-launch:index.html` and from
 `details/index.html`, undoes the `../` path prefix and diffs them; the only
 allowed difference is the Simulator card's demo-lab link.
 
+### The Demo 2 graphic (stage 09)
+
+```bash
+python tools/build_demo_count.py            # needs the Dead_time env
+python tools/build_demo_count.py --check    # writes nothing; the gate form
+```
+
+Regenerates `assets/img/demo_count.svg` from the repo's stored count results
+(through `video/data.py::count_distributions()`, at S = B = 8.2,
+t_d = 75 ns) and splices the same SVG into `index.html` between the
+`demo_count:start` / `demo_count:end` markers, so never edit it by hand.
+It prints the operating point, the realization count and every model's
+stored vs plotted mean and variance, asserts that no `<text>` node or the
+`aria-label` carries a digit, and exits non-zero on any mismatch or, with
+`--check`, on drift between the script, the file and the inline copy.
+
 ### The other three checks
 
 ```bash
@@ -165,18 +181,20 @@ js/site.config.js       EVERY external URL, in one object (resolved against
                         the site root, so it works from /details/ too)
 js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
-js/mars-main.js         main page only: teaser swap, video poster, BibTeX copy
+js/mars-main.js         main page only: teaser, video poster, BibTeX copy
+js/mars-compare.js      main page only: Demo 3 before/after slider (stage 09)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
 js/mars-switchbar.js    the switch-bar (tab) pattern (/details/)
 js/mars-media.js        scroll-triggered animation slots (/details/)
-js/mars-lightbox.js     v1 video lightbox — no page loads it since stage 07
 assets/img/             generated *.webp + *.png, + video_poster.jpg
-assets/media/           the five section animations (stages 04, 05)
+assets/media/           the five section animations (stages 04, 05) + the
+                        hero teaser anim_hero_cubes (stage 08, landed 09)
 assets/docs/            poster PDFs, paper PDF, overview video + captions
 tools/build_web_assets.py
 tools/audit_claims.py   claim hygiene, both public pages
 tools/check_links.py    every reference, both public pages
 tools/page_budget.py    the main page's guide-0.1 budgets (stage 07)
+tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 09)
 tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
 
@@ -387,3 +405,15 @@ Each build stage appends one line here.
   visually hidden. Stage 06 had measured 0 here through iframe probes in a
   non-compositing pane; stage 07 found it in real Chrome. The same line is on
   `v2-redesign`.
+- **Stage 09 — v2 core demos (2026-10-23).** On `v2-redesign`, not pushed;
+  `main` (07h) merged in first. `/` is now content-complete: the hero shows
+  stage 08's `anim_hero_cubes` over its own poster (the LCP; the video is
+  started by `js/mars-main.js`, never under reduced motion or Save-Data, and
+  a missing file leaves the poster and the HTML label row on screen); Demo 2
+  is a generated, inlined count-distribution SVG with no number inside it
+  (`tools/build_demo_count.py`, which reads `video/data.py` and checks its
+  own provenance); Demo 3 is a keyboard-operable before/after slider
+  (`js/mars-compare.js`) with the test-set numbers on each side.
+  `js/mars-lightbox.js` deleted; the head descriptions attach the 128×128×1024
+  workload to the 40×. 348/350 words. All gates exit 0; review pack in
+  `build_instructions/review/stage09/`.

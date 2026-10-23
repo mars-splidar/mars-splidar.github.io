@@ -571,6 +571,20 @@ img, video { max-width: 100%; height: auto; display: block; }
   list-style: none;
 }
 
+/* Stage 10: reserve the button row's space, plus the "Full-resolution
+   originals" note under it, ONLY while the row is still empty. js/mars-nav.js
+   fills both in one synchronous step after first paint on a slow phone, which
+   pushed the teaser down 72 px and put Lighthouse mobile CLS on / at 0.113.
+   :empty stops matching the moment the buttons land, so the built layout is
+   untouched. Heights measured in Chrome (row + 0.5rem + note): one row at
+   about 625 px and up, two below, three at 320 px; the note wraps to two
+   lines below about 370 px. The breakpoints sit INSIDE those wrap points
+   (font metrics move them a little), so each value is at or under the built
+   height: the page can only settle down, never jump up. */
+.mars-hero__buttons:empty { min-height: 72px; }
+@media (max-width: 619px) { .mars-hero__buttons:empty { min-height: 126px; } }
+@media (max-width: 359px) { .mars-hero__buttons:empty { min-height: 147px; } }
+
 .mars-hero__note {
   margin-top: 0.5rem;            /* 09b: was 0.9rem */
   font-size: 0.8125rem;

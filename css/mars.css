@@ -898,7 +898,16 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 
 /* EVERY data table scrolls inside its own container, never the page body. */
+/* `position: relative` — STAGE 07 FIX, a v1 defect stage 06 could not see.
+   Every table carries a <caption class="mars-visually-hidden">, which is
+   position:absolute. With a static wrapper its containing block is the
+   page, not this scroller, so the overflow the wrapper is meant to absorb
+   leaked to the document: real Chrome 154 measures 206 px of body overflow
+   at 320 px on v1.0-launch's own index.html (the capability matrix). Stage
+   06's 0 came from iframe probes in a non-compositing pane. Making the
+   wrapper the containing block takes it to 0 at every width. */
 .mars-table-wrap {
+  position: relative;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--rule);
@@ -1357,6 +1366,198 @@ img, video { max-width: 100%; height: auto; display: block; }
   .mars-lab__sidebar { flex: 0 0 auto; padding: 0.7rem; }
   .mars-lab__nav { flex-direction: row; flex-wrap: wrap; }
   .mars-lab__item { width: auto; }
+}
+
+/* ==========================================================================
+   v2 — STAGE 07. The lean main page and the /details/ page shell.
+   Everything below is additive: no v1 rule above was changed, so /details/,
+   which carries the v1 bands verbatim, renders them exactly as v1 did.
+   ========================================================================== */
+
+/* ---- The teaser slot (index.html hero, guide 0.3 ①, contract 3.7) --------
+
+   A 3:1 frame at full content width, reserved by aspect-ratio so nothing
+   reflows when stage 09 lands the video. The interim `hook_tradeoff` raster
+   is 3.6:1, so it is CONTAINED in the frame on a PAPER ground — the same
+   colour as the band, so the letterbox is invisible.
+
+   The swap is driven by js/mars-main.js setting data-teaser-state="video"
+   only after the video has demonstrably loaded. The video sits on top at
+   opacity 0 until then — NOT display:none, which some browsers treat as a
+   reason to never start an autoplay — and the raster is hidden only once the
+   video is showing, so the slot is never blank. */
+.mars-teaser { margin: clamp(1.5rem, 3vw, 2.25rem) 0 0; }
+
+.mars-teaser__frame {
+  position: relative;
+  aspect-ratio: 3 / 1;
+  background: var(--paper);
+}
+.mars-teaser__raster,
+.mars-teaser__raster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.mars-teaser__raster img { object-fit: contain; }
+
+.mars-teaser__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.mars-teaser[data-teaser-state="video"] .mars-teaser__video { opacity: 1; }
+.mars-teaser[data-teaser-state="video"] .mars-teaser__raster { visibility: hidden; }
+
+/* The HTML label row (decision P5). Three columns that line up under the
+   three cubes; hidden until the video is showing. */
+.mars-teaser__labels { margin-top: 0.6rem; }
+.mars-teaser__labels[hidden] { display: none; }
+.mars-teaser__cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  text-align: center;
+}
+.mars-teaser__col dt {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--dark);
+}
+.mars-teaser__col.is-ours dt { color: var(--green); }  /* 5.44:1 on PAPER */
+.mars-teaser__col dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--grey);
+}
+.mars-teaser__col dd strong { color: var(--dark); font-weight: 600; }
+.mars-teaser__workload {
+  margin: 0.5rem 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--grey);
+}
+
+/* The tagline — the approved headline (PROJECT_BRIEF 4.1). Set like v1's hook
+   caption, which it replaces: larger and darker than a figure caption. */
+.mars-teaser__tagline {
+  margin-top: 0.9rem;
+  text-align: center;
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  line-height: 1.45;
+  color: var(--dark);            /* DARK on PAPER = 15.89:1 */
+}
+
+/* ---- In short (MINT) ---------------------------------------------------- */
+.mars-inshort { margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem); }
+
+/* ---- Results: the demo cards -------------------------------------------- */
+.mars-demo + .mars-demo {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  padding-top: clamp(2.5rem, 5vw, 3.5rem);
+  border-top: 1px solid var(--rule);
+}
+.mars-demo__title {
+  font-size: clamp(1.375rem, 2.6vw, 1.75rem);
+  margin: 0 0 0.5rem;
+}
+.mars-demo__sentence {
+  max-width: 68ch;
+  font-size: 1.0625rem;
+  margin: 0 0 1.25rem;
+}
+.mars-demo__media { margin: 0; }
+.mars-demo__media > picture img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+.mars-demo__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  max-width: 760px;
+}
+.mars-demo__note {
+  margin-top: 0.55rem;
+  font-size: 0.8125rem;
+  color: var(--grey);            /* 6.65:1 on PAPER */
+}
+
+/* ---- Video (MINT) ------------------------------------------------------- */
+/* The frame is the film's own INK so the letterbox before the poster lands
+   reads as the title card it is about to show. Not an ink BAND: a media
+   frame, like a video player's own chrome. No text is painted on it. */
+.mars-video { margin: 0; }
+.mars-video__frame {
+  aspect-ratio: 16 / 9;
+  background: var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.mars-video__player {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+}
+.mars-video__meta {
+  margin-top: 0.6rem;
+  font-size: 0.875rem;
+  color: var(--grey);            /* 6.24:1 on MINT */
+}
+
+/* ---- Go deeper (PAPER) -------------------------------------------------- */
+.mars-deeper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  list-style: none;
+  margin: 0 0 1.1rem;
+  padding: 0;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 1.0625rem;
+}
+.mars-deeper a { text-decoration: none; border-bottom: 1px solid #d8cdb5; }
+.mars-deeper a:hover { border-bottom-color: var(--aged); }
+.mars-deeper__limits {
+  max-width: 68ch;
+  font-size: 0.9375rem;
+  color: var(--grey);
+}
+
+/* ---- /details/ page shell ----------------------------------------------- */
+.mars-pagehead { border-bottom: 1px solid var(--rule); }
+.mars-pagehead .mars-band__inner {
+  padding-top: clamp(1.75rem, 3.5vw, 2.75rem);
+  padding-bottom: clamp(1.5rem, 3vw, 2.25rem);
+}
+.mars-pagehead__title {
+  font-size: clamp(1.5rem, 3.2vw, 2.25rem);
+  margin: 0 0 0.5rem;
+}
+.mars-pagehead__lede {
+  max-width: 62ch;
+  font-size: 1.0625rem;
+  color: var(--grey);
+}
+/* The compact INK footer: link line + funding line, no BibTeX. */
+.mars-closing--compact .mars-band__inner {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 /* --------------------------------------------------------------------------

@@ -143,6 +143,36 @@ window.MARS_CONFIG = {
                    "anim_sim_lut"],
 
   projectPage: "https://mars-splidar.github.io/",
+  /* demoLabUrl — since v2 (stage 07) nothing public links here: /demos/ is
+     unlinked until the playground ships (guide 0.2). Kept so the demo lab's
+     own page and any future link have one place to read it from. */
   demoLabUrl: "demos/",
   contactEmail: "zhan5056@purdue.edu"
 };
+
+/* SUBDIRECTORY SAFETY — added stage 07, when /details/ arrived.
+ *
+ * Every relative URL above was written for ONE page at the site root, and the
+ * scripts that consume them (mars-nav.js's hero buttons, its closing-band
+ * "Read the paper" link, its data-mars-config-href rewrites) assign them to
+ * an `href` as-is. Assigned from /details/, "assets/docs/mars_paper.pdf"
+ * resolves to /details/assets/docs/mars_paper.pdf — a 404 that no gate sees,
+ * because tools/check_links.py resolves config URLs against the site base,
+ * not against the page that renders them.
+ *
+ * So resolve them here, ONCE, against the location of this very file, which
+ * always sits in <site root>/js/. Every page — `/`, `/details/`, `/demos/` —
+ * then receives absolute URLs and nothing downstream has to know which
+ * directory it is in. Values stay written as relative paths above so the
+ * file reads the same and the link checker's regex still finds them.
+ * Null stays null (the null rule is untouched); absolute URLs pass through. */
+(function (cfg) {
+  "use strict";
+  var me = document.currentScript;
+  if (!me || !me.src || typeof URL !== "function") return;
+  var root = new URL("../", me.src);
+  ["paperPdf", "paperPdfFull", "posterPdf", "posterPdfFull", "videoSelfUrl",
+   "videoSrtUrl", "videoVttUrl", "demoLabUrl"].forEach(function (key) {
+    if (cfg[key]) cfg[key] = new URL(cfg[key], root).href;
+  });
+})(window.MARS_CONFIG);

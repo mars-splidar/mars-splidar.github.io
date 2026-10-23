@@ -899,6 +899,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 
 /* EVERY data table scrolls inside its own container, never the page body. */
 .mars-table-wrap {
+  position: relative;   /* contains the visually-hidden <caption> (07h) */
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid var(--rule);

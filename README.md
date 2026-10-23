@@ -318,3 +318,15 @@ Each build stage appends one line here.
   design, and `check_links.py` cannot see those URLs because they ship as
   `data-poster` / `data-src`. **Verify `assets/media/` by path.** All 15 files
   were confirmed 200 with byte-exact sizes against production at launch.
+- **Stage 07h — live hotfix, mobile horizontal overflow (2026-10-23),
+  `v1.0.1`.** Every phone had the whole page scrolling sideways — 206 px of
+  overflow at 320 px, 151 at 375, 136 at 390, 96 at 430 — because each table's
+  visually-hidden `<caption>` is `position: absolute` and its scroll wrapper
+  `.mars-table-wrap` was not its containing block, so the caption's box leaked
+  to the page (the default Utility panel, the capability matrix, triggered it
+  with no tab opened). One declaration, `position: relative` on
+  `.mars-table-wrap`; 0 overflow at all eight widths from 320 to 1440 with
+  every panel open, tables still scroll inside their wrappers, captions still
+  visually hidden. Stage 06 had measured 0 here through iframe probes in a
+  non-compositing pane; stage 07 found it in real Chrome. The same line is on
+  `v2-redesign`.

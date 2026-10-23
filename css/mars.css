@@ -1340,7 +1340,12 @@ img, video { max-width: 100%; height: auto; display: block; }
   aspect-ratio: 3 / 1;
   background: var(--paper);
 }
+/* Poster and video share ONE box (absolute, inset 0, inside the 3:1 frame
+   that aspect-ratio sizes), so the swap is pixel-identical and neither
+   layer rounds to a different height than the other. */
 .mars-teaser__poster {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;

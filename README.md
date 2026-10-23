@@ -9,8 +9,8 @@ Purdue University.
 
 ## What this is and where it deploys
 
-A static, dependency-free site: plain HTML, one CSS file, four small vanilla-JS
-modules. No build step, no framework, no bundler.
+A static, dependency-free site: plain HTML, one CSS file, a handful of small
+vanilla-JS modules. No build step, no framework, no bundler.
 
 - **Deploys to:** GitHub Pages at <https://mars-splidar.github.io/>, from the
   `main` branch of `git@github.com:mars-splidar/mars-splidar.github.io.git`.
@@ -18,12 +18,13 @@ modules. No build step, no framework, no bundler.
   and stops it silently dropping any path beginning with `_`.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
-Two pages:
+Three pages (v2, `v2.0`, 2026-10-23):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The main page — one long scroll with a sticky nav |
-| `demos/index.html` | The demo lab — heavier interactive work, kept off the main page so the main page's first contentful paint stays fast |
+| `index.html` | The lean main page: the hero teaser, *In short* + four gains, two result demos, the film inline, BibTeX |
+| `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
+| `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
 
 ## Source assets live outside this repo and are never modified
 
@@ -125,6 +126,23 @@ It prints the operating point, the realization count and every model's
 stored vs plotted mean and variance, asserts that no `<text>` node or the
 `aria-label` carries a digit, and exits non-zero on any mismatch or, with
 `--check`, on drift between the script, the file and the inline copy.
+
+### The hero teaser (stages 08, 09b)
+
+`assets/media/anim_hero_cubes{,_960}.{webm,mp4,jpg}` are built **outside this
+repo**, in the project folder's `video/web/hero/`, from the paper's own Fig. 1
+cubes. To rebuild them, run this in the `Dead_time` env (about 2-3 min):
+
+```bash
+cd /home/weijianz399/OneDrive/MaRS_presentations/video/web/hero
+python final.py
+```
+
+That writes `out/anim_hero_cubes{,_960}.*` and `out/provenance.json`, and runs
+every `WEBSITE_BUILD_STATUS.md` §3.7 check. Then copy the six files into
+`assets/media/` byte for byte, and confirm the copy with md5 against
+`provenance.json`. `video/web/hero/README.md` is the full reference. No
+`mediaAvailable` entry is needed: the teaser is not a `.mars-media` slot.
 
 ### The other three checks
 
@@ -425,3 +443,17 @@ Each build stage appends one line here.
   `anim_hero_cubes_960.*` (a 390-px cold load fell from 1.75 MB to 660 KB).
   348/350 words; all gates exit 0; review pack in
   `build_instructions/review/stage09b/`.
+- **Stage 10 — independent review, merge and launch (2026-10-23), `v2.0`.**
+  A session that built none of v2 re-measured it:
+  - every gate, on both pages;
+  - the twelve non-negotiables, page by page;
+  - a number-provenance table for `/`;
+  - the teaser stepped frame by frame, and Demo 2's SVG grepped;
+  - real headless Chrome and Firefox, at eight widths;
+  - Lighthouse, mobile and desktop.
+
+  It found no rule violation. One fix: the hero button row now reserves its
+  space while it is empty, so `js/mars-nav.js` filling it no longer pushes the
+  teaser down; mobile CLS on `/` fell from 0.11-0.27 to 0.05-0.20.
+  `v2-redesign` was merged into `main` and tagged `v2.0`. The review pack and
+  the author's phone checklist are in `build_instructions/review/stage10/`.

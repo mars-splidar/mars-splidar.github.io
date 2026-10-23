@@ -435,7 +435,9 @@ img, video { max-width: 100%; height: auto; display: block; }
    Hero
    -------------------------------------------------------------------------- */
 
-.mars-hero__inner { padding-top: clamp(2rem, 4vw, 3.25rem); }
+/* stage 09b: tightened (was clamp(2rem, 4vw, 3.25rem)) so the teaser's label
+   row ends on the first 1280 x 800 screen; .mars-hero__* is used by / only */
+.mars-hero__inner { padding-top: clamp(1.75rem, 3vw, 2.5rem); }
 
 .mars-badge {
   display: inline-block;
@@ -557,7 +559,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-hero__affil {
   color: var(--grey);
   font-size: 0.9375rem;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.1rem;            /* 09b: was 1.5rem */
 }
 
 .mars-hero__buttons {
@@ -570,7 +572,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 
 .mars-hero__note {
-  margin-top: 0.9rem;
+  margin-top: 0.5rem;            /* 09b: was 0.9rem */
   font-size: 0.8125rem;
   color: var(--grey);
 }
@@ -1333,11 +1335,11 @@ img, video { max-width: 100%; height: auto; display: block; }
    poster is NEVER hidden, so a stalled or failed video still has the same
    three cubes underneath it. Not display:none on the video, which some
    browsers treat as a reason never to start playback. */
-.mars-teaser { margin: clamp(1.5rem, 3vw, 2.25rem) 0 0; }
+.mars-teaser { margin: clamp(1rem, 1.6vw, 1.25rem) 0 0; }   /* 09b: was clamp(1.5rem, 3vw, 2.25rem) */
 
 .mars-teaser__frame {
   position: relative;
-  aspect-ratio: 3 / 1;
+  aspect-ratio: 1920 / 448;     /* stage 09b crop; was 3 / 1 */
   background: var(--paper);
 }
 /* Poster and video share ONE box (absolute, inset 0, inside the 3:1 frame
@@ -1366,7 +1368,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 
 /* The HTML label row (decision P5). Three columns that line up under the
    three cubes; visible from first paint since stage 09. */
-.mars-teaser__labels { margin-top: 0.6rem; }
+.mars-teaser__labels { margin-top: 0.4rem; }   /* 09b: was 0.6rem */
 .mars-teaser__labels[hidden] { display: none; }
 .mars-teaser__cols {
   display: grid;

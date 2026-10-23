@@ -37,6 +37,9 @@ BY_PATH_MAIN = [
     "assets/media/anim_hero_cubes.jpg",
     "assets/media/anim_hero_cubes.webm",
     "assets/media/anim_hero_cubes.mp4",
+    "assets/media/anim_hero_cubes_960.jpg",       # stage 09b phone variant
+    "assets/media/anim_hero_cubes_960.webm",
+    "assets/media/anim_hero_cubes_960.mp4",
     "assets/img/demo_count.svg",
 ]
 

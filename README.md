@@ -364,7 +364,9 @@ Each build stage appends one line here.
   leaves the raster showing rather than a blank box), *In short* + the four
   gains, two result demos (`theory_count`; a Poisson-/MaRS-trained two-up),
   the film inline with a deferred title-card poster and `.vtt` captions, *Go
-  deeper*, BibTeX. 314 visible words against v1's ≈2,440. Old `/#theory`-style
+  deeper*, BibTeX. 343 visible words against v1's ≈2,440 — counted in
+  the final state, with the teaser's label row that stage 09 un-hides (303 as
+  rendered today); `tools/page_budget.py` gates it at 350. Old `/#theory`-style
   anchors redirect to `/details/` (`js/mars-redirect.js`). `site.config.js`
   now resolves its URLs against the site root, which is what makes "Read the
   paper" work from `/details/`. Fixed a v1 defect stage 06 could not see: the

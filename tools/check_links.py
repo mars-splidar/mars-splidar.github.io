@@ -101,6 +101,9 @@ def main():
         # Markup comments are not requested by anything. Stage 07 parks the
         # exact <video> stage 09 will add to the teaser inside a comment, and
         # without this its not-yet-existing sources read as three 404s.
+        # The production pattern check below still reads `raw`, comments
+        # included, exactly as it did before stage 07.
+        raw = body
         body = re.sub(r"<!--.*?-->", " ", body, flags=re.S)
         print(f"\n=== {page_url}  [{status}] ===")
 
@@ -183,7 +186,7 @@ def main():
 
         if page_url.startswith("http") and "mars-splidar" in page_url:
             for pat in ("mars-todo", "under construction"):
-                if pat in body:
+                if pat in raw:
                     bad += 1
                     print(f"  ** SERVED HTML CONTAINS {pat!r}")
 

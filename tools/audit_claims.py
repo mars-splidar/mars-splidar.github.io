@@ -20,6 +20,12 @@ stage 01 exit 1 are gone — the stub gate removed them from the markup rather
 than hiding them — so this is the first stage at which the audit passes clean.
 Any failure from here on is a real bug.
 
+STAGE 07 (v2): the site is now TWO public pages, `/` and `/details/`. Every
+pass already ran over every .html file; stage 07 adds PUBLIC_PAGES (both must
+exist), zero links to /demos/ on either, the 85 ns / 75 ns rule made
+section-aware on /details/, and scopes the gain-order check to the gains
+strip. "Exactly one .mars-eq" stays site-wide, across both pages.
+
 Pass 3 (contrast) was added in stage 1.5 to stop the GOLD/AGED contrast fix
 from silently regressing. It is the only pass that reads CSS rather than HTML.
 
@@ -713,13 +719,86 @@ def check_numbers(text: str, rel: str, rep: Report,
             break
 
 
+# ==========================================================================
+# v2 checks — added stage 07, when the site became two public pages
+# ==========================================================================
+
+# The public pages every gate must cover. /demos/ is NOT public in v2: it stays
+# at its URL but nothing links to it (guide 0.2), so it is audited for claims
+# like any other file but is not held to the rules below.
+PUBLIC_PAGES = ["index.html", "details/index.html"]
+
+# guide 0.2 / decision P2: zero links to /demos/ from a public page until the
+# playground ships. Checked on `href` ATTRIBUTE VALUES (comments stripped), so
+# a markup comment explaining the rule does not trip it, plus the
+# `data-mars-config-href="demoLabUrl"` hook, which js/mars-nav.js would turn
+# into a demo-lab link at runtime whatever the hand-written href says.
+DEMOS_HREF = re.compile(r'\bhref\s*=\s*["\']([^"\']*demos[^"\']*)["\']', re.I)
+DEMOS_CONFIG = re.compile(r'data-mars-config-href\s*=\s*["\']demoLabUrl["\']')
+
+
+def check_public_pages(rep: Report) -> None:
+    for page in PUBLIC_PAGES:
+        path = REPO / page
+        if not path.exists():
+            rep.fail(page, "public page missing [stage 07]",
+                     "every gate must cover both / and /details/")
+            continue
+        body = COMMENT_RE.sub(" ", path.read_text(encoding="utf-8",
+                                                  errors="replace"))
+        hits = [m.group(1) for m in DEMOS_HREF.finditer(body)]
+        hits += ["data-mars-config-href=demoLabUrl"
+                 for _ in DEMOS_CONFIG.finditer(body)]
+        for h in hits:
+            rep.fail(page, "link to /demos/ on a public page [guide 0.2]", h)
+        rep.info.append(f"links to /demos/ on {page}: {len(hits)}")
+
+
+def check_dead_time_sections(rep: Report) -> None:
+    """#4, made structural on /details/: 85 ns (hardware) and 75 ns
+    (simulation grid) must not share a band. The proximity window in
+    check_conflation() is the character-level half of the same rule."""
+    page = "details/index.html"
+    path = REPO / page
+    if not path.exists():
+        return
+    source = COMMENT_RE.sub(" ", path.read_text(encoding="utf-8",
+                                                errors="replace"))
+    where: dict[str, list[str]] = {"85 ns": [], "75 ns": []}
+    for sec in re.finditer(r'<section\b[^>]*\bid="([^"]+)"(.*?)</section>',
+                           source, re.S):
+        text = visible_text(sec.group(2))
+        for k in where:
+            if re.search(k.replace(" ", r"\s*"), text):
+                where[k].append(sec.group(1))
+    shared = set(where["85 ns"]) & set(where["75 ns"])
+    if shared:
+        rep.fail(page, "85 ns and 75 ns in the same band [#4]",
+                 ", ".join(sorted(shared)))
+    rep.info.append(f"/details/ dead-time placement: 85 ns in "
+                    f"{where['85 ns'] or 'nowhere'}, 75 ns in "
+                    f"{where['75 ns'] or 'nowhere'} (must never share a band)")
+
+
 def check_gain_order(rep: Report) -> None:
     """#11 — accuracy -> table size -> speed -> downstream, in that order."""
     index = REPO / "index.html"
     if not index.exists():
         rep.fail("index.html", "missing [#11]", "cannot check gain order")
         return
-    text = visible_text(index.read_text(encoding="utf-8", errors="replace"))
+    source = index.read_text(encoding="utf-8", errors="replace")
+    # SCOPED TO THE GAINS STRIP since stage 07. v2's "In short" paragraph
+    # says "about 40x faster" in prose ABOVE the strip, so the first "40x" in
+    # the page's visible text is no longer a gain numeral, and a whole-page
+    # search reported a false 40x -> 30x -> 1000x order. #11 is about the four
+    # gain blocks, so read the order out of the one `ul.mars-stats` list.
+    strips = re.findall(r'<ul class="mars-stats">(.*?)</ul>', source, re.S)
+    if len(strips) != 1:
+        rep.fail("index.html", "gains strip [#11]",
+                 f"expected exactly one <ul class=\"mars-stats\">, found "
+                 f"{len(strips)}")
+        return
+    text = visible_text(strips[0])
 
     positions = []
     for gain in GAIN_ORDER:
@@ -762,7 +841,9 @@ def main() -> int:
     rep = Report()
     found: dict[str, list[str]] = {}
 
-    print(f"MaRS claim audit — {len(files)} HTML file(s) under {REPO}\n")
+    print(f"MaRS claim audit — {len(files)} HTML file(s) under {REPO}")
+    print("  " + ", ".join(str(f.relative_to(REPO)) for f in files)
+          + f"   (public: {', '.join(PUBLIC_PAGES)})\n")
     for path in files:
         rel = str(path.relative_to(REPO))
         source = path.read_text(encoding="utf-8", errors="replace")
@@ -773,6 +854,8 @@ def main() -> int:
 
     check_equation_count(files, rep)
     check_gain_order(rep)
+    check_public_pages(rep)
+    check_dead_time_sections(rep)
     check_contrast(rep)
 
     # ---- pass 2 coverage report -----------------------------------------

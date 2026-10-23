@@ -89,6 +89,27 @@ Two escape hatches, both documented at the top of the script:
 
 `--quiet` skips the coverage report and prints failures only.
 
+Since stage 07 the site has **two public pages**, `/` and `/details/`, and the
+audit says so: both must exist, neither may link to `/demos/`, 85 ns and
+75 ns may not share a band on `/details/`, the gain order is read from the
+gains strip on `/`, and "exactly one `.mars-eq`" counts across both.
+
+### The two v2 gates (stage 07)
+
+```bash
+python tools/page_budget.py          # the main page's budgets, guide 0.1
+python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
+```
+
+`page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1 —
+visible words ≤ 350, four media slots above BibTeX, zero switch bars, zero
+display equations, and each demo's title and single sentence — and exits
+non-zero on a breach. Its docstring defines exactly what counts as a word and
+as a media item. `details_move_diff.py` extracts each of the seven bands,
+banner comment included, from `git show v1.0-launch:index.html` and from
+`details/index.html`, undoes the `../` path prefix and diffs them; the only
+allowed difference is the Simulator card's demo-lab link.
+
 ### The other three checks
 
 ```bash
@@ -99,7 +120,12 @@ python tools/check_links.py https://mars-splidar.github.io
 rather than printing usage. Stages 04, 05 and 06 each hit that; it is recorded
 here so the next session does not. It resolves every `href`, `src` and
 `srcset` on both pages plus the URLs `js/site.config.js` injects, and reports
-external links without following them. Point it at `http://localhost:8731`
+external links without following them. With no page arguments it checks `/`
+and `/details/`; since stage 07 it also HEAD-checks every `data-src` /
+`data-poster` whose basename is declared in `mediaAvailable`, resolved against
+the page that carries it — the by-path sweep stage 06 asked for, because a
+missing animation file otherwise renders as a blank frame that nothing
+reports. Point it at `http://localhost:8731`
 to check a working tree before pushing.
 
 ```bash
@@ -110,8 +136,10 @@ python ../../video/web/provenance.py                          # needs the Dead_t
 `w6_table_diff.py` parses the expected values straight out of
 `PROJECT_BRIEF.md` §3.4/§3.5/§3.6 and diffs them against the rendered cells of
 all four HTML tables plus the runtime caption's stage breakdown; an empty diff
-is the pass. It reads `index.html` from the current directory, so run it from
-the repo root, not from `build_instructions/`. `provenance.py` recomputes every
+is the pass. It reads `index.html` and `details/index.html` from the current
+directory (all four tables live on `/details/` since stage 07, and each must
+appear exactly once across the two), so run it from the repo root, not from
+`build_instructions/`. `provenance.py` recomputes every
 number burned into all five animation frames and exits non-zero on drift —
 neither script can see numbers burned into the twelve static poster graphics,
 which is why stage 06's handoff carries a hand-built provenance table for
@@ -129,19 +157,27 @@ file directly — `file://` breaks the clipboard API and relative asset paths.
 ## Repository layout
 
 ```
-index.html              main page
-demos/index.html        demo lab
+index.html              main page — the lean v2 pitch (stage 07)
+details/index.html      the seven v1 technical bands, moved verbatim (stage 07)
+demos/index.html        demo lab — unlinked from public pages since v2
 css/mars.css            design tokens + every component
-js/site.config.js       EVERY external URL, in one object
+js/site.config.js       EVERY external URL, in one object (resolved against
+                        the site root, so it works from /details/ too)
+js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
-js/mars-switchbar.js    the switch-bar (tab) pattern
-js/mars-media.js        scroll-triggered animation slots
-js/mars-lightbox.js     video lightbox + BibTeX copy button
-assets/img/             generated *.webp + *.png
+js/mars-main.js         main page only: teaser swap, video poster, BibTeX copy
+js/mars-sections.js     the stub gate (now loaded by /details/ only)
+js/mars-switchbar.js    the switch-bar (tab) pattern (/details/)
+js/mars-media.js        scroll-triggered animation slots (/details/)
+js/mars-lightbox.js     v1 video lightbox — no page loads it since stage 07
+assets/img/             generated *.webp + *.png, + video_poster.jpg
 assets/media/           the five section animations (stages 04, 05)
 assets/docs/            poster PDFs, paper PDF, overview video + captions
 tools/build_web_assets.py
-tools/audit_claims.py
+tools/audit_claims.py   claim hygiene, both public pages
+tools/check_links.py    every reference, both public pages
+tools/page_budget.py    the main page's guide-0.1 budgets (stage 07)
+tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
 
 ## Editing rules that are not obvious from the code
@@ -318,3 +354,22 @@ Each build stage appends one line here.
   design, and `check_links.py` cannot see those URLs because they ship as
   `data-poster` / `data-src`. **Verify `assets/media/` by path.** All 15 files
   were confirmed 200 with byte-exact sizes against production at launch.
+- **Stage 07 — v2 restructure: a lean `/` and a `/details/` page
+  (2026-10-23).** On branch `v2-redesign`, not pushed. The seven technical
+  bands moved **verbatim** to `details/index.html` (`tools/details_move_diff.py`
+  proves it: six bands identical, one allowed edit — the Simulator card's
+  demo-lab link now reads *See the simulator ↓*). `/` was rebuilt to guide §0.3
+  with interim media: hero + teaser slot (`hook_tradeoff` as the LCP image;
+  stage 09 drops in `anim_hero_cubes` with no other edit, and a missing file
+  leaves the raster showing rather than a blank box), *In short* + the four
+  gains, two result demos (`theory_count`; a Poisson-/MaRS-trained two-up),
+  the film inline with a deferred title-card poster and `.vtt` captions, *Go
+  deeper*, BibTeX. 314 visible words against v1's ≈2,440. Old `/#theory`-style
+  anchors redirect to `/details/` (`js/mars-redirect.js`). `site.config.js`
+  now resolves its URLs against the site root, which is what makes "Read the
+  paper" work from `/details/`. Fixed a v1 defect stage 06 could not see: the
+  tables' visually-hidden `<caption>` leaked 206 px of body overflow at 320 px
+  in real Chrome. New gate `tools/page_budget.py`; `audit_claims.py`,
+  `check_links.py` and `w6_table_diff.py` now cover both pages. All
+  measurements came from real headless Google Chrome 154 via Playwright, with
+  no rAF shim; they are in `build_instructions/review/stage07/`.

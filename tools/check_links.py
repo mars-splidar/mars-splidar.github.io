@@ -8,9 +8,19 @@ case-sensitive filesystem and a local one may not be, so an `Assets/` vs
 
     python check_links.py https://mars-splidar.github.io/ / /demos/
 
-Deliberately ignores `data-src` / `data-poster`: those are the stage 1.5 media
-gate's deferred URLs, which by design point at files that do not exist yet and
-are never requested by the browser.
+`data-src` / `data-poster` — CHANGED IN STAGE 07. Those are the media gate's
+deferred URLs. They used to be skipped wholesale, because before stage 05 they
+pointed at files that did not exist yet. That blind spot is exactly where
+stage 06 section 9's silent failure lives: a basename declared in
+`mediaAvailable` whose file 404s renders as a blank white frame, and no
+page load reveals it, because a cold load requests nothing from
+assets/media/. So now every deferred URL whose basename IS declared in
+`mediaAvailable` is resolved against the PAGE that carries it (that matters
+from /details/, where they read `../assets/media/...`) and HEAD-checked like
+any other reference. Undeclared ones are still skipped, and listed.
+
+With no page arguments it checks both public pages, `/` and `/details/`
+(stage 07). /demos/ is still checkable by naming it.
 """
 import html, re, sys, urllib.error, urllib.parse, urllib.request
 
@@ -40,7 +50,7 @@ def refs_in(body):
         if tag in ("script", "img", "video", "audio", "iframe", "embed") \
                 and a.get("src"):
             yield a["src"]
-        if tag == "source" and a.get("src"):
+        if tag in ("source", "track") and a.get("src"):
             yield a["src"]
         if tag in ("img", "source") and a.get("srcset"):
             for part in a["srcset"].split(","):
@@ -70,14 +80,28 @@ def head(url):
 
 def main():
     base = sys.argv[1].rstrip("/") + "/"
-    pages = sys.argv[2:] or ["/"]
+    pages = sys.argv[2:] or ["/", "/details/"]
     bad = 0
+    try:
+        creq = urllib.request.Request(urllib.parse.urljoin(base, "js/site.config.js"),
+                                      headers={"User-Agent": "mars-linkcheck"})
+        with urllib.request.urlopen(creq, timeout=60) as r:
+            cfg_src = r.read().decode("utf-8", "replace")
+        m = re.search(r"mediaAvailable:\s*\[(.*?)\]", cfg_src, re.S)
+        available = set(re.findall(r'"([^"]+)"', m.group(1))) if m else set()
+    except Exception as e:
+        print(f"  ** could not read mediaAvailable from site.config.js: {e}")
+        available, bad = set(), bad + 1
     for page in pages:
         page_url = urllib.parse.urljoin(base, page.lstrip("/"))
         req = urllib.request.Request(
             page_url, headers={"User-Agent": "mars-linkcheck"})
         with urllib.request.urlopen(req, timeout=60) as r:
             status, body = r.status, r.read().decode("utf-8", "replace")
+        # Markup comments are not requested by anything. Stage 07 parks the
+        # exact <video> stage 09 will add to the teaser inside a comment, and
+        # without this its not-yet-existing sources read as three 404s.
+        body = re.sub(r"<!--.*?-->", " ", body, flags=re.S)
         print(f"\n=== {page_url}  [{status}] ===")
 
         seen, internal, external = set(), [], []
@@ -102,10 +126,32 @@ def main():
         for full in sorted(external):
             print(f"  (ext)   {full}")
 
+        # Deferred media URLs, by path (stage 07 — see the docstring).
+        deferred = sorted(set(html.unescape(v) for v in re.findall(
+            r'\bdata-(?:src|poster)\s*=\s*["\']([^"\']+)["\']', body)))
+        if deferred:
+            print("  -- deferred media (data-src / data-poster), by path --")
+        for u in deferred:
+            stem = u.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+            full = urllib.parse.urljoin(page_url, u)
+            if "assets/media/" in u and stem not in available:
+                print(f"  (undeclared, skipped) {u}")
+                continue
+            code, size = head(full)
+            rel = full[len(base) - 1:] if full.startswith(base) else full
+            if code != 200:
+                bad += 1
+                print(f"  ** {code:<5} {rel}   <- declared in mediaAvailable")
+            else:
+                print(f"  {code:<7} {rel}  ({size} B)")
+
         # The hero buttons, the lightbox and the closing links are built at
         # runtime from js/site.config.js, so their URLs never appear in the
         # HTML. They are also the ones most exposed to a case-sensitivity
         # slip, so pull them out of the config and check them too.
+        # Resolving them against the SITE BASE (not the page) is correct since
+        # stage 07: site.config.js itself resolves them against the site root
+        # at runtime, so /details/ renders the same absolute URLs as `/`.
         if page.rstrip("/") in ("", "/"):
             cfg_url = urllib.parse.urljoin(page_url, "js/site.config.js")
             try:

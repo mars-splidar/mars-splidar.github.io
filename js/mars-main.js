@@ -2,29 +2,29 @@
  *
  * Three small jobs that only the lean main page needs:
  *
- *  1. THE TEASER SWAP. The hero's teaser slot ships showing the
- *     `hook_tradeoff` raster. Stage 09 adds a <video class="mars-teaser__video">
- *     beside it (the exact markup is in the comment above the slot in
- *     index.html). This module swaps the slot to the video only after it has
- *     OBSERVED the video work — `loadeddata`, or, under
- *     prefers-reduced-motion, the poster image genuinely loading. Until then,
- *     and permanently if a file is missing, the raster stays on screen.
- *     That is the opposite of how .mars-media slots behave since stage 06,
- *     where `.has-media` is set by declaration and a 404 renders as a blank
- *     white frame (WEBSITE_BUILD_STATUS.md 5, stage 06, section 9). The label
- *     row is un-hidden in the same step, so the timings never appear twice
- *     (burned into the raster AND in HTML) and never appear over nothing.
- *     With no video in the markup — stage 07's interim state — this does
- *     nothing at all.
+ *  1. THE TEASER. The hero's slot ships the animation's own poster
+ *     (anim_hero_cubes.jpg, frame 0, the LCP image) with the label row
+ *     visible, and a <video class="mars-teaser__video"> on top of it at
+ *     opacity 0 with preload="none" and no `autoplay` attribute — so markup
+ *     alone fetches no video. This module starts it (preload + play()) when
+ *     the slot is on screen, and shows it only after it has OBSERVED a frame
+ *     play (`playing`). Until then, and permanently if a file is missing or
+ *     fails to decode, the poster stays on screen: never a blank box. That is
+ *     the opposite of how .mars-media slots behave since stage 06, where
+ *     `.has-media` is set by declaration and a 404 renders as a blank white
+ *     frame (WEBSITE_BUILD_STATUS.md 5, stage 06, section 9).
+ *     Under prefers-reduced-motion, and under Save-Data
+ *     (navigator.connection.saveData), it never starts it: poster only,
+ *     zero video bytes (stage 09, T1.4). Off screen the loop is paused.
  *
  *  2. THE INLINE VIDEO'S POSTER. The film ships `preload="none"` and its
  *     poster as `data-poster`, promoted when the player comes within 300 px
  *     of the viewport, or on play. So a cold load at the top of the page
  *     fetches neither the 24.7 MB film nor its poster frame.
  *
- *  3. THE BIBTEX COPY BUTTON. Moved here from js/mars-lightbox.js, which the
- *     main page no longer loads now that the film plays inline. The code is
- *     unchanged; mars-lightbox.js still contains its own copy, unused.
+ *  3. THE BIBTEX COPY BUTTON. The site's only copy of this routine (it
+ *     moved here in stage 07 from the v1 lightbox script, which stage 09
+ *     deleted).
  */
 (function () {
   "use strict";
@@ -32,41 +32,59 @@
   var reduce = window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------------- 1. teaser swap ---------------- */
+  /* ---------------- 1. teaser ---------------- */
+
+  function saveData() {
+    var c = navigator.connection;
+    return !!(c && c.saveData);
+  }
 
   function initTeaser() {
     var fig = document.getElementById("mars-teaser");
     if (!fig) return;
     var video = fig.querySelector(".mars-teaser__video");
-    if (!video) return;                       /* interim: raster only */
-    var labels = fig.querySelector(".mars-teaser__labels");
+    if (!video) return;
 
-    function show() {
-      if (fig.getAttribute("data-teaser-state") === "video") return;
-      fig.setAttribute("data-teaser-state", "video");
-      if (labels) labels.hidden = false;
-    }
-
-    if (reduce) {
-      /* Poster only, never motion (contract 3.7: "Reduced motion — poster
-         only"). Stop any autoplay and swap only once the poster has loaded. */
-      video.removeAttribute("autoplay");
-      video.autoplay = false;
-      video.preload = "none";
-      if (!video.paused) video.pause();
-      var poster = video.getAttribute("poster");
-      if (!poster) return;
-      var probe = new Image();
-      probe.onload = show;
-      probe.src = poster;
+    /* Poster only, never motion and never a byte of video (contract 3.7:
+       "Reduced motion — poster only"; stage 09: the same under Save-Data). */
+    if (reduce || saveData()) {
+      fig.setAttribute("data-teaser-state", "poster");
       return;
     }
 
-    if (video.readyState >= 2) show();
-    else video.addEventListener("loadeddata", show);
-    var p = video.play();
-    if (p && p.catch) p.catch(function () { /* autoplay policy: stays raster
-                                              until a frame actually loads */ });
+    var started = false;
+    var visible = true;
+
+    video.addEventListener("playing", function () {
+      fig.setAttribute("data-teaser-state", "video");
+    });
+
+    function play() {
+      var p = video.play();
+      if (p && p.catch) p.catch(function () { /* autoplay refused or the file
+                                                 failed: the poster stays */ });
+    }
+
+    function start() {
+      if (started) return;
+      started = true;
+      /* Raising preload resumes the resource selection that preload="none"
+         suspended, and play() needs nothing more; an extra load() here
+         would abort that first request and start a second one. */
+      video.preload = "auto";
+      play();
+    }
+
+    if (!("IntersectionObserver" in window)) { start(); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        visible = e.isIntersecting;
+        if (!visible) { if (started && !video.paused) video.pause(); return; }
+        if (!started) start();
+        else if (video.paused) play();
+      });
+    }, { threshold: 0 });
+    io.observe(fig);
   }
 
   /* ---------------- 2. inline video poster ---------------- */

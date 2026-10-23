@@ -417,3 +417,11 @@ Each build stage appends one line here.
   `js/mars-lightbox.js` deleted; the head descriptions attach the 128×128×1024
   workload to the 40×. 348/350 words. All gates exit 0; review pack in
   `build_instructions/review/stage09/`.
+- **Stage 09b — polish (2026-10-23).** Demo 2 now leads with the reference:
+  gold-standard bars as the anchor, MaRS the strongest line on top, the two
+  prior models lighter and thinner (Zhang et al. dashed). The teaser is
+  cropped to 1920 × 448 from the unchanged render, so the label row ends on
+  the first 1280 × 800 screen (773 px), and phones load
+  `anim_hero_cubes_960.*` (a 390-px cold load fell from 1.75 MB to 660 KB).
+  348/350 words; all gates exit 0; review pack in
+  `build_instructions/review/stage09b/`.

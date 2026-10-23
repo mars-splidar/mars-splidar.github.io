@@ -204,6 +204,17 @@ SANCTIONED_ROUNDINGS = {
     "0.3": "PROJECT_BRIEF 3.4 — teaser timings (MaRS 0.3 s)",
 }
 
+# Numbers that are NOT claims and NOT roundings, but happen to sit within the
+# near-miss tolerance of a canonical value. Each needs a reason. Kept apart
+# from SANCTIONED_ROUNDINGS on purpose: these are not re-written canonical
+# numbers, and listing them there would misdescribe them. (Stage 09.)
+NON_CLAIM_NUMBERS = {
+    "8.2": "Demo 2's operating point, S = B = 8.2 (grid index 8 of the stored "
+           "count-distribution results; video/data.py::count_distributions). "
+           "A coordinate, not a measurement; 1.9% from the gold standard's "
+           "8.045 s runtime spread only by coincidence",
+}
+
 # A literal counts as a NEAR MISS of a canonical value — probably a typo, or a
 # silent re-rounding of a number that survived review — when any of these hold:
 #
@@ -284,7 +295,6 @@ SURFACES: list[tuple[str, str, str]] = [
     (r"\.mars-code",                 "#0d1113", "code block"),
     (r"\.mars-nav",                  "--ink",   "nav strip"),
     (r"\.mars-closing",              "--ink",   "closing band"),
-    (r"\.mars-lightbox",             "#0a0d0f", "video lightbox"),
     (r"\.mars-lab__(sidebar|nav|item|tag)", "--ink", "demo lab sidebar"),
     (r"\.mars-band\.is-ink",         "--ink",   "ink band"),
     # --- mint surfaces: see the MINT SURFACES block in css/mars.css ---
@@ -702,7 +712,7 @@ def check_numbers(text: str, rel: str, rep: Report,
     for m in NUM_RE.finditer(text):
         lit = m.group(0)
         if lit in STRUCTURAL_NUMBERS or lit in canon_nums \
-                or lit in SANCTIONED_ROUNDINGS:
+                or lit in SANCTIONED_ROUNDINGS or lit in NON_CLAIM_NUMBERS:
             continue
         for cnum, canon in canon_nums.items():
             rule = near_miss_of(lit, cnum)

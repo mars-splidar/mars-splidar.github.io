@@ -71,6 +71,7 @@ MAIN = [
     ("teaser labels", ".mars-teaser__cols", "X"),
     ("teaser workload", ".mars-teaser__workload", "C"),
     ("tagline", ".mars-teaser__tagline", "C"),
+    ("teaser guide", ".mars-teaser__guide", "C"),
     # the cube slicer (v2.1-C): presets and readout are ragged rows, the
     # three images and the chart frame fill the column
     ("slicer eyebrow", "#slicer .mars-eyebrow", "L"),

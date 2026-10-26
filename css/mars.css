@@ -1537,6 +1537,17 @@ img, video { max-width: 100%; height: auto; display: block; }
   line-height: 1.45;
   color: var(--dark);            /* DARK on PAPER = 15.89:1 */
 }
+/* v2.1-D: the teaser's guiding sentence, under the tagline in regular weight
+   and body type, so the headline stays the louder line. */
+.mars-teaser__guide {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(0.9375rem, 1.8vw, 1.0625rem);   /* 15 px on phones, under the 16 px tagline */
+  line-height: 1.5;
+  color: var(--dark);
+}
 
 /* ---- In short (MINT) ---------------------------------------------------- */
 .mars-inshort { margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem); }

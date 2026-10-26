@@ -32,6 +32,12 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      its side labels and note from data-depth attributes. The gate counts
      the Reflectivity state the HTML ships; the Depth state has the same
      word count (measured in the browser, stage 09 measurements.txt).
+     INTERACTIVE UI SCOPE (stage v2.1-C, WEBSITE_BUILD_STATUS 3.7 v2.1
+     amendment): text inside an element with class `mars-ui` — control
+     labels, buttons, legends, axis text, the slicer's image names and its
+     status line — is NOT prose. It is counted and reported separately
+     ("UI words") and is not held against the 420. Prose stays counted
+     wherever it sits: headings, paragraphs, captions, label rows, readouts.
      A WORD is a whitespace-separated token containing at least one letter or
      digit. So "—", "·", "→" and "↓" are not words; a hyphenated or
      ×-joined compound ("single-photon", "128×128×1024") is one word; "40×"
@@ -58,6 +64,12 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      eyebrow + title total beside it for the record.
   Also gated, from guide 0.3 ②: the "In short" paragraph (`.mars-inshort`)
   is at most 70 words.
+  6. THE CUBE SLICER (v2.1-C, guide 0.6 items 3 and 5), `section#slicer`:
+     one eyebrow; a title (`#slicer-title`) of at most 8 words; the guiding
+     text (`.mars-slicer__guide`) at most 35 words — it is the guide's
+     approved TWO sentences, verbatim, so the per-demo one-sentence rule is
+     not applied (it is not an article.mars-demo); exactly one media slot.
+     The readout and footnote are prose and counted above.
 
 Standard library only.
 """
@@ -136,8 +148,15 @@ class Builder(HTMLParser):
         self.cur.children.append(data)
 
 
-def excluded(n: Node) -> bool:
-    """Not visible text, or outside the word budget by the guide's rule."""
+def is_ui(n: Node) -> bool:
+    return any("mars-ui" in x.classes for x in [n, *n.ancestors()])
+
+
+def excluded(n: Node, ui_too: bool = True) -> bool:
+    """Not visible text, or outside the word budget by the guide's rule.
+    With ui_too, `.mars-ui` text is excluded as well (it is not prose)."""
+    if ui_too and is_ui(n):
+        return True
     for x in [n, *n.ancestors()]:
         if x.tag in SKIP_TAGS or x.tag in ("nav", "pre"):
             return True
@@ -151,16 +170,26 @@ def excluded(n: Node) -> bool:
     return False
 
 
-def text_of(n: Node, respect_exclusions=True) -> str:
+def text_of(n: Node, respect_exclusions=True, ui_only=False) -> str:
+    """Visible prose under n; with ui_only, only the visible `.mars-ui`
+    text instead."""
     out = []
     def rec(x):
-        if respect_exclusions and excluded(x):
+        if respect_exclusions and excluded(x, ui_too=not ui_only):
+            return
+        if ui_only and not is_ui(x):
+            for c in x.children:
+                if isinstance(c, Node):
+                    rec(c)
+                    out.append(" ")
             return
         for c in x.children:
             if isinstance(c, str):
                 out.append(c)
             else:
                 rec(c)
+                if ui_only:         # "<p>Poisson</p><p>Gold …" are two labels
+                    out.append(" ")
     rec(n)
     return re.sub(r"\s+", " ", "".join(out)).strip()
 
@@ -237,7 +266,11 @@ def main() -> int:
             if args.words:
                 print("            " + " ".join(w))
     print(f"      {len(js_words):>4}  rendered by js/mars-nav.js: {js_text}")
-    check(total <= WORD_LIMIT, "visible words (nav, BibTeX code, funding excluded)",
+    ui_words = words(text_of(body, ui_only=True))
+    print(f"      UI words in .mars-ui (reported, not counted): {len(ui_words)}")
+    if args.words and ui_words:
+        print("            " + " ".join(ui_words))
+    check(total <= WORD_LIMIT, "visible PROSE words (nav, BibTeX code, funding, .mars-ui excluded)",
           total, f"<= {WORD_LIMIT}")
 
     # 2 — media items above BibTeX
@@ -302,6 +335,28 @@ def main() -> int:
                   f"#{did} is ONE sentence", f"{len(breaks)} internal break(s)",
                   "0, and ends . ! ?")
         check(len(ms) == 1, f"#{did} has one media slot", len(ms), "== 1")
+
+    # 6 — the cube slicer
+    sl = next((n for n in nodes if n.tag == "section"
+               and n.attrs.get("id") == "slicer"), None)
+    if sl is not None:
+        sub = list(sl.walk())
+        eb = [n for n in sub if "mars-eyebrow" in n.classes]
+        ti = [n for n in sub if n.attrs.get("id") == "slicer-title"]
+        gd = [n for n in sub if "mars-slicer__guide" in n.classes]
+        ms = [n for n in sub if "data-media-slot" in n.attrs]
+        prose = len(words(text_of(sl)))
+        ui = len(words(text_of(sl, ui_only=True)))
+        print(f"\n  cube slicer #slicer: {prose} prose word(s), {ui} UI word(s)")
+        check(len(eb) == 1, "#slicer has one eyebrow", len(eb), "== 1")
+        tiw = len(words(text_of(ti[0]))) if ti else 0
+        check(len(ti) == 1 and tiw <= DEMO_TITLE_MAX, "#slicer title words",
+              tiw, f"<= {DEMO_TITLE_MAX}")
+        gw = len(words(text_of(gd[0]))) if gd else 0
+        check(len(gd) == 1 and gw <= DEMO_SENTENCE_MAX,
+              "#slicer guiding text words (2 approved sentences)", gw,
+              f"<= {DEMO_SENTENCE_MAX}")
+        check(len(ms) == 1, "#slicer has one media slot", len(ms), "== 1")
 
     print()
     if fails:

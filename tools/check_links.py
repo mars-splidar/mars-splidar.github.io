@@ -41,6 +41,21 @@ BY_PATH_MAIN = [
     "assets/media/anim_hero_cubes_960.webm",
     "assets/media/anim_hero_cubes_960.mp4",
     "assets/img/demo_count.svg",
+    # The cube slicer (v2.1-C). Nothing on the page names its module or data
+    # in an attribute — js/mars-main.js fetches them on demand — and its
+    # placeholder stills ship as data-src / data-srcset, so all of them are
+    # checked here, by path.
+    "js/mars-slicer.js",
+    "assets/data/slicer/meta.json",
+    "assets/data/slicer/poisson.u8.gz",
+    "assets/data/slicer/gold.u8.gz",
+    "assets/data/slicer/mars.u8.gz",
+    "assets/data/slicer/tau.f32.gz",
+    "assets/img/slicer_ph_poisson.webp",
+    "assets/img/slicer_ph_gold.webp",
+    "assets/img/slicer_ph_mars.webp",
+    "assets/img/slicer_ph_chart_960.webp",
+    "assets/img/slicer_ph_chart_390.webp",
 ]
 
 

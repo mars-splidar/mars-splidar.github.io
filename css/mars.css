@@ -1458,7 +1458,11 @@ img, video { max-width: 100%; height: auto; display: block; }
   height: auto;
 }
 .mars-question__more { margin-top: 0.75rem; }
-@media (min-width: 601px) { .mars-question .mars-question__more { display: none; } }
+/* The exact complement of the phone sources' (max-width: 600px), not
+   (min-width: 601px): at a zoomed, fractional width between 600 and 601 px
+   neither of those would match, and the page would show the whole image AND
+   the second crop. */
+@media not all and (max-width: 600px) { .mars-question .mars-question__more { display: none; } }
 .mars-question + .mars-teaser { margin-top: clamp(0.5rem, 1.2vw, 0.875rem); }
 
 /* v2.1-A: the frame is the column's width and takes its HEIGHT FROM THE

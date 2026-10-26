@@ -730,13 +730,13 @@
            length. -->
       <figure class="mars-demo__media mars-compare" id="demo-downstream-media"
               data-media-slot="demo-downstream" data-compare data-mode="refl">
-        <div class="mars-compare__toggle" role="group"
-             aria-label="Reconstruction shown">
-          <button type="button" class="mars-compare__mode" data-mode="refl"
-                  aria-pressed="true">Reflectivity</button>
-          <button type="button" class="mars-compare__mode" data-mode="depth"
-                  aria-pressed="false">Depth</button>
-        </div>
+        <!-- v2.1-D, interim until the Demo 3 redesign: the slider square (at
+             most 400 px) and a framed side panel share the column, the square
+             on the left edge and the panel's frame on the right. The panel
+             holds the toggle, the two test-set numbers (moved off the tiles:
+             same text, same data-depth swap; CSS arrows tie each to its side
+             of the divider), their note and the ground truth. Phones
+             (<= 600 px): stacked, the slider full width. -->
         <div class="mars-compare__body">
           <div class="mars-compare__stage">
             <img class="mars-compare__img is-under" width="720" height="720"
@@ -756,21 +756,35 @@
                    aria-label="Divider: Poisson-trained left, MaRS-trained right"
                    aria-valuetext="50% Poisson-trained, 50% MaRS-trained">
             <span class="mars-compare__handle" aria-hidden="true"></span>
-            <span class="mars-compare__label is-left"
-                  data-depth="&lt;span&gt;Poisson-trained&lt;/span&gt; &lt;b&gt;1.654&amp;nbsp;m&lt;/b&gt;"><span>Poisson-trained</span>
-              <b>7.02&nbsp;dB</b></span>
-            <span class="mars-compare__label is-right"
-                  data-depth="&lt;span&gt;MaRS-trained&lt;/span&gt; &lt;b&gt;0.074&amp;nbsp;m&lt;/b&gt;"><span>MaRS-trained</span>
-              <b>24.25&nbsp;dB</b></span>
           </div>
-          <figure class="mars-compare__gt">
-            <img width="720" height="720" alt="" decoding="async"
-                 data-src-refl="assets/img/res_refl_gt.webp"
-                 data-src-depth="assets/img/res_depth_gt.webp"
-                 data-alt-refl="Ground-truth reflectivity of the test scene: a bookshelf, a chair and a table."
-                 data-alt-depth="Ground-truth depth of the test scene.">
-            <figcaption>Ground truth</figcaption>
-          </figure>
+          <div class="mars-compare__panel">
+            <div class="mars-compare__toggle" role="group"
+                 aria-label="Reconstruction shown">
+              <button type="button" class="mars-compare__mode" data-mode="refl"
+                      aria-pressed="true">Reflectivity</button>
+              <button type="button" class="mars-compare__mode" data-mode="depth"
+                      aria-pressed="false">Depth</button>
+            </div>
+            <div class="mars-compare__nums">
+              <p class="mars-compare__label is-left"
+                 data-depth="&lt;span&gt;Poisson-trained&lt;/span&gt; &lt;b&gt;1.654&amp;nbsp;m&lt;/b&gt;"><span>Poisson-trained</span>
+                <b>7.02&nbsp;dB</b></p>
+              <p class="mars-compare__label is-right"
+                 data-depth="&lt;span&gt;MaRS-trained&lt;/span&gt; &lt;b&gt;0.074&amp;nbsp;m&lt;/b&gt;"><span>MaRS-trained</span>
+                <b>24.25&nbsp;dB</b></p>
+            </div>
+            <p class="mars-demo__note mars-compare__note"
+               data-depth="Test-set RMSE, SBR 0.6.">Test-set PSNR, SBR
+              0.6.</p>
+            <figure class="mars-compare__gt">
+              <img width="720" height="720" alt="" decoding="async"
+                   data-src-refl="assets/img/res_refl_gt.webp"
+                   data-src-depth="assets/img/res_depth_gt.webp"
+                   data-alt-refl="Ground-truth reflectivity of the test scene: a bookshelf, a chair and a table."
+                   data-alt-depth="Ground-truth depth of the test scene.">
+              <figcaption>Ground truth</figcaption>
+            </figure>
+          </div>
         </div>
         <noscript>
           <div class="mars-demo__pair">
@@ -780,9 +794,6 @@
                  alt="Reflectivity recovered by the MaRS-trained network: close to ground truth.">
           </div>
         </noscript>
-        <figcaption class="mars-demo__note mars-compare__note"
-                    data-depth="Test-set RMSE, SBR 0.6.">Test-set PSNR, SBR
-          0.6.</figcaption>
       </figure>
     </article>
   </div>

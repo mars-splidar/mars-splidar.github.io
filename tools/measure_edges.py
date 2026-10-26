@@ -94,9 +94,11 @@ MAIN = [
     ("Demo 3 eyebrow", "#demo-downstream .mars-eyebrow", "L"),
     ("Demo 3 title", "#demo-downstream-title", "L"),
     ("Demo 3 sentence", "#demo-downstream .mars-demo__sentence", "L"),
-    ("Demo 3 toggle", ".mars-compare__toggle", "L"),
+    # v2.1-D: square + framed side panel; the toggle, the numbers and the
+    # note sit inside the panel, so only the block's outer edges are judged
     ("Demo 3 block", ".mars-compare__body", "F"),
-    ("Demo 3 note", ".mars-compare__note", "L"),
+    ("Demo 3 square", ".mars-compare__stage", "X"),
+    ("Demo 3 panel", ".mars-compare__panel", "X"),
     ("film heading", "#video-heading", "L"),
     ("film", ".mars-video__frame", "F"),
     ("film meta", ".mars-video__meta", "L"),

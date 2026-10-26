@@ -277,10 +277,11 @@ tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 - **The hero title's gold letters are `MaRS`, `Ma`, `R`, and the `S` of
   *Simulator*** — not the `S` of *Single-Photon*. `MaRS` = **Ma**rkov-**R**enewal
   **S**imulator.
-- **The hero title fills the column exactly** (v2.1-A): one line above 467 px,
-  the two-line fallback below, all sized in `cqi` from a measured INK width
-  (`--title-em`, `--acronym-em`, `--full-em` and their side bearings in
-  `css/mars.css`). Re-measure with `tools/measure_edges.py` if you change the
+- **The hero title fills the column exactly** (v2.1-A): one line above 600 px;
+  at 600 px and below (v2.1-D) two lines of one size, *MaRS: Markov-Renewal* /
+  *Single-Photon LiDAR Simulator*, the second filling the column. All sized in
+  `cqi` from a measured INK width (`--title-em`, `--line2-em` and the side
+  bearings in `css/mars.css`). Re-measure with `tools/measure_edges.py` if you change the
   font, a weight, the tracking, the wording or `--column`.
 - **One column** (v2.1-A): `--column` 960 px and `--gutter` 16 px. A box that
   carries the column is `max-width: calc(var(--column) + 2 * var(--gutter))`
@@ -527,3 +528,11 @@ Each build stage appends one line here.
   reports `.mars-ui` control text separately (prose 420/420, media 6/6);
   `build_slicer_data.py --check` joins the gates. Review pack:
   `build_instructions/review/v21C/`.
+- **Stage v2.1-D — land the teaser, guiding sentence, layout fixes
+  (2026-10-26).** On branch `v2.1`, not pushed. v2.1-B's re-cut teaser
+  (1920 x 484 / 960 x 242; the cubes reach the column edges, the label row is
+  centred under them; the share card rebuilt from its frame 0, `?v=3`); the
+  teaser's guiding sentence; a balanced two-line title at <= 600 px; Demo 3 as
+  a 400 px slider beside a side panel (toggle, test-set numbers, ground truth);
+  Demo 2's chart about 376 px tall. In short and the BibTeX note trimmed: prose
+  419/420. Review pack: `build_instructions/review/v21D/`.

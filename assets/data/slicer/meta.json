@@ -1,0 +1,152 @@
+{
+ "bin_ns": 0.390625,
+ "bin_time": "bin b is timed at its centre, (b + 0.5) * bin_ns",
+ "brightness": {
+  "K": 35.0,
+  "map": "L = 1 - exp(-3 v / K), v = photons in the 4-bin window; one mapping for all three images",
+  "rule": "99.7th percentile of the GOLD cube's 4-bin window sums",
+  "window_bins": 4
+ },
+ "default": {
+  "pool": 3,
+  "preset": "bright",
+  "range": "peak"
+ },
+ "files": {
+  "gold": {
+   "bytes": 452093,
+   "path": "gold.u8.gz",
+   "raw_bytes": 4194304,
+   "sha256_gz": "bff9c913370814cc9ce2d2063dccf33b095926c428079577fbdbc0b008519c59",
+   "sha256_raw": "2ecbd02f825d392f3879d70206329ccff418ca700d5e86ada24a1a46f277db08"
+  },
+  "mars": {
+   "bytes": 453074,
+   "path": "mars.u8.gz",
+   "raw_bytes": 4194304,
+   "sha256_gz": "9d45badddc7a94cfe1d486d48f3fd37b6a75573ea18a2942c0b04e7e2fa4c02d",
+   "sha256_raw": "dea37ccad0ce34fba2a1a1102084ccc3c2d406db69335489641f8e2555bbabd4"
+  },
+  "poisson": {
+   "bytes": 836331,
+   "path": "poisson.u8.gz",
+   "raw_bytes": 4194304,
+   "sha256_gz": "457dd5c1de843b18447559da9730b6c2ff87fd9b2030a2b217f378212d68aa0a",
+   "sha256_raw": "a245a8deb7a2929d48502ff60bbf4b3754e34fb61760050cd58623255f843301"
+  },
+  "tau": {
+   "bytes": 7426,
+   "path": "tau.f32.gz",
+   "raw_bytes": 65536,
+   "sha256_gz": "c9cbbeae31ecd76232ad2e45a3def63e7ae99d0e7682f44464462ffe2a64bad8",
+   "sha256_raw": "89dd81a4b12b33c339236d141ec29e48b8ce9cb0f504de509405db4c8bbae7bc"
+  }
+ },
+ "generator": {
+  "script": "tools/build_slicer_data.py",
+  "stage": "v2.1-C",
+  "version": "1"
+ },
+ "order": "C: row i, column j, bin",
+ "presets": [
+  {
+   "S": 7.651,
+   "bin": 108,
+   "id": "bright",
+   "label": "Bright surface",
+   "px": [
+    48,
+    23
+   ],
+   "readout_3x3_ns": {
+    "gold": -2.6667,
+    "mars": -2.6628,
+    "poisson": 0.0676
+   },
+   "t_ns": 42.3264,
+   "t_rel_ns": -2.3,
+   "tau_ns": 44.6264
+  },
+  {
+   "S": 1.9647,
+   "bin": 57,
+   "id": "dim",
+   "label": "Dim surface",
+   "px": [
+    30,
+    56
+   ],
+   "readout_3x3_ns": {
+    "gold": -1.1342,
+    "mars": -1.2784,
+    "poisson": 0.0111
+   },
+   "t_ns": 22.4215,
+   "t_rel_ns": -1.0,
+   "tau_ns": 23.4215
+  },
+  {
+   "S": 7.651,
+   "bin": 127,
+   "id": "shadow",
+   "label": "Just after the peak",
+   "px": [
+    48,
+    23
+   ],
+   "readout_3x3_ns": {
+    "gold": -2.6667,
+    "mars": -2.6628,
+    "poisson": 0.0676
+   },
+   "t_ns": 49.6264,
+   "t_rel_ns": 5.0,
+   "tau_ns": 44.6264
+  },
+  {
+   "S": 7.651,
+   "bin": 50,
+   "id": "before",
+   "label": "Before the peak",
+   "px": [
+    48,
+    23
+   ],
+   "readout_3x3_ns": {
+    "gold": -2.6667,
+    "mars": -2.6628,
+    "poisson": 0.0676
+   },
+   "t_ns": 19.6264,
+   "t_rel_ns": -25.0,
+   "tau_ns": 44.6264
+  }
+ ],
+ "provenance": {
+  "source": "video/web/hero/out/cubes.npz (project folder, read only)",
+  "source_sha256": "cb30c2030fb25e93f52a4b99a9e3f37fdfc631546cc6a6a7b51998a9faebb81e",
+  "what": "the paper's own Fig. 1 cubes (stage 08, Q18): Poisson, sequential gold standard, MaRS; one realization each, independent",
+  "workload": {
+   "B": 0.5,
+   "N_cycles": 100,
+   "bins": 256,
+   "pixels": [
+    128,
+    128
+   ],
+   "sigma_t_ns": 2.0,
+   "t_d_ns": 75.0,
+   "t_r_ns": 100.0
+  }
+ },
+ "readout": {
+  "half_window_ns": 10.0,
+  "name": "return centre: count-weighted mean arrival time of the photons within +-10 ns of the pixel's true delay, over the pooled patch"
+ },
+ "shape": [
+  128,
+  128,
+  256
+ ],
+ "t_r_ns": 100.0
+}

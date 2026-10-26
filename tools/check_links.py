@@ -68,6 +68,11 @@ def refs_in(body):
         if tag in ("source", "track") and a.get("src"):
             yield a["src"]
         if tag in ("img", "source") and a.get("srcset"):
+            # v2.1-A: a data: URI candidate carries its own comma
+            # ("data:image/gif;base64,..."), so it is taken whole and skipped
+            # (nothing to fetch) before the list is split on commas.
+            if a["srcset"].strip().startswith("data:"):
+                continue
             for part in a["srcset"].split(","):
                 if part.strip():
                     yield part.strip().split()[0]

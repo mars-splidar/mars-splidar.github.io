@@ -131,7 +131,16 @@
                Consolas, "Liberation Mono", monospace;
 
   /* ---- layout ---- */
-  --measure: 1080px;      /* the content column */
+  /* THE COLUMN (stage v2.1-A, guide 0.6 item 1). Every band, the nav and the
+     footer on / and /details/ share one content width: --column on a desktop,
+     the viewport minus two --gutter below that. A box that carries the column
+     is `max-width: calc(var(--column) + 2 * var(--gutter))` with the gutter as
+     its side padding — never a `100vw` sum, which counts a classic scrollbar
+     and overflows on Windows. Replaces v2's --measure (1080 px with a
+     clamp(1rem, 3vw, 1.75rem) gutter, i.e. a 1024 px column) and the 62-70ch
+     prose caps that sat inside it. */
+  --column: 960px;
+  --gutter: 16px;
   --nav-h: 52px;
   --band-y: clamp(2.5rem, 5vw, 4.25rem);
   --radius: 10px;
@@ -243,10 +252,10 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 
 .mars-nav__inner {
-  max-width: var(--measure);
+  max-width: calc(var(--column) + 2 * var(--gutter));
   margin: 0 auto;
   min-height: var(--nav-h);
-  padding: 0 clamp(1rem, 3vw, 1.75rem);
+  padding: 0 var(--gutter);
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -399,7 +408,7 @@ img, video { max-width: 100%; height: auto; display: block; }
     gap: 0;
     background: var(--ink);
     border-bottom: 1px solid var(--ink-soft);
-    padding: 0.4rem clamp(1rem, 3vw, 1.75rem) 0.9rem;
+    padding: 0.4rem var(--gutter) 0.9rem;
   }
   .mars-nav__links[hidden] { display: none; }
   .mars-nav__scroll {
@@ -424,9 +433,9 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-band.is-ink  { background: var(--ink); color: #e7eae9; }
 
 .mars-band__inner {
-  max-width: var(--measure);
+  max-width: calc(var(--column) + 2 * var(--gutter));
   margin: 0 auto;
-  padding: var(--band-y) clamp(1rem, 3vw, 1.75rem);
+  padding: var(--band-y) var(--gutter);
 }
 
 .mars-band__inner.is-tight { padding-top: 2rem; padding-bottom: 2rem; }
@@ -486,10 +495,11 @@ img, video { max-width: 100%; height: auto; display: block; }
   font-size: clamp(1.5rem, 3vw, 2rem);
   margin: 0 0 0.75rem;
 }
+/* Lead text runs the full column since v2.1-A (it was capped at 68ch), so it
+   grows from 17 to 18 px to keep the long line readable (guide 0.6). */
 .mars-section__lede {
-  max-width: 68ch;
   color: var(--dark);
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -516,27 +526,41 @@ img, video { max-width: 100%; height: auto; display: block; }
 /* The hero title. One line, ONE FONT SIZE throughout; the contrast between
    `MaRS`/`Ma`/`R`/`S` and the rest comes from COLOUR AND WEIGHT ONLY.
 
-   The numbers below are measured, not guessed. At `letter-spacing: -0.02em`
-   the 50-character line is 26.08 em wide in Poppins — and Poppins is the
-   WIDEST of the stack (Trebuchet MS and system-ui measure 24.06 and 23.63 em),
-   so sizing for Poppins is the safe case and a failed webfont load can only
-   make the line shorter, never wrap it.
-
-   Available width is `min(1080px, 100vw) - 2 x clamp(1rem, 3vw, 1.75rem)`.
-   Dividing that by 26.08 em gives the largest size that fits:
-       1440px viewport -> 1024px column -> 39.3px max
-       1024px          ->  968px        -> 37.1px max
-        768px          ->  722px        -> 27.7px max
-        381px          ->  349px        -> 13.4px max
-   The 3.42vw coefficient with a 2.42rem cap sits 3-6% under that ceiling at
-   every width, which is the margin for platform font-metric variation.
-   If you change the font, the tracking, or --measure, RE-MEASURE THIS. */
+   STAGE v2.1-A: THE TITLE FILLS THE COLUMN EXACTLY, at every width (guide
+   0.6 item 1). The hero's inner box is a size container, so `100cqi` is the
+   column's width, and the font size is that width divided by the title's
+   INK width in em — measured in Chrome on the self-hosted Poppins at this
+   letter-spacing (tools/measure_edges.py, v2.1-A measurements.txt). The
+   negative left margin pulls the M's left side bearing out of the column, so
+   the first ink pixel sits on the column's left edge and the last on its
+   right. No JS, and nothing moves when the webfont lands: the size depends
+   on the container, not on the font. Before cqi existed the v2 rule (3.42vw,
+   capped at 2.42rem) is the fallback, declared first.
+   The size containment `container-type` brings is harmless here: the hero
+   box's width never depended on its content. If the font, the weights, the
+   tracking or the wording change, RE-MEASURE --title-em and --title-lsb. */
+.mars-hero__inner {
+  container-type: inline-size;
+  --title-em: 26.06;      /* ink width of the one-line title, in em */
+  --title-lsb: 0.045;     /* left side bearing of its first M, in em */
+  --acronym-em: 2.668;    /* narrow fallback, line 1: "MaRS", weight 500 */
+  --acronym-lsb: 0.070;
+  --full-em: 23.73;       /* narrow fallback, line 2: the full title */
+  --full-lsb: 0.030;
+  /* A fallback face that runs wider than Poppins before the swap, or a
+     platform that rasterises a hair wider, must never widen the page. */
+  overflow-x: clip;
+}
 .mars-hero__title {
   font-size: clamp(0.8rem, 3.42vw, 2.42rem);
+  font-size: calc(100cqi / var(--title-em));
+  margin-left: calc(var(--title-lsb) * -1em);
   font-weight: 400;
   color: var(--dark);
   letter-spacing: -0.02em;
-  margin: 0 0 0.85rem;
+  margin-top: 0;
+  margin-right: 0;
+  margin-bottom: 0.85rem;
   white-space: nowrap;          /* the guide: must never wrap to two lines */
 }
 
@@ -582,22 +606,31 @@ img, video { max-width: 100%; height: auto; display: block; }
     border: 0;
   }
   .mars-hero__title--narrow { display: block; }
+  /* v2.1-A: both lines fill the column too, sized like the one-line title
+     (ink width in em, side bearing pulled out); 2.75rem / 1.0625rem are the
+     pre-cqi fallbacks. */
   .mars-hero__title--narrow .mars-hero__acronym {
     display: block;
     font-family: var(--font-head);
     font-size: 2.75rem;
+    font-size: calc(100cqi / var(--acronym-em));
+    margin-left: calc(var(--acronym-lsb) * -1em);
     font-weight: 500;
     color: var(--aged-fg);
     line-height: 1.05;
+    white-space: nowrap;
   }
   .mars-hero__title--narrow .mars-hero__full {
     display: block;
     font-family: var(--font-head);
     font-size: 1.0625rem;
+    font-size: calc(100cqi / var(--full-em));
+    margin-left: calc(var(--full-lsb) * -1em);
     font-weight: 400;
     color: var(--dark);
     margin-top: 0.3rem;
     line-height: 1.3;
+    white-space: nowrap;
   }
 }
 
@@ -606,7 +639,6 @@ img, video { max-width: 100%; height: auto; display: block; }
   font-weight: 400;
   font-size: clamp(1.0625rem, 1.9vw, 1.3125rem);
   color: var(--grey);
-  max-width: 62ch;
   margin: 0 0 1.4rem;
 }
 
@@ -643,7 +675,9 @@ img, video { max-width: 100%; height: auto; display: block; }
    (font metrics move them a little), so each value is at or under the built
    height: the page can only settle down, never jump up. */
 .mars-hero__buttons:empty { min-height: 72px; }
-@media (max-width: 619px) { .mars-hero__buttons:empty { min-height: 126px; } }
+/* v2.1-A: the 16 px gutter moved the one-row point from about 625 to 619 px
+   (built 72.9 px at 619, 126.4 below); re-measured at every width 320-639. */
+@media (max-width: 618px) { .mars-hero__buttons:empty { min-height: 126px; } }
 @media (max-width: 359px) { .mars-hero__buttons:empty { min-height: 147px; } }
 
 .mars-hero__note {
@@ -836,7 +870,6 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin: 0 0 0.5rem;
 }
 .mars-panel__desc {
-  max-width: 68ch;
   margin: 0 0 1.1rem;
 }
 
@@ -1164,7 +1197,6 @@ img, video { max-width: 100%; height: auto; display: block; }
    -------------------------------------------------------------------------- */
 
 .mars-limitations__body {
-  max-width: 70ch;
   color: var(--dark);
 }
 
@@ -1412,21 +1444,38 @@ img, video { max-width: 100%; height: auto; display: block; }
    browsers treat as a reason never to start playback. */
 .mars-teaser { margin: clamp(1rem, 1.6vw, 1.25rem) 0 0; }   /* 09b: was clamp(1.5rem, 3vw, 2.25rem) */
 
-.mars-teaser__frame {
-  position: relative;
-  aspect-ratio: 1920 / 448;     /* stage 09b crop; was 3 / 1 */
-  background: var(--paper);
-}
-/* Poster and video share ONE box (absolute, inset 0, inside the 3:1 frame
-   that aspect-ratio sizes), so the swap is pixel-identical and neither
-   layer rounds to a different height than the other. */
-.mars-teaser__poster {
-  position: absolute;
-  inset: 0;
+/* ---- The question: Fig. 1's top half above the teaser (v2.1-A) -----------
+   Column width; height from each <source>'s own width/height. On phones the
+   second picture (the inference panel and the question) stacks under the
+   first; on a desktop it is hidden and resolves to a data: GIF, so it costs
+   no request. The gap to the teaser is tight on purpose: question and answer
+   read as one unit, and the teaser's label row stays attached to the cubes. */
+.mars-question { margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0; }
+.mars-question picture { display: block; }
+.mars-question img {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: auto;
+}
+.mars-question__more { margin-top: 0.75rem; }
+@media (min-width: 601px) { .mars-question .mars-question__more { display: none; } }
+.mars-question + .mars-teaser { margin-top: clamp(0.5rem, 1.2vw, 0.875rem); }
+
+/* v2.1-A: the frame is the column's width and takes its HEIGHT FROM THE
+   POSTER's own width/height attributes — the poster sits in normal flow at
+   width 100%, height auto, and the video is laid exactly over it. No CSS
+   aspect-ratio any more (it was 1920 / 448, and 3 / 1 before 09b), so
+   v2.1-D can land v2.1-B's re-cropped encodes by changing the <img> and
+   <video> width/height attributes and the files, and nothing in this file.
+   The video's own attributes should carry the same numbers. */
+.mars-teaser__frame {
+  position: relative;
+  background: var(--paper);
+}
+.mars-teaser__poster {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .mars-teaser__video {
@@ -1499,8 +1548,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin: 0 0 0.5rem;
 }
 .mars-demo__sentence {
-  max-width: 68ch;
-  font-size: 1.0625rem;
+  font-size: 1.125rem;          /* v2.1-A: lead text, full column (was 68ch, 17 px) */
   margin: 0 0 1.25rem;
 }
 .mars-demo__media { margin: 0; }
@@ -1516,7 +1564,6 @@ img, video { max-width: 100%; height: auto; display: block; }
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.75rem, 2vw, 1.25rem);
-  max-width: 760px;
 }
 .mars-demo__note {
   margin-top: 0.55rem;
@@ -1525,13 +1572,13 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 
 /* ---- Demo 2: the count-distribution graphic (stage 09, 09b) -------------
-   An inline SVG generated by tools/build_demo_count.py. Since 09b its
-   viewBox is 720 units wide and the figure is capped at 720 CSS px; its own
-   <style> sets text to 18 units, 26 at <= 600 px viewports, so text is 18 px
-   on a desktop and >= 12.4 px at a 343 px phone column (the frame has no
-   side padding). Colours come from the tokens via var() inside the SVG. */
+   An inline SVG generated by tools/build_demo_count.py. Its viewBox is 720
+   units wide; since v2.1-A the frame spans the column (it was capped at
+   720 px), and the SVG's own <style> keeps the text near 18 px on a
+   desktop: 13.5 units above 900 px (18 px at 960), 18 units from 601 px
+   (14-22 px), 26 units at <= 600 px (>= 12.4 px at a 343 px column; the
+   frame has no side padding). Colours come from the tokens via var(). */
 .mars-count-fig__frame {
-  max-width: 720px;
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   background: var(--paper);
@@ -1582,9 +1629,13 @@ img, video { max-width: 100%; height: auto; display: block; }
   box-shadow: inset 0 0 0 5px #ffffff;
 }
 
+/* v2.1-A, minimal (the redesign is later): the slider keeps its square, and
+   the block — square plus the ground-truth panel — spans the column: the
+   square's left edge and the thumbnail's right edge are the column edges.
+   It was a 520 px square and a 132 px thumbnail, short of the column. */
 .mars-compare__body {
   display: grid;
-  grid-template-columns: minmax(0, 520px) minmax(88px, 132px);
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
   gap: clamp(0.75rem, 2vw, 1.25rem);
   align-items: start;
 }
@@ -1732,7 +1783,6 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-deeper a { text-decoration: none; border-bottom: 1px solid #d8cdb5; }
 .mars-deeper a:hover { border-bottom-color: var(--aged); }
 .mars-deeper__limits {
-  max-width: 68ch;
   font-size: 0.9375rem;
   color: var(--grey);
 }
@@ -1748,8 +1798,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin: 0 0 0.5rem;
 }
 .mars-pagehead__lede {
-  max-width: 62ch;
-  font-size: 1.0625rem;
+  font-size: 1.125rem;          /* v2.1-A: lead text, full column (was 62ch, 17 px) */
   color: var(--grey);
 }
 /* The compact INK footer: link line + funding line, no BibTeX. */

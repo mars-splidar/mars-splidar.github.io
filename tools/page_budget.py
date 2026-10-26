@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Main-page budget gate — MARS_WEBSITE_BUILD_GUIDE.md section 0.1 (stage 07).
+"""Main-page budget gate — MARS_WEBSITE_BUILD_GUIDE.md 0.1, as revised by 0.6 item 6.
 
 v1's main page measured about 2,440 visible words, 21 images, 5 animations and
 12 switch-bar tabs. v2's rule is that `/` answers "what is this, why does it
@@ -10,10 +10,11 @@ so the page cannot quietly grow back.
     python tools/page_budget.py            # measure index.html, print, gate
     python tools/page_budget.py --words    # also print every counted word
 
-Budgets (guide 0.1), and exactly how each is measured:
+Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
+420 words, at most 6 media items), and exactly how each is measured:
 
-  1. VISIBLE WORDS <= 350, excluding the nav, the BibTeX code block and the
-     funding line. "Visible" means what a sighted reader sees on the built
+  1. VISIBLE WORDS <= 420 (350 until v2.1-A), excluding the nav, the BibTeX
+     code block and the funding line. "Visible" means what a sighted reader sees on the built
      page, so these are also EXCLUDED: anything inside an element with the
      `hidden` attribute, `aria-hidden="true"` or class `mars-visually-hidden`;
      <script>, <style>, <template>, comments; attribute text (alt, title,
@@ -35,7 +36,10 @@ Budgets (guide 0.1), and exactly how each is measured:
      digit. So "—", "·", "→" and "↓" are not words; a hyphenated or
      ×-joined compound ("single-photon", "128×128×1024") is one word; "40×"
      and "+17dB" are one word each.
-  2. MEDIA ITEMS above the BibTeX band == 4 — the three demos and the video.
+  2. MEDIA ITEMS above the BibTeX band <= 6 (v2.1-A; was == 4) — guide 0.6
+     item 6 names six: the Fig. 1 top half, the teaser, the cube slicer,
+     Demo 2, Demo 3 and the film. The Fig. 1 figure is ONE item although it
+     holds two <picture>s (the desktop image, and the second phone crop).
      Counted as `[data-media-slot]` containers, not as <img> tags: a demo's
      one media item may legitimately hold several images (stage 07's interim
      Demo 3 is a two-up). As a guard, any <img>, <video>, <picture>,
@@ -68,8 +72,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
-WORD_LIMIT = 350
-MEDIA_ITEMS = 4
+WORD_LIMIT = 420        # guide 0.6 item 6 (v2.1-A); was 350
+MEDIA_ITEMS = 6         # guide 0.6 item 6 (v2.1-A): at most 6; was exactly 4
 SWITCH_MAX = 0
 EQ_MAX = 0
 DEMO_TITLE_MAX = 8
@@ -213,7 +217,7 @@ def main() -> int:
         if not ok:
             fails.append(label)
 
-    print(f"MaRS main-page budget — {args.page}  (MARS_WEBSITE_BUILD_GUIDE.md 0.1)\n")
+    print(f"MaRS main-page budget — {args.page}  (MARS_WEBSITE_BUILD_GUIDE.md 0.1 / 0.6)\n")
 
     # 1 — visible words
     static_words = words(text_of(body))
@@ -247,8 +251,8 @@ def main() -> int:
              and "data-media-slot" not in n.attrs]
     print("\n  media slots above BibTeX: "
           + ", ".join(n.attrs["data-media-slot"] for n in slots))
-    check(len(slots) == MEDIA_ITEMS, "media items above the BibTeX band",
-          len(slots), f"== {MEDIA_ITEMS}")
+    check(len(slots) <= MEDIA_ITEMS, "media items above the BibTeX band",
+          len(slots), f"<= {MEDIA_ITEMS}")
     check(not stray, "media elements outside any [data-media-slot]",
           len(stray), "== 0")
 
@@ -303,7 +307,7 @@ def main() -> int:
     if fails:
         print(f"FAIL — {len(fails)} budget breach(es): " + "; ".join(fails))
         return 1
-    print("PASS — every guide 0.1 budget holds on " + args.page)
+    print("PASS — every guide 0.1 / 0.6 budget holds on " + args.page)
     return 0
 
 

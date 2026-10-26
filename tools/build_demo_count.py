@@ -40,9 +40,11 @@ THE RULES IT ENFORCES (stage 09 doc, T2):
     renewal and Zhang et al. 1.75 px in their tokens lightened 25 % toward
     PAPER (labels keep the full token), Zhang et al. dashed so the two prior
     models differ in greyscale too. Strokes are non-scaling.
-  * a 720-unit-wide viewBox shown at most 720 CSS px wide; text 18 units
-    (18 px on a desktop), 26 units at <= 600 px viewports (an inline
-    <style>), i.e. >= 12.4 CSS px at a 343 px figure.
+  * a 720-unit-wide viewBox. Since v2.1-A it spans the page's column (960
+    CSS px on a desktop; it was capped at 720), so an inline <style> sets
+    text to 13.5 units above 900 px viewports (18 px at 960), 18 units from
+    601 px, and 26 units at <= 600 px, i.e. >= 12.4 CSS px at a 343 px
+    figure.
 
 PROVENANCE (printed; exit non-zero on any mismatch):
   * (S, B, t_d), grid index, the realization count (proven from the data:
@@ -80,6 +82,7 @@ PL, PR, PT, PB = 52, 14, 52, 60         # plot margins (room for 26-unit text)
 X0, X1 = 1140, 1275                     # count axis; renewal fits, Poisson does not
 FS = 18                                 # every text node, desktop (18 px at 720 px)
 FS_NARROW = 26                          # <= 600 px viewport: >= 12.4 px at 343 px
+FS_WIDE = 13.5                          # > 900 px viewport (v2.1-A): 18 px at a 960 px column
 STROKE = {"ours": 3.0, "renewal": 1.75, "icip": 1.75}   # CSS px, non-scaling
 DASH = {"icip": "7 4"}                  # Zhang et al. dashed: tells it from renewal
                                         # in greyscale as well as by hue
@@ -161,7 +164,10 @@ def build_svg(d) -> str:
     # text size: one rule, bumped on narrow viewports so labels stay >= 12 px
     # at a 343 px figure. Inline, the media query reads the page viewport; as
     # a standalone file, the image's own width — the same intent either way.
+    # v2.1-A: the figure spans the 960 px column, so above 900 px the text
+    # drops to FS_WIDE units to stay about 18 CSS px.
     a(f'  <style>.mars-count text{{font-size:{FS}px}}'
+      f'@media (min-width:901px){{.mars-count text{{font-size:{FS_WIDE}px}}}}'
       f'@media (max-width:600px){{.mars-count text{{font-size:{FS_NARROW}px}}}}</style>')
 
     # gold-standard histogram — one bar per integer count. Stage 09b: the

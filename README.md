@@ -107,7 +107,10 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 media slots above BibTeX (was exactly four), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
 non-zero on a breach. Its docstring defines exactly what counts as a word and
-as a media item. `details_move_diff.py` extracts each of the seven bands,
+as a media item. Since v2.1-C it counts PROSE only: text inside a `.mars-ui`
+element (control labels, legends, axis text, image names) is reported
+separately as "UI words" and is not held against the 420; it also checks the
+cube slicer's title, guiding text and media slot. `details_move_diff.py` extracts each of the seven bands,
 banner comment included, from `git show v1.0-launch:index.html` and from
 `details/index.html`, undoes the `../` path prefix and diffs them; the only
 allowed difference is the Simulator card's demo-lab link.
@@ -127,6 +130,27 @@ It prints the operating point, the realization count and every model's
 stored vs plotted mean and variance, asserts that no `<text>` node or the
 `aria-label` carries a digit, and exits non-zero on any mismatch or, with
 `--check`, on drift between the script, the file and the inline copy.
+
+### The cube slicer (stage v2.1-C)
+
+```bash
+python3 tools/build_slicer_data.py            # numpy only; writes assets/data/slicer/
+python3 tools/build_slicer_data.py --check    # writes nothing; the gate form
+python3 tools/build_slicer_placeholder.py     # Playwright + Chrome; the four stills
+```
+
+`build_slicer_data.py` exports the paper's Fig. 1 cubes from the project folder's
+`video/web/hero/out/cubes.npz` (read only, sha256-pinned) to
+`assets/data/slicer/`: three gzip cubes, the delay map and `meta.json`
+(brightness constant from the gold cube, the four data-picked presets, provenance).
+It fails if the bright preset does not show gold and MaRS 2-3 ns earlier than
+Poisson, and splices the default readout into `index.html`
+(`slicer_readout` markers); `--check` fails on any drift, including that text.
+`build_slicer_placeholder.py` re-captures the placeholder stills
+(`assets/img/slicer_ph_*.webp`) from the live module; re-run it after any
+change to the module's drawing, the data or the fonts. Never edit either output
+by hand. `js/mars-slicer.js` is fetched by `js/mars-main.js` only when the
+reader scrolls near the block (never on a cold load).
 
 ### The hero teaser (stages 08, 09b)
 
@@ -202,6 +226,7 @@ js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
 js/mars-main.js         main page only: teaser, video poster, BibTeX copy
 js/mars-compare.js      main page only: Demo 3 before/after slider (stage 09)
+js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
 js/mars-switchbar.js    the switch-bar (tab) pattern (/details/)
 js/mars-media.js        scroll-triggered animation slots (/details/)
@@ -216,6 +241,9 @@ tools/page_budget.py    the main page's guide-0.1/0.6 budgets (stage 07, v2.1-A)
 tools/build_fig1_question.py  Fig. 1's top half from the paper PDF (v2.1-A)
 tools/measure_edges.py  visible edges vs the column, both pages; not a gate (v2.1-A)
 tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 09)
+tools/build_slicer_data.py  the slicer's data + default readout, --check gate (v2.1-C)
+tools/build_slicer_placeholder.py  the slicer's placeholder stills (v2.1-C)
+assets/data/slicer/     the slicer's cubes, delay map and meta.json (v2.1-C)
 tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
 
@@ -490,3 +518,12 @@ Each build stage appends one line here.
   phones, `tools/build_fig1_question.py`). `/details/` fetches no video under
   reduced motion. Budgets 420 words / 6 media. Review pack:
   `build_instructions/review/v21A/`.
+- **Stage v2.1-C — the cube slicer (2026-10-26).** On branch `v2.1`, not
+  pushed. Directly under the teaser, in its own band (`#slicer`): three linked
+  time slices of the Fig. 1 cubes (one brightness mapping, fixed from the gold
+  cube) over one raw-count histogram, four data-picked presets, pooling and
+  range. Nothing of it loads until the reader scrolls near it; a pixel-exact
+  still stands in until then; Save-Data gets a button. `page_budget.py` now
+  reports `.mars-ui` control text separately (prose 416/420, media 6/6);
+  `build_slicer_data.py --check` joins the gates. Review pack:
+  `build_instructions/review/v21C/`.

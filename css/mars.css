@@ -165,6 +165,7 @@
 .mars-eq,
 .mars-media__frame,
 .mars-lab__caveat,
+.mars-compare__panel,           /* v2.1-D: Demo 3's side panel */
 #playground-root {
   --aged-fg: var(--aged-text);
 }

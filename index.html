@@ -20,20 +20,26 @@
      the nav wordmark at 32 px. Stage 1.5. -->
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="%2314181A"/><path d="M7 24V8h4l5 9 5-9h4v16h-4v-9l-5 9-5-9v9z" fill="%23CFB991"/></svg>'>
 
-<!-- Open Graph / Twitter card. Image is the three-cube tradeoff hook. -->
+<!-- Open Graph / Twitter card. Since stage 10b the image is built by
+     tools/build_og_card.py from the teaser's own frame 0: title, ECCV 2026, the
+     three cubes and their names, and NO timing or speed number — v1's card
+     burned in 0.2 / 16.1 / 0.3 s beside this description's "40x ... 128x128x1024",
+     two different experiments. "?v=2" makes crawlers re-fetch the new card; the
+     file keeps its name so old shares never 404. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MaRS">
 <meta property="og:url" content="https://mars-splidar.github.io/">
 <meta property="og:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
 <meta property="og:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster for a 128×128×1024 cube. ECCV 2026.">
-<meta property="og:image" content="https://mars-splidar.github.io/assets/img/og_card.png">
+<meta property="og:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Three histogram cubes side by side: a Poisson simulator at 0.2 s but physically wrong, the sequential gold standard at 16.1 s and correct, and MaRS at 0.3 s and correct.">
+<meta property="og:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike; the Poisson cube does not.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
 <meta name="twitter:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster for a 128×128×1024 cube. ECCV 2026.">
-<meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png">
+<meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=2">
+<meta name="twitter:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike; the Poisson cube does not.">
 
 <!-- Google Scholar. citation_pdf_url points at the WEB copy of the paper, the
      same file the hero's Paper button serves; the full-resolution original is

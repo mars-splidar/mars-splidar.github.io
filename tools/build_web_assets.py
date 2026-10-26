@@ -145,7 +145,17 @@ def build_images(rows: list[list[str]], force: bool) -> None:
 
 
 def build_og_card(rows: list[list[str]], force: bool) -> None:
-    """Letterbox the three-cube hook onto a PAPER field at 1200x630."""
+    """RETIRED in stage 10b — the share card is built by tools/build_og_card.py.
+
+    This used to letterbox the poster's f1_tradeoff art, which burns in
+    0.2 / 16.1 / 0.3 s per cube beside an og:description that says "40x ...
+    128x128x1024": two experiments presented as one. Running it would put
+    that card back, so it now only reports. The old body is kept below,
+    unreachable, for the record."""
+    out = IMG_OUT / "og_card.png"
+    rows.append(["(tools/build_og_card.py)", "og_card.{png,webp}", "not built here",
+                 "1200x630", _size_str(out.stat().st_size) if out.exists() else "missing"])
+    return
     src = _need(POSTER_ASSETS / "f1_tradeoff.png")
     out = IMG_OUT / "og_card.png"
     twin = IMG_OUT / "og_card.webp"

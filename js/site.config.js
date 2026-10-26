@@ -66,10 +66,13 @@ window.MARS_CONFIG = {
   codeUrl: null,
 
   /* Poster: web copy is the primary target (3.0 MB, 150 dpi raster); the
-     full-resolution 15.3 MB original is offered as a secondary link. */
+     full-resolution original is offered as a secondary link. Both size
+     labels are DECIMAL MB from the files' real sizes (stage 10b; this one
+     read "15 MB", which was MiB): paper 25,259,826 B -> 25 MB, poster
+     16,059,248 B -> 16 MB. Re-check them if either file changes. */
   posterPdf: "assets/docs/mars_poster_web.pdf",
   posterPdfFull: "assets/docs/mars_poster_full.pdf",
-  posterPdfFullLabel: "poster (15 MB)",
+  posterPdfFullLabel: "poster (16 MB)",
 
   /* Video: open question E3. "self" serves the 24 MB local copy in a lightbox;
      switching to "youtube" is a two-field change (videoMode + videoYoutubeId)

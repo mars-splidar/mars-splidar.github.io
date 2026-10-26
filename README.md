@@ -65,7 +65,7 @@ video; `--force` rebuilds everything.
 Requires **Pillow**, and **ghostscript** (`gs`) for the poster downsample. If
 `gs` is missing, the script says so and writes no `mars_poster_web.pdf` — point
 the Poster button at `mars_poster_full.pdf` and label its size in the button
-rather than shipping a 15 MB file behind an unlabelled link.
+rather than shipping a 16 MB file behind an unlabelled link.
 
 ## How to run the claim audit
 

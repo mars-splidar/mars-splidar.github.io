@@ -24,21 +24,22 @@
      tools/build_og_card.py from the teaser's own frame 0: title, ECCV 2026, the
      three cubes and their names, and NO timing or speed number — v1's card
      burned in 0.2 / 16.1 / 0.3 s beside this description's "40x ... 128x128x1024",
-     two different experiments. "?v=2" makes crawlers re-fetch the new card; the
+     two different experiments. "?v=3" (v2.1-D: rebuilt from the re-cut teaser's
+     frame 0) makes crawlers re-fetch the new card; the
      file keeps its name so old shares never 404. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MaRS">
 <meta property="og:url" content="https://mars-splidar.github.io/">
 <meta property="og:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
 <meta property="og:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster for a 128×128×1024 cube. ECCV 2026.">
-<meta property="og:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=2">
+<meta property="og:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=3">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike; the Poisson cube does not.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
 <meta name="twitter:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster for a 128×128×1024 cube. ECCV 2026.">
-<meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=2">
+<meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=3">
 <meta name="twitter:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike; the Poisson cube does not.">
 
 <!-- Google Scholar. citation_pdf_url points at the WEB copy of the paper, the
@@ -261,8 +262,10 @@
 
     <!-- ==================================================================
          THE TEASER SLOT — Demo 1 (guide 0.3 ①, contract WEBSITE_BUILD_STATUS
-         3.7, as changed by stage 09b). Full content width, 1920 x 448 (the
-         stage-08 render cropped top and bottom; the cubes keep their size).
+         3.7, as changed by stage 09b and v2.1). Full content width, 1920 x 484
+         since v2.1-D: v2.1-B's re-cut, cropped to the cubes on all four sides
+         (the side gutters too, so the cube edges are the column edges) and
+         slowed to 10 ns/s through the object; 11.07 s loop.
          Stage 08's anim_hero_cubes, landed by stage 09: three real cubes of one scene — Poisson, the
          sequential gold standard and MaRS — each from its own simulator,
          under one shared render, with a time slab sweeping the bins.
@@ -280,7 +283,7 @@
          from first paint.
 
          PHONES get anim_hero_cubes_960.* (stage 09b): the same cropped
-         frames downscaled to 960 x 224. The FULL-size sources come first,
+         frames downscaled to 960 x 242 (v2.1-D; was 960 x 224). The FULL-size sources come first,
          gated by media="(min-width: 601px)"; at 600 px and below a browser
          skips them and takes the 960 copy. ORDER MATTERS: a browser that
          ignores `media` on <source> takes the first source it can play, so
@@ -303,10 +306,10 @@
              srcset="assets/media/anim_hero_cubes_960.jpg 960w,
                      assets/media/anim_hero_cubes.jpg 1920w"
              sizes="(max-width: 992px) calc(100vw - 32px), 960px"
-             width="1920" height="448" fetchpriority="high" decoding="async"
+             width="1920" height="484" fetchpriority="high" decoding="async"
              alt="Three simulated photon-count histogram cubes of the same scene, side by side: the Poisson simulator, the sequential gold standard and MaRS. The gold-standard and MaRS cubes look alike; the Poisson cube, which ignores dead time, does not.">
         <video class="mars-teaser__video" muted loop playsinline
-               preload="none" width="1920" height="448" aria-hidden="true"
+               preload="none" width="1920" height="484" aria-hidden="true"
                tabindex="-1" disablepictureinpicture>
           <source src="assets/media/anim_hero_cubes.webm" type="video/webm"
                   media="(min-width: 601px)">

@@ -1480,9 +1480,18 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-teaser__cols {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  /* v2.1-D: the re-cut teaser puts the outer cubes on the column edges, with
+     two equal gaps of 79/960 of the width between the three cubes; the same
+     gap here centres each label column under its cube (measured within
+     0.5 px from 431 to 1920 px). On small phones that leaves each column
+     only a cube wide (~100 px), so "0.2 s" breaks; there the old 12 px gap
+     stays and the outer labels sit 4-7 px inward. */
+  column-gap: 8.23%;
   margin: 0;
   text-align: center;
+}
+@media (max-width: 430px) {
+  .mars-teaser__cols { column-gap: 0.75rem; }
 }
 .mars-teaser__col dt {
   font-family: var(--font-head);

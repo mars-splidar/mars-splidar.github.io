@@ -10,6 +10,10 @@
  *  - fetch nothing at all until a slot is within 300px of the viewport;
  *  - play when >= 35% of the slot is in view, pause when it leaves;
  *  - `prefers-reduced-motion: reduce` -> never play, show the poster only;
+ *  - Save-Data (`navigator.connection.saveData`, stage 10b) -> the same, and
+ *    `preload="none"`, so not one video byte is fetched until the reader
+ *    presses play on the controls (the teaser on / has done this since
+ *    stage 09);
  *  - a slot whose sources are missing keeps its labelled 16:9 placeholder.
  *
  * THE MEDIA GATE — CONTRACT CHANGE, STAGE 1.5. READ THIS IF YOU ARE STAGE 04
@@ -69,6 +73,10 @@
 
   var reduce = window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /* Save-Data (stage 10b): treated like reduced motion — poster and controls,
+     never autoplay — and preload="none" so no video bytes at all. */
+  var saveData = !!(navigator.connection && navigator.connection.saveData);
+  var still = reduce || saveData;
 
   /* Promote data-poster / data-src to the real attributes and start the
      fetch. Called from the prepare observer on first approach, never at init,
@@ -84,10 +92,22 @@
     }
     var sources = fig.querySelectorAll(".mars-media__video source[data-src]");
     for (var i = 0; i < sources.length; i++) {
-      sources[i].setAttribute("src", sources[i].getAttribute("data-src"));
-      sources[i].removeAttribute("data-src");
+      if (saveData) {
+        /* Save-Data: Chrome's load() fetches the whole file whatever
+           `preload` says (measured, stage 10b). Re-inserting each <source>
+           with its src instead resumes the source selection the parser
+           left waiting, picks a file and fetches nothing until play is
+           pressed. */
+        var fresh = sources[i].cloneNode(false);
+        fresh.setAttribute("src", fresh.getAttribute("data-src"));
+        fresh.removeAttribute("data-src");
+        sources[i].parentNode.replaceChild(fresh, sources[i]);
+      } else {
+        sources[i].setAttribute("src", sources[i].getAttribute("data-src"));
+        sources[i].removeAttribute("data-src");
+      }
     }
-    if (sources.length) video.load();
+    if (sources.length && !saveData) video.load();
   }
 
   function initMedia() {
@@ -116,7 +136,7 @@
 
     /* Play/pause observer — section 3.3's 35% rule, unchanged. */
     var playObserver = null;
-    if (!reduce && hasIO) {
+    if (!still && hasIO) {
       playObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           var video = entry.target.querySelector(".mars-media__video");
@@ -150,11 +170,13 @@
       fig.classList.add("has-media");
 
       /* Reduced motion: no autoplay at all. The poster plus manual controls,
-         and a metadata-only preload once the sources are promoted. */
-      if (reduce) {
+         and a metadata-only preload once the sources are promoted. Save-Data:
+         the same, but preload="none" — load() then picks a source and fetches
+         nothing until play is pressed. */
+      if (still) {
         video.removeAttribute("autoplay");
         video.controls = true;
-        video.preload = "metadata";
+        video.preload = saveData ? "none" : "metadata";
       }
 
       /* No IntersectionObserver at all (very old browser): fall back to the
@@ -163,7 +185,7 @@
          that cannot tell us what is on screen. */
       if (!hasIO) {
         prepare(fig, video);
-        if (!reduce) {
+        if (!still) {
           var p = video.play();
           if (p && p.catch) p.catch(function () { /* autoplay policy */ });
         }

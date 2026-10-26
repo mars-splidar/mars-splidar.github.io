@@ -164,7 +164,8 @@
 <!-- ======================================================================
      HERO (guide 0.3 ①) — light PAPER. Title rules unchanged from v1
      (guide 4.2 + stage 06's F3: the <h1> is visually hidden, never
-     display:none'd, below 467 px, where the two-line fallback shows).
+     display:none'd, at 600 px and below, where the two-line title shows —
+     v2.1-D; it was 467 px).
      ====================================================================== -->
 <section class="mars-band" aria-labelledby="hero-title">
   <div class="mars-band__inner mars-hero__inner">
@@ -180,11 +181,15 @@
       Single-Photon LiDAR <span class="mars-hl">S</span>imulator
     </h1>
 
-    <!-- Sanctioned two-line fallback, shown at 467px and below (guide 4.2,
-         breakpoint moved from 380px by stage 06). -->
+    <!-- The narrow-screen title (v2.1-D; author, 2026-10-26): TWO LINES OF ONE
+         SIZE, split after the acronym phrase, with the same gold highlights as
+         the <h1> (the S is Simulator's). The longer second line fills the
+         column; the first is left-aligned. Shown at 600 px and below, where the
+         one-line title would fall under ~22 px; aria-hidden, because the <h1>
+         above stays in the accessibility tree (visually hidden, stage 06 F3). -->
     <p class="mars-hero__title--narrow" aria-hidden="true">
-      <span class="mars-hero__acronym">MaRS</span>
-      <span class="mars-hero__full">Markov-Renewal Single-Photon LiDAR Simulator</span>
+      <span class="mars-hero__line1"><span class="mars-hl">MaRS</span>: <span class="mars-hl">Ma</span>rkov-<span class="mars-hl">R</span>enewal</span>
+      <span class="mars-hero__line2">Single-Photon LiDAR <span class="mars-hl">S</span>imulator</span>
     </p>
 
     <p class="mars-hero__subhead">Accurate, efficient single-photon LiDAR

@@ -543,10 +543,11 @@ img, video { max-width: 100%; height: auto; display: block; }
   container-type: inline-size;
   --title-em: 26.06;      /* ink width of the one-line title, in em */
   --title-lsb: 0.045;     /* left side bearing of its first M, in em */
-  --acronym-em: 2.668;    /* narrow fallback, line 1: "MaRS", weight 500 */
-  --acronym-lsb: 0.070;
-  --full-em: 23.73;       /* narrow fallback, line 2: the full title */
-  --full-lsb: 0.030;
+  /* v2.1-D, the two-line title at <= 600 px: one size for both lines, set
+     by line 2's ink width; each line pulls its own first glyph's bearing. */
+  --line2-em: 14.50;      /* ink width of "Single-Photon LiDAR Simulator", in em (line 1: 11.26) */
+  --line2-lsb: 0.030;     /* left side bearing of its S, in em */
+  --line1-lsb: 0.045;     /* "MaRS: Markov-Renewal" starts with the h1's M */
   /* A fallback face that runs wider than Poppins before the swap, or a
      platform that rasterises a hair wider, must never widen the page. */
   overflow-x: clip;
@@ -566,36 +567,25 @@ img, video { max-width: 100%; height: auto; display: block; }
 
 .mars-hl { color: var(--aged-fg); font-weight: 500; }
 
-/* Below ~380px, 51 characters at any legible size will not fit one line. The
-   guide sanctions exactly one fallback: `MaRS` at full size with the full
-   title smaller beneath it. */
+/* THE NARROW HERO TITLE. The single line is replaced by a two-line block at
+   narrow widths; the <h1> stays in the accessibility tree.
+   v2.1-D (author, 2026-10-26): TWO LINES OF EQUAL SIZE — "MaRS: Markov-
+   Renewal" / "Single-Photon LiDAR Simulator" — with the <h1>'s gold
+   highlights. Line 2 is the longer, so its ink width sets the size and it
+   fills the column; line 1 is left-aligned on the same edge. It replaced
+   v2.1-A's fallback (a 108-163 px "MaRS" over a 12-18 px full title).
+   BREAKPOINT 600/601 px: the one-line size is (viewport - 32) / 26.06, so it
+   falls under ~22 px below about 605 px (21.8 px at 601). The switch snaps to
+   the page's existing phone boundary (Fig. 1's crops, the teaser's 960 copy)
+   so phones are one regime; measured in v2.1-D measurements.txt.
+   A11Y (stage 06, F3): `display: none` on the <h1> would take it out of the
+   accessibility tree, and the two-line block is aria-hidden="true" — so the
+   <h1> is VISUALLY hidden instead (the .mars-visually-hidden declarations)
+   and keeps naming the hero <section> through aria-labelledby. One <h1> in
+   the tree at every width. */
 .mars-hero__title--narrow { display: none; }
 
-/* THE NARROW HERO TITLE — breakpoint and a11y both corrected in stage 06.
-   Two measured findings, both in the band of widths that is most of the
-   conference's phone traffic:
-
-   1. The breakpoint was 380px, and the wide title's clamp() floor is 0.8rem
-      = 12.8px. So between 381px and 467px the <h1> rendered BELOW body size
-      while the narrow fallback built for exactly this case stayed switched
-      off — measured 14.36px at 420px and 13.3px at 390px, against 16px body
-      copy and a 17px subhead. 381-467px covers essentially every mainstream
-      phone in portrait: 390, 393, 402, 414, 428, 430. The breakpoint is now
-      467px, which is the width where the nowrap title reaches exactly 1rem
-      (3.42vw = 16.006px at 468px). The rule is therefore principled rather
-      than picked: the narrow fallback owns every width at which the single
-      line would be smaller than the body text it sits above.
-
-   2. `display: none` on the <h1> took it out of the ACCESSIBILITY TREE, and
-      the narrow replacement below is aria-hidden="true" — so below the
-      breakpoint the page had NO <h1> at all for assistive technology. The
-      first heading a screen reader met was the visually-hidden "Headline
-      results" <h2>. Measured at 375px before this change. The <h1> is now
-      visually hidden instead (the same declarations as
-      .mars-visually-hidden), so it stays in the tree and keeps naming the
-      hero <section> through aria-labelledby, while the narrow block carries
-      the visual treatment. */
-@media (max-width: 467px) {
+@media (max-width: 600px) {
   .mars-hero__title {
     position: absolute;
     width: 1px; height: 1px;
@@ -605,33 +595,22 @@ img, video { max-width: 100%; height: auto; display: block; }
     white-space: nowrap;
     border: 0;
   }
-  .mars-hero__title--narrow { display: block; }
-  /* v2.1-A: both lines fill the column too, sized like the one-line title
-     (ink width in em, side bearing pulled out); 2.75rem / 1.0625rem are the
-     pre-cqi fallbacks. */
-  .mars-hero__title--narrow .mars-hero__acronym {
+  /* 6.3vw is the pre-cqi fallback (about the column / 14.5 em at 390 px). */
+  .mars-hero__title--narrow {
     display: block;
     font-family: var(--font-head);
-    font-size: 2.75rem;
-    font-size: calc(100cqi / var(--acronym-em));
-    margin-left: calc(var(--acronym-lsb) * -1em);
-    font-weight: 500;
-    color: var(--aged-fg);
-    line-height: 1.05;
-    white-space: nowrap;
-  }
-  .mars-hero__title--narrow .mars-hero__full {
-    display: block;
-    font-family: var(--font-head);
-    font-size: 1.0625rem;
-    font-size: calc(100cqi / var(--full-em));
-    margin-left: calc(var(--full-lsb) * -1em);
     font-weight: 400;
+    font-size: 6.3vw;
+    font-size: calc(100cqi / var(--line2-em));
+    letter-spacing: -0.02em;
+    line-height: 1.2;
     color: var(--dark);
-    margin-top: 0.3rem;
-    line-height: 1.3;
-    white-space: nowrap;
+    margin: 0 0 0.85rem;
   }
+  .mars-hero__line1,
+  .mars-hero__line2 { display: block; white-space: nowrap; }
+  .mars-hero__line1 { margin-left: calc(var(--line1-lsb) * -1em); }
+  .mars-hero__line2 { margin-left: calc(var(--line2-lsb) * -1em); }
 }
 
 .mars-hero__subhead {

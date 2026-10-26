@@ -10,10 +10,13 @@
  *  - fetch nothing at all until a slot is within 300px of the viewport;
  *  - play when >= 35% of the slot is in view, pause when it leaves;
  *  - `prefers-reduced-motion: reduce` -> never play, show the poster only;
- *  - Save-Data (`navigator.connection.saveData`, stage 10b) -> the same, and
- *    `preload="none"`, so not one video byte is fetched until the reader
- *    presses play on the controls (the teaser on / has done this since
- *    stage 09);
+ *  - Save-Data (`navigator.connection.saveData`, stage 10b) -> the same;
+ *  - under EITHER, `preload="none"` and no load(), so not one video byte is
+ *    fetched until the reader presses play on the controls (the teaser on /
+ *    has done this since stage 09). Save-Data got this in stage 10b; reduced
+ *    motion only in v2.1-A — until then it promoted the sources and called
+ *    load() with preload="metadata", which Chrome ignores: the in-view
+ *    loops on /details/ downloaded whole (stage 10b's correction to stage 10);
  *  - a slot whose sources are missing keeps its labelled 16:9 placeholder.
  *
  * THE MEDIA GATE — CONTRACT CHANGE, STAGE 1.5. READ THIS IF YOU ARE STAGE 04
@@ -73,8 +76,9 @@
 
   var reduce = window.matchMedia &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  /* Save-Data (stage 10b): treated like reduced motion — poster and controls,
-     never autoplay — and preload="none" so no video bytes at all. */
+  /* Save-Data (stage 10b) is treated like reduced motion: poster and
+     controls, never autoplay, and — for both, since v2.1-A — preload="none"
+     with no load(), so no video bytes at all until play is pressed. */
   var saveData = !!(navigator.connection && navigator.connection.saveData);
   var still = reduce || saveData;
 
@@ -91,13 +95,14 @@
       video.removeAttribute("data-poster");
     }
     var sources = fig.querySelectorAll(".mars-media__video source[data-src]");
+    if (still) video.preload = "none";      /* before any source has a src */
     for (var i = 0; i < sources.length; i++) {
-      if (saveData) {
-        /* Save-Data: Chrome's load() fetches the whole file whatever
-           `preload` says (measured, stage 10b). Re-inserting each <source>
-           with its src instead resumes the source selection the parser
-           left waiting, picks a file and fetches nothing until play is
-           pressed. */
+      if (still) {
+        /* Reduced motion / Save-Data: Chrome's load() fetches the whole file
+           whatever `preload` says (measured, stage 10b). Re-inserting each
+           <source> with its src instead resumes the source selection the
+           parser left waiting, picks a file and fetches nothing until play
+           is pressed. */
         var fresh = sources[i].cloneNode(false);
         fresh.setAttribute("src", fresh.getAttribute("data-src"));
         fresh.removeAttribute("data-src");
@@ -107,7 +112,7 @@
         sources[i].removeAttribute("data-src");
       }
     }
-    if (sources.length && !saveData) video.load();
+    if (sources.length && !still) video.load();
   }
 
   function initMedia() {
@@ -169,14 +174,15 @@
          even though nothing has been fetched yet. See note 3 in the header. */
       fig.classList.add("has-media");
 
-      /* Reduced motion: no autoplay at all. The poster plus manual controls,
-         and a metadata-only preload once the sources are promoted. Save-Data:
-         the same, but preload="none" — load() then picks a source and fetches
-         nothing until play is pressed. */
+      /* Reduced motion or Save-Data: no autoplay at all. The poster plus
+         manual controls, preload="none", and sources re-inserted rather than
+         load()ed (prepare()), so nothing is fetched until play is pressed.
+         v2.1-A: reduced motion used preload="metadata" + load(), and fetched
+         the whole file. */
       if (still) {
         video.removeAttribute("autoplay");
         video.controls = true;
-        video.preload = saveData ? "none" : "metadata";
+        video.preload = "none";
       }
 
       /* No IntersectionObserver at all (very old browser): fall back to the

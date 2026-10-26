@@ -98,12 +98,13 @@ gains strip on `/`, and "exactly one `.mars-eq`" counts across both.
 ### The two v2 gates (stage 07)
 
 ```bash
-python tools/page_budget.py          # the main page's budgets, guide 0.1
+python tools/page_budget.py          # the main page's budgets, guide 0.1 / 0.6
 python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
-`page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1 —
-visible words ≤ 350, four media slots above BibTeX, zero switch bars, zero
+`page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
+§0.6 item 6's limits since v2.1-A — visible words ≤ 420 (was 350), at most six
+media slots above BibTeX (was exactly four), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
 non-zero on a breach. Its docstring defines exactly what counts as a word and
 as a media item. `details_move_diff.py` extracts each of the seven bands,
@@ -211,7 +212,9 @@ assets/docs/            poster PDFs, paper PDF, overview video + captions
 tools/build_web_assets.py
 tools/audit_claims.py   claim hygiene, both public pages
 tools/check_links.py    every reference, both public pages
-tools/page_budget.py    the main page's guide-0.1 budgets (stage 07)
+tools/page_budget.py    the main page's guide-0.1/0.6 budgets (stage 07, v2.1-A)
+tools/build_fig1_question.py  Fig. 1's top half from the paper PDF (v2.1-A)
+tools/measure_edges.py  visible edges vs the column, both pages; not a gate (v2.1-A)
 tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 09)
 tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
@@ -246,9 +249,14 @@ tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 - **The hero title's gold letters are `MaRS`, `Ma`, `R`, and the `S` of
   *Simulator*** — not the `S` of *Single-Photon*. `MaRS` = **Ma**rkov-**R**enewal
   **S**imulator.
-- **The hero title must stay on one line** down to ~380 px. Its `clamp()` is
-  derived from a measured em-width; the CSS comment carries the arithmetic.
-  Re-measure if you change the font, the tracking, or `--measure`.
+- **The hero title fills the column exactly** (v2.1-A): one line above 467 px,
+  the two-line fallback below, all sized in `cqi` from a measured INK width
+  (`--title-em`, `--acronym-em`, `--full-em` and their side bearings in
+  `css/mars.css`). Re-measure with `tools/measure_edges.py` if you change the
+  font, a weight, the tracking, the wording or `--column`.
+- **One column** (v2.1-A): `--column` 960 px and `--gutter` 16 px. A box that
+  carries the column is `max-width: calc(var(--column) + 2 * var(--gutter))`
+  with the gutter as padding. Do not add prose caps (`ch` max-widths).
 
 Full context: `PROJECT_BRIEF.md` (facts and claim hygiene),
 `MARS_WEBSITE_BUILD_GUIDE.md` (structure, copy, design) and
@@ -473,3 +481,12 @@ Each build stage appends one line here.
   - **Film poster** is the Four gains card.
 
   Review pack: `build_instructions/review/stage10b/`.
+- **Stage v2.1-A — one column and the question (2026-10-26).** On branch
+  `v2.1`, not pushed. Every block on `/` and `/details/` now shares one
+  960 px column (viewport − 32 px below), judged by visible edges
+  (`tools/measure_edges.py`); the title's ink meets both column edges at every
+  width, the narrow fallback's two lines too. The top half of the paper's
+  Fig. 1 sits between the buttons and the teaser (two stacked crops on
+  phones, `tools/build_fig1_question.py`). `/details/` fetches no video under
+  reduced motion. Budgets 420 words / 6 media. Review pack:
+  `build_instructions/review/v21A/`.

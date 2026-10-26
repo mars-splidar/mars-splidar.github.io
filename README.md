@@ -108,7 +108,7 @@ media slots above BibTeX (was exactly four), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
 non-zero on a breach. Its docstring defines exactly what counts as a word and
 as a media item. Since v2.1-C it counts PROSE only: text inside a `.mars-ui`
-element (control labels, legends, axis text, image names) is reported
+element (control labels, legends, axis text) is reported
 separately as "UI words" and is not held against the 420; it also checks the
 cube slicer's title, guiding text and media slot. `details_move_diff.py` extracts each of the seven bands,
 banner comment included, from `git show v1.0-launch:index.html` and from
@@ -524,6 +524,6 @@ Each build stage appends one line here.
   cube) over one raw-count histogram, four data-picked presets, pooling and
   range. Nothing of it loads until the reader scrolls near it; a pixel-exact
   still stands in until then; Save-Data gets a button. `page_budget.py` now
-  reports `.mars-ui` control text separately (prose 416/420, media 6/6);
+  reports `.mars-ui` control text separately (prose 420/420, media 6/6);
   `build_slicer_data.py --check` joins the gates. Review pack:
   `build_instructions/review/v21C/`.

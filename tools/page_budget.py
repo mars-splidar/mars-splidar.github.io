@@ -34,8 +34,9 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      word count (measured in the browser, stage 09 measurements.txt).
      INTERACTIVE UI SCOPE (stage v2.1-C, WEBSITE_BUILD_STATUS 3.7 v2.1
      amendment): text inside an element with class `mars-ui` — control
-     labels, buttons, legends, axis text, the slicer's image names and its
-     status line — is NOT prose. It is counted and reported separately
+     labels, buttons, legends, axis text and the slicer's status line — is
+     NOT prose. (The slicer's three image names are a label row, so they stay
+     prose, like the teaser's.) It is counted and reported separately
      ("UI words") and is not held against the 420. Prose stays counted
      wherever it sits: headings, paragraphs, captions, label rows, readouts.
      A WORD is a whitespace-separated token containing at least one letter or

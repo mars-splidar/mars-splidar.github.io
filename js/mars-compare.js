@@ -79,19 +79,42 @@
       var r = stage.getBoundingClientRect();
       return (e.clientX - r.left) / r.width * 100;
     }
-    stage.addEventListener("pointerdown", function (e) {
-      if (e.button !== undefined && e.button !== 0) return;
+    /* TOUCH (stage 10b): a finger landing on the image must not move the
+       divider — it may be the start of a page scroll. So on touch the drag
+       starts only once the finger has moved INTENT px and more sideways than
+       up or down; until then nothing changes. A vertical swipe is handed to
+       the browser by touch-action: pan-y, which fires pointercancel. Mouse and
+       pen keep click-to-jump; the keyboard is the range input's own. */
+    var INTENT = 8;
+    var pending = null;   /* touch pointer not yet recognised as a drag */
+    function begin(e) {
       dragging = e.pointerId;
       try { stage.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
       setPos(fromEvent(e));
       range.focus({ preventScroll: true });
+    }
+    stage.addEventListener("pointerdown", function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      if (e.pointerType === "touch") {
+        pending = { id: e.pointerId, x: e.clientX, y: e.clientY };
+        return;
+      }
+      begin(e);
       e.preventDefault();
     });
     stage.addEventListener("pointermove", function (e) {
+      if (pending && pending.id === e.pointerId) {
+        var dx = Math.abs(e.clientX - pending.x), dy = Math.abs(e.clientY - pending.y);
+        if (dx < INTENT || dx <= dy) return;
+        pending = null;
+        begin(e);
+        return;
+      }
       if (dragging !== e.pointerId) return;
       setPos(fromEvent(e));
     });
     function end(e) {
+      if (pending && pending.id === e.pointerId) pending = null;
       if (dragging !== e.pointerId) return;
       dragging = null;
       try { stage.releasePointerCapture(e.pointerId); } catch (err) { /* noop */ }

@@ -26,6 +26,14 @@ exist), zero links to /demos/ on either, the 85 ns / 75 ns rule made
 section-aware on /details/, and scopes the gain-order check to the gains
 strip. "Exactly one .mars-eq" stays site-wide, across both pages.
 
+STAGE 10b: the webfonts are self-hosted, so check_third_party() now fails on
+any resource that a page or the stylesheet would FETCH from another host:
+<link rel=stylesheet|preload|preconnect|dns-prefetch|modulepreload|icon>,
+<script src>, <img>/<source>/<video>/<audio>/<track>/<iframe> src, srcset,
+poster, data-src*/data-poster, and CSS url()/@import. Links a reader clicks
+(<a href>), the canonical URL, and the absolute og:/twitter: image URLs (they
+are this site's own host, read by crawlers) are not fetches and are allowed.
+
 Pass 3 (contrast) was added in stage 1.5 to stop the GOLD/AGED contrast fix
 from silently regressing. It is the only pass that reads CSS rather than HTML.
 
@@ -764,6 +772,51 @@ def check_public_pages(rep: Report) -> None:
         rep.info.append(f"links to /demos/ on {page}: {len(hits)}")
 
 
+# stage 10b: zero third-party requests. The only allowed absolute host is the
+# site's own (og:/twitter:/canonical/JSON-LD URLs are written absolute).
+OWN_HOST = "mars-splidar.github.io"
+FETCH_ATTR = re.compile(
+    r'<(link)\b[^>]*\brel\s*=\s*["\']([^"\']*)["\'][^>]*\bhref\s*=\s*["\']([^"\']+)["\']'
+    r'|<(link)\b[^>]*\bhref\s*=\s*["\']([^"\']+)["\'][^>]*\brel\s*=\s*["\']([^"\']*)["\']'
+    r'|<(script|img|source|video|audio|track|iframe|embed)\b[^>]*?\b(src|srcset|poster|data-src[\w-]*|data-poster)\s*=\s*["\']([^"\']+)["\']',
+    re.I)
+FETCH_RELS = {"stylesheet", "preload", "preconnect", "dns-prefetch",
+              "modulepreload", "icon", "prefetch"}
+CSS_URL = re.compile(r'(?:url\(\s*["\']?|@import\s+["\'])(https?:)?//([^/"\')\s]+)', re.I)
+
+
+def _foreign(url: str) -> str | None:
+    m = re.match(r"\s*(?:https?:)?//([^/\s]+)", url)
+    return m.group(1) if m and m.group(1).lower() != OWN_HOST else None
+
+
+def check_third_party(files: list[Path], rep: Report) -> None:
+    total = 0
+    for path in files:
+        rel = str(path.relative_to(REPO))
+        body = COMMENT_RE.sub(" ", path.read_text(encoding="utf-8", errors="replace"))
+        for m in FETCH_ATTR.finditer(body):
+            if m.group(1) or m.group(4):
+                rels = (m.group(2) if m.group(1) else m.group(6)).lower().split()
+                url = m.group(3) if m.group(1) else m.group(5)
+                if not FETCH_RELS & set(rels):
+                    continue
+                urls = [url]
+            else:
+                urls = [u.strip().split(" ")[0] for u in m.group(9).split(",")]
+            for u in urls:
+                host = _foreign(u)
+                if host:
+                    total += 1
+                    rep.fail(rel, "third-party request [stage 10b]", f"{host}: {u[:90]}")
+    css = (REPO / CSS_FILE).read_text(encoding="utf-8", errors="replace") if (REPO / CSS_FILE).exists() else ""
+    for m in CSS_URL.finditer(CSS_COMMENT_RE.sub(" ", css)):
+        if m.group(2).lower() != OWN_HOST:
+            total += 1
+            rep.fail(CSS_FILE, "third-party request in CSS [stage 10b]", m.group(2))
+    rep.info.append(f"third-party fetches (HTML + CSS): {total}")
+
+
 def check_dead_time_sections(rep: Report) -> None:
     """#4, made structural on /details/: 85 ns (hardware) and 75 ns
     (simulation grid) must not share a band. The proximity window in
@@ -865,6 +918,7 @@ def main() -> int:
     check_equation_count(files, rep)
     check_gain_order(rep)
     check_public_pages(rep)
+    check_third_party(files, rep)
     check_dead_time_sections(rep)
     check_contrast(rep)
 

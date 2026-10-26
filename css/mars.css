@@ -26,6 +26,64 @@
       sanctioned use, and it lives on demos/index.html only.
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   WEBFONTS — self-hosted since stage 10b (were Google Fonts, the site's last
+   third-party request). The SAME files and descriptors Google served this
+   site: the latin subset of Poppins 400/500/600/700 and of Inter (one
+   variable file behind the 400/500/600 faces, exactly as Google declares it).
+   No page ever loaded another subset, so nothing renders differently.
+   Licence: SIL OFL 1.1, assets/fonts/OFL-*.txt. Pages preload the files their
+   first screen uses (<link rel="preload" … crossorigin>); keep those links in
+   step if a filename here changes.
+   -------------------------------------------------------------------------- */
+
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("../assets/fonts/poppins-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("../assets/fonts/poppins-500-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("../assets/fonts/poppins-600-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Poppins"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("../assets/fonts/poppins-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("../assets/fonts/inter-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("../assets/fonts/inter-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("../assets/fonts/inter-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+/* Metric-matched FALLBACKS, so the swap from a local font to the webfont
+   does not reflow text (the CLS stage 10 measured). size-adjust = the
+   webfont's total advance width / Liberation Sans' (metric-identical to
+   Arial) over this site's own Poppins / Inter text, measured in Chrome per
+   weight class (a generic English sample gave 1-2 % different values). Each
+   override = the webfont's typo ascent, descent and line gap (fontTools,
+   from the woff2 files) / (unitsPerEm x size-adjust). Line breaks that sit
+   right at a box edge can still differ; the preloads above are what make
+   the webfont usually ready before first paint. Regular faces
+   for weights up to 500, bold faces from 600, each matched to its own
+   weight. Helvetica and Roboto are listed for iOS/macOS and Android; their
+   widths are close to Arial's but not identical. */
+@font-face { font-family: "Poppins Fallback"; font-weight: 100 500;
+  src: local("Arial"), local("ArialMT"), local("Helvetica"), local("Liberation Sans"), local("LiberationSans"), local("Roboto"), local("Roboto-Regular");
+  size-adjust: 110.0%; ascent-override: 95.5%; descent-override: 31.8%; line-gap-override: 9.1%; }
+@font-face { font-family: "Poppins Fallback"; font-weight: 600 900;
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Helvetica Bold"), local("Helvetica-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Roboto Bold"), local("Roboto-Bold");
+  size-adjust: 106.0%; ascent-override: 99.1%; descent-override: 33.0%; line-gap-override: 9.4%; }
+@font-face { font-family: "Inter Fallback"; font-weight: 100 500;
+  src: local("Arial"), local("ArialMT"), local("Helvetica"), local("Liberation Sans"), local("LiberationSans"), local("Roboto"), local("Roboto-Regular");
+  size-adjust: 106.3%; ascent-override: 91.1%; descent-override: 22.7%; line-gap-override: 0%; }
+@font-face { font-family: "Inter Fallback"; font-weight: 600 900;
+  src: local("Arial Bold"), local("Arial-BoldMT"), local("Helvetica Bold"), local("Helvetica-Bold"), local("Liberation Sans Bold"), local("LiberationSans-Bold"), local("Roboto Bold"), local("Roboto-Bold");
+  size-adjust: 100.8%; ascent-override: 96.1%; descent-override: 23.9%; line-gap-override: 0%; }
+
 :root {
   /* ---- palette ---- */
   --gold:  #CFB991;   /* FILL ONLY — background, pill, bar, underline, border */
@@ -64,8 +122,11 @@
   --gold-soft:  #f2ebdd;   /* very light gold wash for pill hovers */
 
   /* ---- type ---- */
-  --font-head: Poppins, "Trebuchet MS", system-ui, sans-serif;
-  --font-body: Inter, "Helvetica Neue", Arial, sans-serif;
+  /* "… Fallback" are the metric-matched local faces defined just above this
+     block (stage 10b); they sit right after the webfont so the swap does not
+     move text. */
+  --font-head: Poppins, "Poppins Fallback", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: Inter, "Inter Fallback", "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo,
                Consolas, "Liberation Mono", monospace;
 

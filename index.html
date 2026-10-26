@@ -53,9 +53,14 @@
      arxiv.org/abs/2512.04924: title and all five authors match. -->
 <meta name="citation_arxiv_id" content="2512.04924">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
+<!-- Webfonts are self-hosted (stage 10b; @font-face in css/mars.css). Preload
+     only what this page's FIRST SCREEN renders — the hero uses all four Poppins weights and Inter. crossorigin is
+     required: fonts are fetched in CORS mode even from our own origin. -->
+<link rel="preload" href="assets/fonts/poppins-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/poppins-500-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/poppins-600-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/poppins-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/mars.css">
 
 <script type="application/ld+json">

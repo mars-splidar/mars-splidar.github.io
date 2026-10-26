@@ -30,9 +30,12 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Three histogram cubes side by side: a Poisson simulator at 0.2 s but physically wrong, the sequential gold standard at 16.1 s and correct, and MaRS at 0.3 s and correct.">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
+<!-- Webfonts are self-hosted (stage 10b; @font-face in css/mars.css). Preload
+     only what this page's FIRST SCREEN renders — Poppins 600 and 700 (headings, nav) and Inter. crossorigin is
+     required: fonts are fetched in CORS mode even from our own origin. -->
+<link rel="preload" href="../assets/fonts/poppins-600-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/poppins-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../css/mars.css">
 
 <script src="../js/site.config.js"></script>

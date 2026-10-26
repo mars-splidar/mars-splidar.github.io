@@ -1749,6 +1749,244 @@ img, video { max-width: 100%; height: auto; display: block; }
   .mars-compare__label { font-size: 0.75rem; }
 }
 
+/* ---- The cube slicer (stage v2.1-C, js/mars-slicer.js) -------------------
+   Directly under the hero, in its own PAPER band. The hero band above
+   already ends in --band-y of padding, so this band starts flush.
+   EVERY BOX IS RESERVED BY CSS: the three images by aspect-ratio 1, the chart
+   by aspect-ratio 3 : 1 (16 : 10 on phones), the readout by its static text
+   (the default state, the same length as any live value), so neither the
+   placeholder arriving nor the module going live shifts anything. The
+   placeholder images sit UNDER the canvases at the same box; a canvas paints
+   nothing until the module draws, then covers its placeholder exactly.
+   Images: nearest-neighbour (pixelated) — 128 x 128 data pixels, never
+   smoothed, the placeholder <img> the same, so the swap is pixel-exact.
+   Colours: Poisson --red, gold standard --dark (its bars a neutral grey),
+   MaRS --green, the selected pixel and time --gold (a stroke/fill, never
+   text), the true delay dashed grey. */
+.mars-slicer-band > .mars-band__inner { padding-top: 0; }
+.mars-slicer { margin: 0; }
+.mars-slicer__guide { margin-bottom: 1rem; }
+
+.mars-slicer__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+.mars-slicer__chip {
+  appearance: none;
+  margin: 0;
+  min-height: 38px;
+  padding: 0.4rem 0.95rem;
+  border: 1.5px solid var(--aged);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--dark);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.mars-slicer__chip:hover { background: var(--gold-soft); }
+.mars-slicer__chip[aria-pressed="true"] {
+  background: var(--gold);       /* FILL; dark text on gold = 8.6:1 */
+  border-color: var(--gold);
+}
+
+.mars-slicer__stage { position: relative; }
+.mars-slicer__trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.5rem, 1.6vw, 1rem);
+}
+.mars-slicer__name {
+  margin: 0 0 0.35rem;
+  text-align: center;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.25;
+  color: var(--dark);
+}
+.mars-slicer__cell.is-poisson .mars-slicer__name { color: var(--red); }   /* 5.9:1 on PAPER */
+.mars-slicer__cell.is-mars .mars-slicer__name { color: var(--green); }    /* 5.4:1 */
+.mars-slicer__img {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--ink);        /* a dark image ground, not an ink BAND */
+}
+.mars-slicer__img > canvas,
+.mars-slicer__img .mars-slicer__ph {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.mars-slicer__cv {
+  cursor: crosshair;
+  touch-action: manipulation;    /* a tap picks; any swipe scrolls the page */
+}
+.mars-slicer__cv:focus-visible { outline-offset: -3px; }
+
+/* The readout: one line on a desktop. aria-live; js throttles its writes. */
+.mars-slicer__readout {
+  margin: 0.7rem 0 0.9rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--grey);
+}
+.mars-slicer__readout b { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mars-slicer__readout .is-poisson { color: var(--red); }
+.mars-slicer__readout .is-gold { color: var(--dark); }
+.mars-slicer__readout .is-mars { color: var(--green); }
+.mars-slicer__readout > span { white-space: nowrap; }   /* a name never splits from its value */
+.mars-slicer__readout .sep { margin: 0 0.25em; color: var(--grey); }
+.mars-slicer__ro-lead { color: var(--dark); }
+
+.mars-slicer__chartbox {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: #ffffff;
+  padding: 0.6rem 0.75rem 0.4rem;
+}
+.mars-slicer__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  margin: 0 0 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--dark);
+}
+.mars-slicer__legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.mars-slicer__sw { display: inline-block; width: 18px; height: 3px; border-radius: 2px; }
+.mars-slicer__sw.is-bars { height: 10px; background: #9AA09A; }
+.mars-slicer__sw.is-mars { background: var(--green); height: 3px; }
+.mars-slicer__sw.is-poisson { background: var(--red); height: 2px; }
+.mars-slicer__sw.is-delay {
+  height: 2px;
+  background: repeating-linear-gradient(90deg, #555555 0 4px, transparent 4px 7px);
+}
+.mars-slicer__sw.is-time { width: 7px; height: 12px; background: var(--gold); }
+.mars-slicer__chart {
+  position: relative;
+  aspect-ratio: 3 / 1;
+}
+.mars-slicer__chart .mars-slicer__ph,
+.mars-slicer__chartcv {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.mars-slicer__chartcv { touch-action: pan-y; cursor: ew-resize; }
+/* Live: the canvases own the boxes; the placeholder is hidden, not removed. */
+.mars-slicer[data-slicer-state="live"] .mars-slicer__ph { visibility: hidden; }
+
+/* Status: loading / failed / Save-Data. Laid OVER the stage, so showing or
+   hiding it never moves anything. */
+.mars-slicer__status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  pointer-events: none;
+}
+.mars-slicer__status[hidden] { display: none; }
+.mars-slicer__msg,
+.mars-slicer__load {
+  margin: 0;
+  max-width: 34rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-pill);
+  background: rgba(250, 251, 250, 0.94);
+  box-shadow: 0 1px 6px rgba(20, 24, 26, 0.25);
+  color: var(--dark);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: auto;
+}
+.mars-slicer__msg.is-error { border: 1.5px solid var(--red); }
+.mars-slicer__load {
+  appearance: none;
+  min-height: 44px;
+  border: 1.5px solid var(--aged);
+  background: var(--paper);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+}
+.mars-slicer__load:hover { background: var(--gold-soft); }
+
+.mars-slicer__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.5rem;
+  margin-top: 0.8rem;
+  font-size: 0.875rem;
+  color: var(--grey);
+}
+.mars-slicer__ctl { display: inline-flex; align-items: center; gap: 0.5rem; }
+.mars-slicer__ctl-label { color: var(--grey); }    /* 6.65:1 on PAPER */
+.mars-slicer__seg {
+  display: inline-flex;
+  border: 1px solid var(--aged);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.mars-slicer__seg button {
+  appearance: none;
+  border: 0;
+  margin: 0;
+  min-height: 36px;
+  padding: 0.35rem 0.8rem;
+  background: transparent;
+  color: var(--aged-fg);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.mars-slicer__seg button + button { border-left: 1px solid var(--aged); }
+.mars-slicer__seg button[aria-pressed="true"] { background: var(--aged); color: #ffffff; }  /* 4.69:1 */
+.mars-slicer__seg button:focus-visible {
+  outline: 3px solid var(--aged);
+  outline-offset: -5px;
+  box-shadow: inset 0 0 0 5px #ffffff;
+}
+.mars-slicer__time { flex: 1 1 16rem; }
+.mars-slicer__range { flex: 1 1 auto; min-width: 8rem; margin: 0; accent-color: var(--aged); }
+.mars-slicer__tval {
+  min-width: 4.6em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--dark);
+}
+.mars-slicer__note { margin-top: 0.7rem; }
+
+@media (max-width: 600px) {
+  .mars-slicer__chip { min-height: 40px; padding: 0.4rem 0.8rem; font-size: 0.8125rem; }
+  .mars-slicer__name { font-size: 0.8125rem; }
+  .mars-slicer__readout { font-size: 0.875rem; }
+  .mars-slicer__legend { font-size: 0.75rem; gap: 0.15rem 0.85rem; }
+  .mars-slicer__chartbox { padding: 0.5rem 0.5rem 0.3rem; }
+  .mars-slicer__chart { aspect-ratio: 16 / 10; }
+  .mars-slicer__controls { gap: 0.6rem 1rem; font-size: 0.8125rem; }
+  .mars-slicer__seg button { min-height: 40px; padding: 0.35rem 0.7rem; }
+  .mars-slicer__time { flex-basis: 100%; }
+}
+
 /* ---- Video (MINT) ------------------------------------------------------- */
 /* The frame is the film's own INK so the letterbox before the poster lands
    reads as the title card it is about to show. Not an ink BAND: a media

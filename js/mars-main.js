@@ -25,6 +25,17 @@
  *  3. THE BIBTEX COPY BUTTON. The site's only copy of this routine (it
  *     moved here in stage 07 from the v1 lightbox script, which stage 09
  *     deleted).
+ *
+ *  4. THE CUBE SLICER'S LOADER (stage v2.1-C). A cold load fetches NOTHING
+ *     of the slicer — not js/mars-slicer.js, not its 1.75 MB of data, not
+ *     even its placeholder stills. At 1280 x 800 the block starts only a few
+ *     hundred px below the fold, so a plain "within 600 px" observer would
+ *     fire on every cold load; instead the 600 px rule applies once the
+ *     reader has SCROLLED (or the block is genuinely on screen, or they touch,
+ *     click or focus inside it). The placeholder stills come first, from
+ *     1500 px away, so they are in place before the block is reached.
+ *     Save-Data or prefers-reduced-data: the stills only, plus a button that
+ *     loads the module on request.
  */
 (function () {
   "use strict";
@@ -160,9 +171,121 @@
     else document.addEventListener("DOMContentLoaded", fn);
   }
 
+  /* ---------------- 4. cube slicer loader ---------------- */
+
+  function initSlicer() {
+    var fig = document.getElementById("mars-slicer");
+    if (!fig) return;
+    var status = fig.querySelector(".mars-slicer__status");
+    var saver = saveData() || !!(window.matchMedia &&
+      window.matchMedia("(prefers-reduced-data: reduce)").matches);
+    var stillsDone = false, moduleDone = false, scrolled = false, io = null;
+
+    function msg(which) {           /* show one status line, or none */
+      if (!status) return;
+      Array.prototype.slice.call(status.querySelectorAll("[data-msg]"))
+        .forEach(function (el) { el.hidden = el.getAttribute("data-msg") !== which; });
+      status.hidden = !which;
+    }
+
+    function stills() {
+      if (stillsDone) return;
+      stillsDone = true;
+      Array.prototype.slice.call(fig.querySelectorAll("source[data-srcset]"))
+        .forEach(function (s) { s.srcset = s.getAttribute("data-srcset"); });
+      Array.prototype.slice.call(fig.querySelectorAll("img[data-src]"))
+        .forEach(function (i) { i.src = i.getAttribute("data-src"); });
+    }
+
+    function failed() {
+      fig.setAttribute("data-slicer-state", "error");
+      msg("error");
+    }
+
+    function load() {
+      stills();
+      if (moduleDone) return;
+      moduleDone = true;
+      detach();
+      fig.setAttribute("data-slicer-state", "loading");
+      if (onScreen(0)) msg("loading");
+      var s = document.createElement("script");
+      s.src = fig.getAttribute("data-slicer-script") || "js/mars-slicer.js";
+      s.async = true;
+      s.onerror = failed;
+      document.body.appendChild(s);
+    }
+
+    function onScreen(margin) {
+      var r = fig.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      return r.top < vh + margin && r.bottom > -margin;
+    }
+
+    var ticking = false;
+    function check() {
+      ticking = false;
+      if (onScreen(1500)) stills();
+      if (!saver && scrolled && onScreen(600)) load();
+    }
+    function onScroll() {
+      scrolled = true;
+      if (!ticking) { ticking = true; window.requestAnimationFrame(check); }
+    }
+
+    /* First touch, click, key or focus inside the block: load now, and
+       remember a control that was pressed so the module can replay it. */
+    function onFirst(e) {
+      var b = e.target && e.target.closest ? e.target.closest("button") : null;
+      if (b && b.classList.contains("mars-slicer__load")) return;
+      if (b) fig._marsSlicerPending = b;
+      if (saver) { stills(); return; }
+      load();
+    }
+
+    function detach() {
+      window.removeEventListener("scroll", onScroll);
+      if (io) io.disconnect();
+      ["pointerdown", "focusin", "keydown"].forEach(function (t) {
+        fig.removeEventListener(t, onFirst, true);
+      });
+    }
+
+    if (saver) {
+      fig.setAttribute("data-slicer-state", "saver");
+      msg("saver");
+      var btn = fig.querySelector(".mars-slicer__load");
+      if (btn) btn.addEventListener("click", function () {
+        saver = false;
+        load();
+        msg("loading");
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    ["pointerdown", "focusin", "keydown"].forEach(function (t) {
+      fig.addEventListener(t, onFirst, true);
+    });
+    /* On screen without any scroll (a tall window): load, after the page's
+       own load so it never competes with the first screen. */
+    if ("IntersectionObserver" in window) {
+      io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          stills();
+          if (saver) return;
+          if (document.readyState === "complete") load();
+          else window.addEventListener("load", load);
+        });
+      }, { threshold: 0 });
+      io.observe(fig);
+    }
+  }
+
   ready(function () {
     initTeaser();
     initVideo();
     initCopy();
+    initSlicer();
   });
 })();

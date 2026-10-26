@@ -360,6 +360,180 @@
 </section>
 
 <!-- ======================================================================
+     CUBE SLICER (stage v2.1-C; guide 0.6 items 3 and 5) — PAPER, directly
+     under the hero's teaser, in its OWN band: v2.1-D's teaser landing
+     changes only #mars-teaser's height attributes and cannot move this
+     markup. Its one message is WHEN photons arrive; the teaser above
+     carries HOW MANY.
+
+     DATA: the same three Fig. 1 cubes as the teaser (one realization per
+     simulator, independent), exported by tools/build_slicer_data.py to
+     assets/data/slicer/ — never edit those files, re-run the script.
+     HONESTY: one brightness mapping for all three images, fixed from the
+     gold-standard cube (meta.json "brightness"); the chart plots raw counts
+     on one shared axis, with no normalise control; the presets are picked
+     by a data rule, not by eye (the script's docstring).
+
+     LOADING: nothing here is fetched by markup. js/mars-main.js promotes the
+     four placeholder images (data-src / data-srcset: a still of the default,
+     bright-surface state, tools/build_slicer_placeholder.py) once the reader
+     scrolls within 1500 px, and fetches js/mars-slicer.js + the data within
+     600 px, or as soon as the block is on screen, or on the first touch,
+     click or focus inside it. Save-Data / prefers-reduced-data: the
+     placeholder only, and a button. Every box is reserved by CSS
+     aspect-ratio, so the swap shifts nothing.
+
+     WORD BUDGET (WEBSITE_BUILD_STATUS 3.7, v2.1 amendment): the eyebrow,
+     title, guiding sentence, readout and footnote are prose and counted;
+     control labels, the image names, the legend and the status line sit in
+     .mars-ui and are reported separately by tools/page_budget.py.
+     The guiding text is the approved two-sentence wording of guide 0.6
+     item 3, verbatim, so this is not an article.mars-demo (whose gate wants
+     exactly one sentence); page_budget.py checks the slicer on its own.
+     ====================================================================== -->
+<section class="mars-band mars-slicer-band" id="slicer" aria-labelledby="slicer-title">
+  <div class="mars-band__inner">
+    <p class="mars-eyebrow is-neutral">Cube slicer · Visualize dead-time effects</p>
+    <h2 class="mars-demo__title" id="slicer-title">Look inside the three cubes</h2>
+    <p class="mars-demo__sentence mars-slicer__guide">Pick a pixel to see when
+      its photons arrived. On bright surfaces, the gold standard and MaRS
+      register the return earlier than Poisson, by matching amounts.</p>
+
+    <figure class="mars-slicer" id="mars-slicer" data-media-slot="slicer"
+            data-slicer-state="idle" data-slicer-base="assets/data/slicer/">
+      <div class="mars-ui mars-slicer__presets" role="group" aria-label="Presets">
+        <button type="button" class="mars-slicer__chip" data-preset="bright"
+                aria-pressed="true">Bright surface</button>
+        <button type="button" class="mars-slicer__chip" data-preset="dim"
+                aria-pressed="false">Dim surface</button>
+        <button type="button" class="mars-slicer__chip" data-preset="shadow"
+                aria-pressed="false">Just after the peak</button>
+        <button type="button" class="mars-slicer__chip" data-preset="before"
+                aria-pressed="false">Before the peak</button>
+      </div>
+
+      <div class="mars-slicer__stage">
+        <!-- Same left-to-right order as the teaser: Poisson · gold standard ·
+             MaRS. Each canvas is 128 x 128 device pixels, scaled nearest-
+             neighbour; the placeholder <img> under it is that canvas's own
+             pixels in the default state, so the swap is invisible. -->
+        <div class="mars-slicer__trio">
+          <div class="mars-slicer__cell is-poisson">
+            <p class="mars-ui mars-slicer__name">Poisson</p>
+            <div class="mars-slicer__img">
+              <img class="mars-slicer__ph" width="128" height="128" alt=""
+                   decoding="async" data-src="assets/img/slicer_ph_poisson.webp">
+              <noscript><img class="mars-slicer__ph" width="128" height="128"
+                   src="assets/img/slicer_ph_poisson.webp" alt="Poisson time slice, bright-surface view."></noscript>
+              <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
+                      role="img" data-cube="poisson"
+                      aria-label="Poisson time slice; arrow keys move the selected pixel."></canvas>
+            </div>
+          </div>
+          <div class="mars-slicer__cell is-gold">
+            <p class="mars-ui mars-slicer__name">Gold standard</p>
+            <div class="mars-slicer__img">
+              <img class="mars-slicer__ph" width="128" height="128" alt=""
+                   decoding="async" data-src="assets/img/slicer_ph_gold.webp">
+              <noscript><img class="mars-slicer__ph" width="128" height="128"
+                   src="assets/img/slicer_ph_gold.webp" alt="Gold-standard time slice, bright-surface view."></noscript>
+              <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
+                      role="img" data-cube="gold"
+                      aria-label="Gold-standard time slice; arrow keys move the selected pixel."></canvas>
+            </div>
+          </div>
+          <div class="mars-slicer__cell is-mars">
+            <p class="mars-ui mars-slicer__name">MaRS</p>
+            <div class="mars-slicer__img">
+              <img class="mars-slicer__ph" width="128" height="128" alt=""
+                   decoding="async" data-src="assets/img/slicer_ph_mars.webp">
+              <noscript><img class="mars-slicer__ph" width="128" height="128"
+                   src="assets/img/slicer_ph_mars.webp" alt="MaRS time slice, bright-surface view."></noscript>
+              <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
+                      role="img" data-cube="mars"
+                      aria-label="MaRS time slice; arrow keys move the selected pixel."></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- THE READOUT — the return centre of each simulator, for the
+             selected pixel and pooling. The static text is the default state
+             (bright preset, 3 x 3), spliced in by tools/build_slicer_data.py
+             from the data; its --check fails if it drifts. js/mars-slicer.js
+             rewrites it with the same structure, throttled for the live
+             region. -->
+        <p class="mars-slicer__readout" aria-live="polite">
+          <!-- slicer_readout:start -->
+          <span class="mars-slicer__ro-lead">Return centre vs. true delay:</span> <span class="is-poisson">Poisson <b>+0.1&nbsp;ns</b></span> <span class="sep" aria-hidden="true">·</span> <span class="is-gold">Gold standard <b>&minus;2.7&nbsp;ns</b></span> <span class="sep" aria-hidden="true">·</span> <span class="is-mars">MaRS <b>&minus;2.7&nbsp;ns</b></span>
+          <!-- slicer_readout:end -->
+        </p>
+
+        <div class="mars-slicer__chartbox">
+          <div class="mars-ui mars-slicer__legend">
+            <span><i class="mars-slicer__sw is-bars"></i>Gold standard</span>
+            <span><i class="mars-slicer__sw is-mars"></i>MaRS</span>
+            <span><i class="mars-slicer__sw is-poisson"></i>Poisson</span>
+            <span><i class="mars-slicer__sw is-delay"></i>true delay</span>
+            <span><i class="mars-slicer__sw is-time"></i>selected time</span>
+          </div>
+          <div class="mars-slicer__chart">
+            <picture>
+              <source media="(max-width: 600px)"
+                      data-srcset="assets/img/slicer_ph_chart_390.webp">
+              <img class="mars-slicer__ph" alt="" decoding="async"
+                   data-src="assets/img/slicer_ph_chart_960.webp">
+            </picture>
+            <noscript><img class="mars-slicer__ph"
+                 src="assets/img/slicer_ph_chart_960.webp"
+                 alt="Photon-arrival histogram of a bright pixel."></noscript>
+            <canvas class="mars-slicer__chartcv" role="img"
+                    aria-label="Photon-arrival histogram of the selected pixel: gold-standard bars, MaRS and Poisson as lines, raw counts on one shared axis, with the pixel's true delay dashed and the selected time marked."></canvas>
+          </div>
+        </div>
+
+        <div class="mars-ui mars-slicer__status" hidden>
+          <p class="mars-slicer__msg" data-msg="loading" hidden>Loading the
+            three cubes…</p>
+          <p class="mars-slicer__msg is-error" data-msg="error" hidden>The
+            interactive slicer could not load; this is a still of the
+            bright-surface view.</p>
+          <button type="button" class="mars-slicer__load" data-msg="saver"
+                  hidden>Load the interactive slicer (&asymp;&nbsp;1.8&nbsp;MB)</button>
+        </div>
+      </div>
+
+      <div class="mars-ui mars-slicer__controls">
+        <div class="mars-slicer__ctl">
+          <span class="mars-slicer__ctl-label" id="slicer-pool-label">Pool</span>
+          <div class="mars-slicer__seg" role="group" aria-labelledby="slicer-pool-label">
+            <button type="button" data-pool="0" aria-pressed="false">1&times;1</button>
+            <button type="button" data-pool="1" aria-pressed="true">3&times;3</button>
+            <button type="button" data-pool="2" aria-pressed="false">5&times;5</button>
+          </div>
+        </div>
+        <div class="mars-slicer__ctl">
+          <span class="mars-slicer__ctl-label" id="slicer-range-label">Range</span>
+          <div class="mars-slicer__seg" role="group" aria-labelledby="slicer-range-label">
+            <button type="button" data-zoom="1" aria-pressed="true">Around the peak</button>
+            <button type="button" data-zoom="0" aria-pressed="false">Full period</button>
+          </div>
+        </div>
+        <label class="mars-slicer__ctl mars-slicer__time">
+          <span class="mars-slicer__ctl-label">Time</span>
+          <input class="mars-slicer__range" type="range" min="0" max="255"
+                 step="1" value="108" aria-valuetext="42.4 ns">
+          <output class="mars-slicer__tval">42.4&nbsp;ns</output>
+        </label>
+      </div>
+
+      <figcaption class="mars-demo__note mars-slicer__note">Return centre: the
+        average arrival time of the photons within &plusmn;10&nbsp;ns of the
+        pixel&rsquo;s true delay.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ======================================================================
      IN SHORT (guide 0.3 ②) — MINT. One paragraph of at most 70 words, then
      the four gains UNCHANGED from v1 (order and captions are
      non-negotiable #11). The paragraph is the guide's own draft, verbatim.

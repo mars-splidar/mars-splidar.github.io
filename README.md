@@ -457,3 +457,19 @@ Each build stage appends one line here.
   teaser down; mobile CLS on `/` fell from 0.11-0.27 to 0.05-0.20.
   `v2-redesign` was merged into `main` and tagged `v2.0`. The review pack and
   the author's phone checklist are in `build_instructions/review/stage10/`.
+- **Stage 10b — post-launch polish (2026-10-26), `v2.0.1`.** Six of stage
+  10's non-blocking items, each in its own commit:
+  - **Share card.** `tools/build_og_card.py` builds it from the teaser's
+    frame 0, with no timing or speed number. `build_web_assets.py` no longer
+    builds a card.
+  - **Fonts.** Self-hosted in `assets/fonts/` (latin Poppins + Inter, OFL),
+    preloaded, with metric-matched fallbacks. There are now zero third-party
+    requests, and `audit_claims.py` checks that. Lighthouse mobile CLS on `/`
+    is 0.000 in 5 of 5 runs.
+  - **Demo 3 on touch.** The slider moves only once a sideways drag is
+    recognised.
+  - **`/details/`** honours Save-Data, with 0 video bytes.
+  - **Poster size label** is now decimal: 16 MB.
+  - **Film poster** is the Four gains card.
+
+  Review pack: `build_instructions/review/stage10b/`.

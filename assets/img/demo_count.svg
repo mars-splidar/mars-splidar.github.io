@@ -1,55 +1,55 @@
-<svg class="mars-count" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-label="Count distribution at one high-flux operating point. Bars: the sequential gold standard's histogram. The renewal model's distribution sits far to the right of it; Zhang et al.'s is centred on it but much too narrow; MaRS matches both its centre and its width. Poisson's prediction lies far off the chart to the right." font-family="Inter, Helvetica Neue, Arial, sans-serif" style="font-family: var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)">
-  <style>.mars-count text{font-size:18px}@media (max-width:600px){.mars-count text{font-size:26px}}</style>
+<svg class="mars-count" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 272" role="img" aria-label="Count distribution at one high-flux operating point. Bars: the sequential gold standard's histogram. The renewal model's distribution sits far to the right of it; Zhang et al.'s is centred on it but much too narrow; MaRS matches both its centre and its width. Poisson's prediction lies far off the chart to the right." font-family="Inter, Helvetica Neue, Arial, sans-serif" style="font-family: var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)">
+  <style>.mars-count text{font-size:18px}@media (min-width:901px){.mars-count text{font-size:13.5px}}@media (max-width:600px){.mars-count text{font-size:26px}}</style>
   <g style="fill: var(--dark, #1F1F1F); stroke: var(--dark, #1F1F1F)" fill-opacity="0.34" stroke-opacity="0.55" stroke-width="0.75">
-    <rect x="108.1" y="339.8" width="4.2" height="0.2"/>
-    <rect x="112.9" y="339.7" width="4.2" height="0.3"/>
-    <rect x="117.7" y="339.7" width="4.2" height="0.3"/>
-    <rect x="122.6" y="339.2" width="4.2" height="0.8"/>
-    <rect x="127.4" y="339.2" width="4.2" height="0.8"/>
-    <rect x="132.3" y="336.5" width="4.2" height="3.5"/>
-    <rect x="137.1" y="334.1" width="4.2" height="5.9"/>
-    <rect x="142.0" y="330.3" width="4.2" height="9.7"/>
-    <rect x="146.8" y="327.3" width="4.2" height="12.7"/>
-    <rect x="151.7" y="318.7" width="4.2" height="21.3"/>
-    <rect x="156.5" y="308.6" width="4.2" height="31.4"/>
-    <rect x="161.3" y="290.9" width="4.2" height="49.1"/>
-    <rect x="166.2" y="279.1" width="4.2" height="60.9"/>
-    <rect x="171.0" y="261.1" width="4.2" height="78.9"/>
-    <rect x="175.9" y="241.1" width="4.2" height="98.9"/>
-    <rect x="180.7" y="221.5" width="4.2" height="118.5"/>
-    <rect x="185.6" y="217.5" width="4.2" height="122.5"/>
-    <rect x="190.4" y="195.0" width="4.2" height="145.0"/>
-    <rect x="195.3" y="189.8" width="4.2" height="150.2"/>
-    <rect x="200.1" y="197.9" width="4.2" height="142.1"/>
-    <rect x="204.9" y="213.3" width="4.2" height="126.7"/>
-    <rect x="209.8" y="226.2" width="4.2" height="113.8"/>
-    <rect x="214.6" y="251.9" width="4.2" height="88.1"/>
-    <rect x="219.5" y="271.8" width="4.2" height="68.2"/>
-    <rect x="224.3" y="288.2" width="4.2" height="51.8"/>
-    <rect x="229.2" y="306.2" width="4.2" height="33.8"/>
-    <rect x="234.0" y="315.0" width="4.2" height="25.0"/>
-    <rect x="238.9" y="325.5" width="4.2" height="14.5"/>
-    <rect x="243.7" y="333.1" width="4.2" height="6.9"/>
-    <rect x="248.5" y="333.0" width="4.2" height="7.0"/>
-    <rect x="253.4" y="337.9" width="4.2" height="2.1"/>
-    <rect x="258.2" y="338.6" width="4.2" height="1.4"/>
-    <rect x="263.1" y="339.4" width="4.2" height="0.6"/>
-    <rect x="267.9" y="339.8" width="4.2" height="0.2"/>
-    <rect x="282.5" y="339.8" width="4.2" height="0.2"/>
+    <rect x="108.1" y="223.9" width="4.2" height="0.1"/>
+    <rect x="112.9" y="223.8" width="4.2" height="0.2"/>
+    <rect x="117.7" y="223.8" width="4.2" height="0.2"/>
+    <rect x="122.6" y="223.5" width="4.2" height="0.5"/>
+    <rect x="127.4" y="223.5" width="4.2" height="0.5"/>
+    <rect x="132.3" y="221.7" width="4.2" height="2.3"/>
+    <rect x="137.1" y="220.1" width="4.2" height="3.9"/>
+    <rect x="142.0" y="217.6" width="4.2" height="6.4"/>
+    <rect x="146.8" y="215.6" width="4.2" height="8.4"/>
+    <rect x="151.7" y="209.9" width="4.2" height="14.1"/>
+    <rect x="156.5" y="203.3" width="4.2" height="20.7"/>
+    <rect x="161.3" y="191.6" width="4.2" height="32.4"/>
+    <rect x="166.2" y="183.8" width="4.2" height="40.2"/>
+    <rect x="171.0" y="172.0" width="4.2" height="52.0"/>
+    <rect x="175.9" y="158.7" width="4.2" height="65.3"/>
+    <rect x="180.7" y="145.8" width="4.2" height="78.2"/>
+    <rect x="185.6" y="143.2" width="4.2" height="80.8"/>
+    <rect x="190.4" y="128.4" width="4.2" height="95.6"/>
+    <rect x="195.3" y="124.9" width="4.2" height="99.1"/>
+    <rect x="200.1" y="130.2" width="4.2" height="93.8"/>
+    <rect x="204.9" y="140.4" width="4.2" height="83.6"/>
+    <rect x="209.8" y="149.0" width="4.2" height="75.0"/>
+    <rect x="214.6" y="165.9" width="4.2" height="58.1"/>
+    <rect x="219.5" y="179.0" width="4.2" height="45.0"/>
+    <rect x="224.3" y="189.8" width="4.2" height="34.2"/>
+    <rect x="229.2" y="201.7" width="4.2" height="22.3"/>
+    <rect x="234.0" y="207.5" width="4.2" height="16.5"/>
+    <rect x="238.9" y="214.4" width="4.2" height="9.6"/>
+    <rect x="243.7" y="219.5" width="4.2" height="4.5"/>
+    <rect x="248.5" y="219.4" width="4.2" height="4.6"/>
+    <rect x="253.4" y="222.6" width="4.2" height="1.4"/>
+    <rect x="258.2" y="223.1" width="4.2" height="0.9"/>
+    <rect x="263.1" y="223.6" width="4.2" height="0.4"/>
+    <rect x="267.9" y="223.9" width="4.2" height="0.1"/>
+    <rect x="282.5" y="223.9" width="4.2" height="0.1"/>
   </g>
   <g style="stroke: var(--grey, #5A5A5A)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke">
-    <path vector-effect="non-scaling-stroke" d="M52 46V340.0H706"/>
+    <path vector-effect="non-scaling-stroke" d="M52 28V224.0H706"/>
   </g>
-  <polyline class="mars-count__renewal" points="434.7,340.0 439.6,340.0 444.4,340.0 449.2,340.0 454.1,339.8 458.9,339.3 463.8,337.7 468.6,333.2 473.5,322.6 478.3,301.7 483.2,266.6 488.0,218.0 492.8,164.0 497.7,119.8 502.5,100.8 507.4,114.5 512.2,155.6 517.1,209.1 521.9,259.3 526.8,296.9 531.6,320.0 536.4,331.9 541.3,337.2 546.1,339.1 551.0,339.8 555.8,339.9 560.7,340.0 565.5,340.0 570.4,340.0" fill="none" style="stroke: #C26A61" stroke-width="1.75" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-  <polyline class="mars-count__icip" points="134.4,340.0 139.2,340.0 144.0,340.0 148.9,339.8 153.7,339.1 158.6,336.8 163.4,330.2 168.3,314.5 173.1,283.6 178.0,234.3 182.8,172.2 187.6,114.3 192.5,82.9 197.3,91.8 202.2,137.1 207.0,199.5 211.9,257.6 216.7,299.0 221.6,322.8 226.4,333.8 231.2,338.1 236.1,339.5 240.9,339.9 245.8,340.0 250.6,340.0 255.5,340.0" fill="none" style="stroke: #6190BA" stroke-width="1.75" stroke-dasharray="7 4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-  <polyline class="mars-count__ours" points="85.9,340.0 90.8,340.0 95.6,340.0 100.4,340.0 105.3,340.0 110.1,339.9 115.0,339.8 119.8,339.6 124.7,339.2 129.5,338.4 134.4,337.0 139.2,334.5 144.0,330.4 148.9,324.2 153.7,315.1 158.6,302.9 163.4,287.5 168.3,269.3 173.1,249.6 178.0,230.3 182.8,213.5 187.6,201.5 192.5,196.0 197.3,197.7 202.2,206.5 207.0,221.1 211.9,239.4 216.7,259.1 221.6,278.2 226.4,295.2 231.2,309.2 236.1,319.8 240.9,327.5 245.8,332.6 250.6,335.9 255.5,337.8 260.3,338.9 265.2,339.5 270.0,339.8 274.8,339.9 279.7,340.0 284.5,340.0 289.4,340.0 294.2,340.0 299.1,340.0 303.9,340.0" fill="none" style="stroke: var(--green, #0E7A46)" stroke-width="3.0" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-  <text x="502.5" y="90.8" text-anchor="middle" font-size="18" font-weight="600" style="fill: var(--red, #B03A2E)">Renewal</text>
-  <text x="192.5" y="72.9" text-anchor="middle" font-size="18" font-weight="600" style="fill: var(--blue, #2E6DA4)">Zhang et al.</text>
-  <path d="M149.1 255.5L164.1 271.5" style="stroke: var(--green, #0E7A46)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
-  <text x="145.1" y="251.5" text-anchor="end" font-size="18" font-weight="700" style="fill: var(--green, #0E7A46)">MaRS</text>
-  <path d="M255.9 277.3L232.9 299.3" style="stroke: var(--grey, #5A5A5A)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
-  <text x="259.9" y="283.3" text-anchor="start" font-size="18" font-weight="600" style="fill: var(--dark, #1F1F1F)">Gold standard</text>
-  <text x="706.0" y="328.0" text-anchor="end" font-size="18" font-weight="600" style="fill: var(--red, #B03A2E)">Poisson →</text>
-  <text x="379.0" y="386.0" text-anchor="middle" font-size="18" font-weight="500" style="fill: var(--grey, #5A5A5A)">Registered photon count</text>
-  <text x="0.0" y="0.0" text-anchor="middle" font-size="18" font-weight="500" style="fill: var(--grey, #5A5A5A)" transform="translate(36 196.0) rotate(-90)">Probability</text>
+  <polyline class="mars-count__renewal" points="434.7,224.0 439.6,224.0 444.4,224.0 449.2,224.0 454.1,223.9 458.9,223.5 463.8,222.5 468.6,219.5 473.5,212.5 478.3,198.7 483.2,175.6 488.0,143.5 492.8,107.9 497.7,78.7 502.5,66.2 507.4,75.3 512.2,102.3 517.1,137.6 521.9,170.8 526.8,195.6 531.6,210.8 536.4,218.7 541.3,222.1 546.1,223.4 551.0,223.9 555.8,224.0 560.7,224.0 565.5,224.0 570.4,224.0" fill="none" style="stroke: #C26A61" stroke-width="1.75" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <polyline class="mars-count__icip" points="134.4,224.0 139.2,224.0 144.0,224.0 148.9,223.9 153.7,223.4 158.6,221.9 163.4,217.6 168.3,207.2 173.1,186.8 178.0,154.3 182.8,113.3 187.6,75.1 192.5,54.4 197.3,60.3 202.2,90.1 207.0,131.3 211.9,169.6 216.7,197.0 221.6,212.6 226.4,219.9 231.2,222.8 236.1,223.7 240.9,223.9 245.8,224.0 250.6,224.0 255.5,224.0" fill="none" style="stroke: #6190BA" stroke-width="1.75" stroke-dasharray="7 4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <polyline class="mars-count__ours" points="85.9,224.0 90.8,224.0 95.6,224.0 100.4,224.0 105.3,224.0 110.1,224.0 115.0,223.9 119.8,223.8 124.7,223.5 129.5,223.0 134.4,222.0 139.2,220.4 144.0,217.7 148.9,213.6 153.7,207.6 158.6,199.5 163.4,189.3 168.3,177.3 173.1,164.4 178.0,151.6 182.8,140.6 187.6,132.6 192.5,129.0 197.3,130.1 202.2,135.9 207.0,145.5 211.9,157.6 216.7,170.6 221.6,183.3 226.4,194.5 231.2,203.7 236.1,210.7 240.9,215.7 245.8,219.1 250.6,221.3 255.5,222.5 260.3,223.3 265.2,223.6 270.0,223.8 274.8,223.9 279.7,224.0 284.5,224.0 289.4,224.0 294.2,224.0 299.1,224.0 303.9,224.0" fill="none" style="stroke: var(--green, #0E7A46)" stroke-width="3.0" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  <text x="502.5" y="56.2" text-anchor="middle" font-size="18" font-weight="600" style="fill: var(--red, #B03A2E)">Renewal</text>
+  <text x="192.5" y="44.4" text-anchor="middle" font-size="18" font-weight="600" style="fill: var(--blue, #2E6DA4)">Zhang et al.</text>
+  <path d="M149.1 162.1L164.1 178.1" style="stroke: var(--green, #0E7A46)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
+  <text x="145.1" y="158.1" text-anchor="end" font-size="18" font-weight="700" style="fill: var(--green, #0E7A46)">MaRS</text>
+  <path d="M255.9 174.5L232.9 196.5" style="stroke: var(--grey, #5A5A5A)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
+  <text x="259.9" y="180.5" text-anchor="start" font-size="18" font-weight="600" style="fill: var(--dark, #1F1F1F)">Gold standard</text>
+  <text x="706.0" y="212.0" text-anchor="end" font-size="18" font-weight="600" style="fill: var(--red, #B03A2E)">Poisson →</text>
+  <text x="379.0" y="258.0" text-anchor="middle" font-size="18" font-weight="500" style="fill: var(--grey, #5A5A5A)">Registered photon count</text>
+  <text x="0.0" y="0.0" text-anchor="middle" font-size="18" font-weight="500" style="fill: var(--grey, #5A5A5A)" transform="translate(36 129.0) rotate(-90)">Probability</text>
 </svg>

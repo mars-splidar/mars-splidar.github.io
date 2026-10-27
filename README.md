@@ -18,11 +18,11 @@ vanilla-JS modules. No build step, no framework, no bundler.
   and stops it silently dropping any path beginning with `_`.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
-Three pages (v2, `v2.0`, 2026-10-23):
+Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The lean main page: the hero teaser, *In short* + four gains, two result demos, the film inline, BibTeX |
+| `index.html` | The lean main page: the paper's Fig. 1 question, the hero teaser, the cube slicer (v2.1), *In short* + four gains, two result demos, the film inline, BibTeX |
 | `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
 | `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
 
@@ -98,15 +98,19 @@ gains strip on `/`, and "exactly one `.mars-eq`" counts across both.
 ### The two v2 gates (stage 07)
 
 ```bash
-python tools/page_budget.py          # the main page's budgets, guide 0.1
+python tools/page_budget.py          # the main page's budgets, guide 0.1 / 0.6
 python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
-`page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1 —
-visible words ≤ 350, four media slots above BibTeX, zero switch bars, zero
+`page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
+§0.6 item 6's limits since v2.1-A — visible words ≤ 420 (was 350), at most six
+media slots above BibTeX (was exactly four), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
 non-zero on a breach. Its docstring defines exactly what counts as a word and
-as a media item. `details_move_diff.py` extracts each of the seven bands,
+as a media item. Since v2.1-C it counts PROSE only: text inside a `.mars-ui`
+element (control labels, legends, axis text) is reported
+separately as "UI words" and is not held against the 420; it also checks the
+cube slicer's title, guiding text and media slot. `details_move_diff.py` extracts each of the seven bands,
 banner comment included, from `git show v1.0-launch:index.html` and from
 `details/index.html`, undoes the `../` path prefix and diffs them; the only
 allowed difference is the Simulator card's demo-lab link.
@@ -126,6 +130,27 @@ It prints the operating point, the realization count and every model's
 stored vs plotted mean and variance, asserts that no `<text>` node or the
 `aria-label` carries a digit, and exits non-zero on any mismatch or, with
 `--check`, on drift between the script, the file and the inline copy.
+
+### The cube slicer (stage v2.1-C)
+
+```bash
+python3 tools/build_slicer_data.py            # numpy only; writes assets/data/slicer/
+python3 tools/build_slicer_data.py --check    # writes nothing; the gate form
+python3 tools/build_slicer_placeholder.py     # Playwright + Chrome; the four stills
+```
+
+`build_slicer_data.py` exports the paper's Fig. 1 cubes from the project folder's
+`video/web/hero/out/cubes.npz` (read only, sha256-pinned) to
+`assets/data/slicer/`: three gzip cubes, the delay map and `meta.json`
+(brightness constant from the gold cube, the four data-picked presets, provenance).
+It fails if the bright preset does not show gold and MaRS 2-3 ns earlier than
+Poisson, and splices the default readout into `index.html`
+(`slicer_readout` markers); `--check` fails on any drift, including that text.
+`build_slicer_placeholder.py` re-captures the placeholder stills
+(`assets/img/slicer_ph_*.webp`) from the live module; re-run it after any
+change to the module's drawing, the data or the fonts. Never edit either output
+by hand. `js/mars-slicer.js` is fetched by `js/mars-main.js` only when the
+reader scrolls near the block (never on a cold load).
 
 ### The hero teaser (stages 08, 09b)
 
@@ -201,6 +226,7 @@ js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
 js/mars-main.js         main page only: teaser, video poster, BibTeX copy
 js/mars-compare.js      main page only: Demo 3 before/after slider (stage 09)
+js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
 js/mars-switchbar.js    the switch-bar (tab) pattern (/details/)
 js/mars-media.js        scroll-triggered animation slots (/details/)
@@ -211,8 +237,13 @@ assets/docs/            poster PDFs, paper PDF, overview video + captions
 tools/build_web_assets.py
 tools/audit_claims.py   claim hygiene, both public pages
 tools/check_links.py    every reference, both public pages
-tools/page_budget.py    the main page's guide-0.1 budgets (stage 07)
+tools/page_budget.py    the main page's guide-0.1/0.6 budgets (stage 07, v2.1-A)
+tools/build_fig1_question.py  Fig. 1's top half from the paper PDF (v2.1-A)
+tools/measure_edges.py  visible edges vs the column, both pages; not a gate (v2.1-A)
 tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 09)
+tools/build_slicer_data.py  the slicer's data + default readout, --check gate (v2.1-C)
+tools/build_slicer_placeholder.py  the slicer's placeholder stills (v2.1-C)
+assets/data/slicer/     the slicer's cubes, delay map and meta.json (v2.1-C)
 tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
 
@@ -246,9 +277,15 @@ tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 - **The hero title's gold letters are `MaRS`, `Ma`, `R`, and the `S` of
   *Simulator*** — not the `S` of *Single-Photon*. `MaRS` = **Ma**rkov-**R**enewal
   **S**imulator.
-- **The hero title must stay on one line** down to ~380 px. Its `clamp()` is
-  derived from a measured em-width; the CSS comment carries the arithmetic.
-  Re-measure if you change the font, the tracking, or `--measure`.
+- **The hero title fills the column exactly** (v2.1-A): one line above 600 px;
+  at 600 px and below (v2.1-D) two lines of one size, *MaRS: Markov-Renewal* /
+  *Single-Photon LiDAR Simulator*, the second filling the column. All sized in
+  `cqi` from a measured INK width (`--title-em`, `--line2-em` and the side
+  bearings in `css/mars.css`). Re-measure with `tools/measure_edges.py` if you change the
+  font, a weight, the tracking, the wording or `--column`.
+- **One column** (v2.1-A): `--column` 960 px and `--gutter` 16 px. A box that
+  carries the column is `max-width: calc(var(--column) + 2 * var(--gutter))`
+  with the gutter as padding. Do not add prose caps (`ch` max-widths).
 
 Full context: `PROJECT_BRIEF.md` (facts and claim hygiene),
 `MARS_WEBSITE_BUILD_GUIDE.md` (structure, copy, design) and
@@ -473,3 +510,41 @@ Each build stage appends one line here.
   - **Film poster** is the Four gains card.
 
   Review pack: `build_instructions/review/stage10b/`.
+- **Stage v2.1-A — one column and the question (2026-10-26).** On branch
+  `v2.1`, not pushed. Every block on `/` and `/details/` now shares one
+  960 px column (viewport − 32 px below), judged by visible edges
+  (`tools/measure_edges.py`); the title's ink meets both column edges at every
+  width, the narrow fallback's two lines too. The top half of the paper's
+  Fig. 1 sits between the buttons and the teaser (two stacked crops on
+  phones, `tools/build_fig1_question.py`). `/details/` fetches no video under
+  reduced motion. Budgets 420 words / 6 media. Review pack:
+  `build_instructions/review/v21A/`.
+- **Stage v2.1-C — the cube slicer (2026-10-26).** On branch `v2.1`, not
+  pushed. Directly under the teaser, in its own band (`#slicer`): three linked
+  time slices of the Fig. 1 cubes (one brightness mapping, fixed from the gold
+  cube) over one raw-count histogram, four data-picked presets, pooling and
+  range. Nothing of it loads until the reader scrolls near it; a pixel-exact
+  still stands in until then; Save-Data gets a button. `page_budget.py` now
+  reports `.mars-ui` control text separately (prose 420/420, media 6/6);
+  `build_slicer_data.py --check` joins the gates. Review pack:
+  `build_instructions/review/v21C/`.
+- **Stage v2.1-D — land the teaser, guiding sentence, layout fixes
+  (2026-10-26).** On branch `v2.1`, not pushed. v2.1-B's re-cut teaser
+  (1920 x 484 / 960 x 242; the cubes reach the column edges, the label row is
+  centred under them; the share card rebuilt from its frame 0, `?v=3`); the
+  teaser's guiding sentence; a balanced two-line title at <= 600 px; Demo 3 as
+  a 400 px slider beside a side panel (toggle, test-set numbers, ground truth);
+  Demo 2's chart about 376 px tall. In short and the BibTeX note trimmed: prose
+  419/420. Review pack: `build_instructions/review/v21D/`.
+- **Stage v2.1-E — independent review, merge and launch (2026-10-27),
+  `v2.1`.** A session that built none of v2.1 re-measured it: the twelve
+  non-negotiables per page (Fig. 1's burned-in text, the teaser labels, both
+  guiding sentences, the slicer, the trimmed In short, the share card); a
+  number-provenance table for `/`; the slicer's readouts recomputed from
+  `assets/data/slicer/` with independent code (four presets, three pools, and
+  six further pixels incl. border and corners: all match); the teaser stepped
+  every 0.5 s in all four encodes; all nine gates; Chrome and Firefox at
+  twelve widths on both pages; Lighthouse mobile and desktop. No rule
+  violation and no defect needing a fix. `v2.1` was merged into `main`
+  (`--no-ff`) and tagged `v2.1`. Review pack and the author's v2.1 phone
+  checklist: `build_instructions/review/v21E/`.

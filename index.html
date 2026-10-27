@@ -24,21 +24,22 @@
      tools/build_og_card.py from the teaser's own frame 0: title, ECCV 2026, the
      three cubes and their names, and NO timing or speed number — v1's card
      burned in 0.2 / 16.1 / 0.3 s beside this description's "40x ... 128x128x1024",
-     two different experiments. "?v=2" makes crawlers re-fetch the new card; the
+     two different experiments. "?v=3" (v2.1-D: rebuilt from the re-cut teaser's
+     frame 0) makes crawlers re-fetch the new card; the
      file keeps its name so old shares never 404. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MaRS">
 <meta property="og:url" content="https://mars-splidar.github.io/">
 <meta property="og:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
 <meta property="og:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster for a 128×128×1024 cube. ECCV 2026.">
-<meta property="og:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=2">
+<meta property="og:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=3">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike; the Poisson cube does not.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
 <meta name="twitter:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster for a 128×128×1024 cube. ECCV 2026.">
-<meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=2">
+<meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=3">
 <meta name="twitter:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike; the Poisson cube does not.">
 
 <!-- Google Scholar. citation_pdf_url points at the WEB copy of the paper, the
@@ -163,7 +164,8 @@
 <!-- ======================================================================
      HERO (guide 0.3 ①) — light PAPER. Title rules unchanged from v1
      (guide 4.2 + stage 06's F3: the <h1> is visually hidden, never
-     display:none'd, below 467 px, where the two-line fallback shows).
+     display:none'd, at 600 px and below, where the two-line title shows —
+     v2.1-D; it was 467 px).
      ====================================================================== -->
 <section class="mars-band" aria-labelledby="hero-title">
   <div class="mars-band__inner mars-hero__inner">
@@ -179,11 +181,15 @@
       Single-Photon LiDAR <span class="mars-hl">S</span>imulator
     </h1>
 
-    <!-- Sanctioned two-line fallback, shown at 467px and below (guide 4.2,
-         breakpoint moved from 380px by stage 06). -->
+    <!-- The narrow-screen title (v2.1-D; author, 2026-10-26): TWO LINES OF ONE
+         SIZE, split after the acronym phrase, with the same gold highlights as
+         the <h1> (the S is Simulator's). The longer second line fills the
+         column; the first is left-aligned. Shown at 600 px and below, where the
+         one-line title would fall under ~22 px; aria-hidden, because the <h1>
+         above stays in the accessibility tree (visually hidden, stage 06 F3). -->
     <p class="mars-hero__title--narrow" aria-hidden="true">
-      <span class="mars-hero__acronym">MaRS</span>
-      <span class="mars-hero__full">Markov-Renewal Single-Photon LiDAR Simulator</span>
+      <span class="mars-hero__line1"><span class="mars-hl">MaRS</span>: <span class="mars-hl">Ma</span>rkov-<span class="mars-hl">R</span>enewal</span>
+      <span class="mars-hero__line2">Single-Photon LiDAR <span class="mars-hl">S</span>imulator</span>
     </p>
 
     <p class="mars-hero__subhead">Accurate, efficient single-photon LiDAR
@@ -205,9 +211,66 @@
     <p class="mars-hero__note" id="mars-hero-note" hidden></p>
 
     <!-- ==================================================================
+         THE QUESTION — stage v2.1-A (guide 0.6 item 2). The whole top half of
+         the paper's Fig. 1: the acquisition process, the 3-D photon timestamp
+         histogram, data-driven inference of reflectivity and depth, and "Can
+         we simulate this process? Fast and Precise?". The teaser right below
+         is the answer, and stands in for Fig. 1's own three static cubes.
+         Exported from the vector Fig1_teaser.pdf by
+         tools/build_fig1_question.py — re-run it, never edit the images. The
+         cube's red edges are pixels of a raster in the PDF, so they stay red
+         (author, 2026-10-26).
+
+         TWO PICTURES, ONE SLOT. Desktop (>= 601 px) shows the whole top half
+         from the first <picture>. Phones (<= 600 px) get two stacked crops so
+         the labels stay as large as they can: the first <picture> switches to
+         the acquisition panel, and the second shows the inference panel with
+         the question. On a desktop the second resolves to a 1 x 1 data: GIF
+         and is display:none, so it fetches nothing. Every <source> carries its
+         own width/height, so each crop reserves its box before it loads (no
+         layout shift). Not lazy: at 390 x 844, 412 x 823 and 1280 x 800 it
+         starts on the first screen (v2.1-A measurements.txt). But
+         fetchpriority="low", so it does not compete with the preloaded fonts:
+         on a phone the LCP is the title's "MaRS", which waits for Poppins
+         (Lighthouse mobile LCP 3.23 s without it, 2.78 s with it).
+         ================================================================== -->
+    <figure class="mars-question" data-media-slot="question">
+      <picture>
+        <source media="(max-width: 600px)" type="image/webp"
+                srcset="assets/img/fig1_question_acq_600.webp 600w,
+                        assets/img/fig1_question_acq.webp 1200w"
+                sizes="calc(100vw - 32px)" width="1200" height="477">
+        <source media="(max-width: 600px)"
+                srcset="assets/img/fig1_question_acq.png"
+                width="1200" height="477">
+        <source type="image/webp"
+                srcset="assets/img/fig1_question_960.webp 960w,
+                        assets/img/fig1_question.webp 1920w"
+                sizes="(max-width: 992px) calc(100vw - 32px), 960px"
+                width="1920" height="496">
+        <img src="assets/img/fig1_question.png" width="1920" height="496"
+             fetchpriority="low" decoding="async"
+             alt="The question, from the paper's Figure 1. Single-photon LiDAR data acquisition: a laser illuminates a scene, and a SPAD detector with TCSPC timing electronics records the returning photons as a 3-D photon timestamp histogram cube. Data-driven inference turns that cube into reflectivity and depth images. Beside it: Can we simulate this process? Fast and precise?">
+      </picture>
+      <picture class="mars-question__more">
+        <source media="not all and (max-width: 600px)"
+                srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                width="1" height="1">
+        <source type="image/webp"
+                srcset="assets/img/fig1_question_infer_600.webp 600w,
+                        assets/img/fig1_question_infer.webp 1200w"
+                sizes="calc(100vw - 32px)" width="1200" height="884">
+        <img src="assets/img/fig1_question_infer.png" width="1200" height="884"
+             fetchpriority="low" decoding="async" alt="">
+      </picture>
+    </figure>
+
+    <!-- ==================================================================
          THE TEASER SLOT — Demo 1 (guide 0.3 ①, contract WEBSITE_BUILD_STATUS
-         3.7, as changed by stage 09b). Full content width, 1920 x 448 (the
-         stage-08 render cropped top and bottom; the cubes keep their size).
+         3.7, as changed by stage 09b and v2.1). Full content width, 1920 x 484
+         since v2.1-D: v2.1-B's re-cut, cropped to the cubes on all four sides
+         (the side gutters too, so the cube edges are the column edges) and
+         slowed to 10 ns/s through the object; 11.07 s loop.
          Stage 08's anim_hero_cubes, landed by stage 09: three real cubes of one scene — Poisson, the
          sequential gold standard and MaRS — each from its own simulator,
          under one shared render, with a time slab sweeping the bins.
@@ -225,7 +288,7 @@
          from first paint.
 
          PHONES get anim_hero_cubes_960.* (stage 09b): the same cropped
-         frames downscaled to 960 x 224. The FULL-size sources come first,
+         frames downscaled to 960 x 242 (v2.1-D; was 960 x 224). The FULL-size sources come first,
          gated by media="(min-width: 601px)"; at 600 px and below a browser
          skips them and takes the 960 copy. ORDER MATTERS: a browser that
          ignores `media` on <source> takes the first source it can play, so
@@ -247,11 +310,11 @@
         <img class="mars-teaser__poster" src="assets/media/anim_hero_cubes.jpg"
              srcset="assets/media/anim_hero_cubes_960.jpg 960w,
                      assets/media/anim_hero_cubes.jpg 1920w"
-             sizes="(max-width: 1080px) calc(100vw - 2rem), 1024px"
-             width="1920" height="448" fetchpriority="high" decoding="async"
+             sizes="(max-width: 992px) calc(100vw - 32px), 960px"
+             width="1920" height="484" fetchpriority="high" decoding="async"
              alt="Three simulated photon-count histogram cubes of the same scene, side by side: the Poisson simulator, the sequential gold standard and MaRS. The gold-standard and MaRS cubes look alike; the Poisson cube, which ignores dead time, does not.">
         <video class="mars-teaser__video" muted loop playsinline
-               preload="none" width="1920" height="448" aria-hidden="true"
+               preload="none" width="1920" height="484" aria-hidden="true"
                tabindex="-1" disablepictureinpicture>
           <source src="assets/media/anim_hero_cubes.webm" type="video/webm"
                   media="(min-width: 601px)">
@@ -298,8 +361,189 @@
           — not the 40&times; benchmark.</p>
       </div>
 
+      <!-- The guiding sentence (v2.1-D; guide 0.6 item 3, in the stage doc's
+           wording): the teaser's one message is HOW MANY photons; the slicer
+           below carries WHEN. "Alike", never "the same photons": the cubes are
+           independent realizations (3.7 honesty rule 2). Inside the
+           figcaption so the figure keeps one caption; regular weight. -->
       <figcaption class="mars-teaser__tagline">Physically correct
-        single-photon LiDAR histograms, at Poisson speed.</figcaption>
+        single-photon LiDAR histograms, at Poisson speed.
+        <span class="mars-teaser__guide">Watch the slab: Poisson stays bright everywhere; the gold standard and MaRS lose photons to dead time alike.</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ======================================================================
+     CUBE SLICER (stage v2.1-C; guide 0.6 items 3 and 5) — PAPER, directly
+     under the hero's teaser, in its OWN band: v2.1-D's teaser landing
+     changes only #mars-teaser's height attributes and cannot move this
+     markup. Its one message is WHEN photons arrive; the teaser above
+     carries HOW MANY.
+
+     DATA: the same three Fig. 1 cubes as the teaser (one realization per
+     simulator, independent), exported by tools/build_slicer_data.py to
+     assets/data/slicer/ — never edit those files, re-run the script.
+     HONESTY: one brightness mapping for all three images, fixed from the
+     gold-standard cube (meta.json "brightness"); the chart plots raw counts
+     on one shared axis, with no normalise control; the presets are picked
+     by a data rule, not by eye (the script's docstring).
+
+     LOADING: nothing here is fetched by markup. js/mars-main.js promotes the
+     four placeholder images (data-src / data-srcset: a still of the default,
+     bright-surface state, tools/build_slicer_placeholder.py) once the reader
+     scrolls within 1500 px, and fetches js/mars-slicer.js + the data within
+     600 px, or as soon as the block is on screen, or on the first touch,
+     click or focus inside it. Save-Data / prefers-reduced-data: the
+     placeholder only, and a button. Every box is reserved by CSS
+     aspect-ratio, so the swap shifts nothing.
+
+     WORD BUDGET (WEBSITE_BUILD_STATUS 3.7, v2.1 amendment): the eyebrow,
+     title, guiding sentence, the three image names (a label row, like the
+     teaser's), readout and footnote are prose and counted — 420/420 with
+     them; control labels, the legend and the status line sit in .mars-ui
+     and are reported separately by tools/page_budget.py.
+     The guiding text is the approved two-sentence wording of guide 0.6
+     item 3, verbatim, so this is not an article.mars-demo (whose gate wants
+     exactly one sentence); page_budget.py checks the slicer on its own.
+     ====================================================================== -->
+<section class="mars-band mars-slicer-band" id="slicer" aria-labelledby="slicer-title">
+  <div class="mars-band__inner">
+    <p class="mars-eyebrow is-neutral">Cube slicer · Visualize dead-time effects</p>
+    <h2 class="mars-demo__title" id="slicer-title">Look inside the three cubes</h2>
+    <p class="mars-demo__sentence mars-slicer__guide">Pick a pixel to see when
+      its photons arrived. On bright surfaces, the gold standard and MaRS
+      register the return earlier than Poisson, by matching amounts.</p>
+
+    <figure class="mars-slicer" id="mars-slicer" data-media-slot="slicer"
+            data-slicer-state="idle" data-slicer-base="assets/data/slicer/">
+      <div class="mars-ui mars-slicer__presets" role="group" aria-label="Presets">
+        <button type="button" class="mars-slicer__chip" data-preset="bright"
+                aria-pressed="true">Bright surface</button>
+        <button type="button" class="mars-slicer__chip" data-preset="dim"
+                aria-pressed="false">Dim surface</button>
+        <button type="button" class="mars-slicer__chip" data-preset="shadow"
+                aria-pressed="false">Just after the peak</button>
+        <button type="button" class="mars-slicer__chip" data-preset="before"
+                aria-pressed="false">Before the peak</button>
+      </div>
+
+      <div class="mars-slicer__stage">
+        <!-- Same left-to-right order as the teaser: Poisson · gold standard ·
+             MaRS. Each canvas is 128 x 128 device pixels, scaled nearest-
+             neighbour; the placeholder <img> under it is that canvas's own
+             pixels in the default state, so the swap is invisible. -->
+        <div class="mars-slicer__trio">
+          <div class="mars-slicer__cell is-poisson">
+            <p class="mars-slicer__name">Poisson</p>
+            <div class="mars-slicer__img">
+              <img class="mars-slicer__ph" width="128" height="128" alt=""
+                   decoding="async" data-src="assets/img/slicer_ph_poisson.webp">
+              <noscript><img class="mars-slicer__ph" width="128" height="128"
+                   src="assets/img/slicer_ph_poisson.webp" alt="Poisson time slice, bright-surface view."></noscript>
+              <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
+                      role="img" data-cube="poisson"
+                      aria-label="Poisson time slice; arrow keys move the selected pixel."></canvas>
+            </div>
+          </div>
+          <div class="mars-slicer__cell is-gold">
+            <p class="mars-slicer__name">Gold standard</p>
+            <div class="mars-slicer__img">
+              <img class="mars-slicer__ph" width="128" height="128" alt=""
+                   decoding="async" data-src="assets/img/slicer_ph_gold.webp">
+              <noscript><img class="mars-slicer__ph" width="128" height="128"
+                   src="assets/img/slicer_ph_gold.webp" alt="Gold-standard time slice, bright-surface view."></noscript>
+              <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
+                      role="img" data-cube="gold"
+                      aria-label="Gold-standard time slice; arrow keys move the selected pixel."></canvas>
+            </div>
+          </div>
+          <div class="mars-slicer__cell is-mars">
+            <p class="mars-slicer__name">MaRS</p>
+            <div class="mars-slicer__img">
+              <img class="mars-slicer__ph" width="128" height="128" alt=""
+                   decoding="async" data-src="assets/img/slicer_ph_mars.webp">
+              <noscript><img class="mars-slicer__ph" width="128" height="128"
+                   src="assets/img/slicer_ph_mars.webp" alt="MaRS time slice, bright-surface view."></noscript>
+              <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
+                      role="img" data-cube="mars"
+                      aria-label="MaRS time slice; arrow keys move the selected pixel."></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- THE READOUT — the return centre of each simulator, for the
+             selected pixel and pooling. The static text is the default state
+             (bright preset, 3 x 3), spliced in by tools/build_slicer_data.py
+             from the data; its --check fails if it drifts. js/mars-slicer.js
+             rewrites it with the same structure, throttled for the live
+             region. -->
+        <p class="mars-slicer__readout" aria-live="polite">
+          <!-- slicer_readout:start -->
+          <span class="mars-slicer__ro-lead">Return centre vs. true delay:</span> <span class="is-poisson">Poisson <b>+0.1&nbsp;ns</b></span> <span class="sep" aria-hidden="true">·</span> <span class="is-gold">Gold standard <b>&minus;2.7&nbsp;ns</b></span> <span class="sep" aria-hidden="true">·</span> <span class="is-mars">MaRS <b>&minus;2.7&nbsp;ns</b></span>
+          <!-- slicer_readout:end -->
+        </p>
+
+        <div class="mars-slicer__chartbox">
+          <div class="mars-ui mars-slicer__legend">
+            <span><i class="mars-slicer__sw is-bars"></i>Gold standard</span>
+            <span><i class="mars-slicer__sw is-mars"></i>MaRS</span>
+            <span><i class="mars-slicer__sw is-poisson"></i>Poisson</span>
+            <span><i class="mars-slicer__sw is-delay"></i>true delay</span>
+            <span><i class="mars-slicer__sw is-time"></i>selected time</span>
+          </div>
+          <div class="mars-slicer__chart">
+            <picture>
+              <source media="(max-width: 600px)"
+                      data-srcset="assets/img/slicer_ph_chart_390.webp">
+              <img class="mars-slicer__ph" alt="" decoding="async"
+                   data-src="assets/img/slicer_ph_chart_960.webp">
+            </picture>
+            <noscript><img class="mars-slicer__ph"
+                 src="assets/img/slicer_ph_chart_960.webp"
+                 alt="Photon-arrival histogram of a bright pixel."></noscript>
+            <canvas class="mars-slicer__chartcv" role="img"
+                    aria-label="Photon-arrival histogram of the selected pixel: gold-standard bars, MaRS and Poisson as lines, raw counts on one shared axis, with the pixel's true delay dashed and the selected time marked."></canvas>
+          </div>
+        </div>
+
+        <div class="mars-ui mars-slicer__status" hidden>
+          <p class="mars-slicer__msg" data-msg="loading" hidden>Loading the
+            three cubes…</p>
+          <p class="mars-slicer__msg is-error" data-msg="error" hidden>The
+            interactive slicer could not load; this is a still of the
+            bright-surface view.</p>
+          <button type="button" class="mars-slicer__load" data-msg="saver"
+                  hidden>Load the interactive slicer (&asymp;&nbsp;1.8&nbsp;MB)</button>
+        </div>
+      </div>
+
+      <div class="mars-ui mars-slicer__controls">
+        <div class="mars-slicer__ctl">
+          <span class="mars-slicer__ctl-label" id="slicer-pool-label">Pool</span>
+          <div class="mars-slicer__seg" role="group" aria-labelledby="slicer-pool-label">
+            <button type="button" data-pool="0" aria-pressed="false">1&times;1</button>
+            <button type="button" data-pool="1" aria-pressed="true">3&times;3</button>
+            <button type="button" data-pool="2" aria-pressed="false">5&times;5</button>
+          </div>
+        </div>
+        <div class="mars-slicer__ctl">
+          <span class="mars-slicer__ctl-label" id="slicer-range-label">Range</span>
+          <div class="mars-slicer__seg" role="group" aria-labelledby="slicer-range-label">
+            <button type="button" data-zoom="1" aria-pressed="true">Around the peak</button>
+            <button type="button" data-zoom="0" aria-pressed="false">Full period</button>
+          </div>
+        </div>
+        <label class="mars-slicer__ctl mars-slicer__time">
+          <span class="mars-slicer__ctl-label">Time</span>
+          <input class="mars-slicer__range" type="range" min="0" max="255"
+                 step="1" value="108" aria-valuetext="42.4 ns">
+          <output class="mars-slicer__tval">42.4&nbsp;ns</output>
+        </label>
+      </div>
+
+      <figcaption class="mars-demo__note mars-slicer__note">Return centre: the
+        average arrival time of the photons within &plusmn;10&nbsp;ns of the
+        pixel&rsquo;s true delay.</figcaption>
     </figure>
   </div>
 </section>
@@ -307,20 +551,20 @@
 <!-- ======================================================================
      IN SHORT (guide 0.3 ②) — MINT. One paragraph of at most 70 words, then
      the four gains UNCHANGED from v1 (order and captions are
-     non-negotiable #11). The paragraph is the guide's own draft, verbatim.
+     non-negotiable #11). The paragraph is the planning session's v2.1-D
+     tightening of the guide's draft (63 -> 52 words), verbatim; claims unchanged.
      Hygiene: the gold standard handles dead time CORRECTLY (#2); MaRS
      MATCHES it (#3); the 40x carries its workload in the same sentence.
      ====================================================================== -->
 <section class="mars-band is-mint" id="in-short" aria-labelledby="in-short-heading">
   <div class="mars-band__inner">
     <h2 class="mars-eyebrow is-neutral" id="in-short-heading">In short</h2>
-    <p class="mars-section__lede mars-inshort">A single-photon detector goes
-      blind for a short dead time after every detection, and that breaks the
-      statistics simulators rely on. Fast Poisson models ignore it; the
-      sequential gold standard handles it correctly but is too slow to
-      generate training data. MaRS derives the first analytic photon-count
-      law under dead time, matching the gold standard&rsquo;s statistics
-      about 40&times; faster on a 128&times;128&times;1024 cube.</p>
+    <p class="mars-section__lede mars-inshort">Single-photon detectors go
+      blind for a short dead time after every detection. Poisson simulators
+      ignore this; the sequential gold standard handles it correctly but is
+      too slow for training data. MaRS derives the first analytic
+      photon-count law under dead time, matching the gold standard&rsquo;s
+      statistics about 40&times; faster on a 128&times;128&times;1024 cube.</p>
 
     <h3 class="mars-visually-hidden">Headline results</h3>
     <ul class="mars-stats">
@@ -385,60 +629,60 @@
               data-media-slot="demo-accuracy">
         <div class="mars-count-fig__frame">
           <!-- demo_count:start (generated by tools/build_demo_count.py; do not edit by hand) -->
-          <svg class="mars-count" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-label="Count distribution at one high-flux operating point. Bars: the sequential gold standard's histogram. The renewal model's distribution sits far to the right of it; Zhang et al.'s is centred on it but much too narrow; MaRS matches both its centre and its width. Poisson's prediction lies far off the chart to the right." font-family="Inter, Helvetica Neue, Arial, sans-serif" style="font-family: var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)">
-            <style>.mars-count text{font-size:18px}@media (max-width:600px){.mars-count text{font-size:26px}}</style>
+          <svg class="mars-count" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 272" role="img" aria-label="Count distribution at one high-flux operating point. Bars: the sequential gold standard's histogram. The renewal model's distribution sits far to the right of it; Zhang et al.'s is centred on it but much too narrow; MaRS matches both its centre and its width. Poisson's prediction lies far off the chart to the right." font-family="Inter, Helvetica Neue, Arial, sans-serif" style="font-family: var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)">
+            <style>.mars-count text{font-size:18px}@media (min-width:901px){.mars-count text{font-size:13.5px}}@media (max-width:600px){.mars-count text{font-size:26px}}</style>
             <g style="fill: var(--dark, #1F1F1F); stroke: var(--dark, #1F1F1F)" fill-opacity="0.34" stroke-opacity="0.55" stroke-width="0.75">
-              <rect x="108.1" y="339.8" width="4.2" height="0.2"/>
-              <rect x="112.9" y="339.7" width="4.2" height="0.3"/>
-              <rect x="117.7" y="339.7" width="4.2" height="0.3"/>
-              <rect x="122.6" y="339.2" width="4.2" height="0.8"/>
-              <rect x="127.4" y="339.2" width="4.2" height="0.8"/>
-              <rect x="132.3" y="336.5" width="4.2" height="3.5"/>
-              <rect x="137.1" y="334.1" width="4.2" height="5.9"/>
-              <rect x="142.0" y="330.3" width="4.2" height="9.7"/>
-              <rect x="146.8" y="327.3" width="4.2" height="12.7"/>
-              <rect x="151.7" y="318.7" width="4.2" height="21.3"/>
-              <rect x="156.5" y="308.6" width="4.2" height="31.4"/>
-              <rect x="161.3" y="290.9" width="4.2" height="49.1"/>
-              <rect x="166.2" y="279.1" width="4.2" height="60.9"/>
-              <rect x="171.0" y="261.1" width="4.2" height="78.9"/>
-              <rect x="175.9" y="241.1" width="4.2" height="98.9"/>
-              <rect x="180.7" y="221.5" width="4.2" height="118.5"/>
-              <rect x="185.6" y="217.5" width="4.2" height="122.5"/>
-              <rect x="190.4" y="195.0" width="4.2" height="145.0"/>
-              <rect x="195.3" y="189.8" width="4.2" height="150.2"/>
-              <rect x="200.1" y="197.9" width="4.2" height="142.1"/>
-              <rect x="204.9" y="213.3" width="4.2" height="126.7"/>
-              <rect x="209.8" y="226.2" width="4.2" height="113.8"/>
-              <rect x="214.6" y="251.9" width="4.2" height="88.1"/>
-              <rect x="219.5" y="271.8" width="4.2" height="68.2"/>
-              <rect x="224.3" y="288.2" width="4.2" height="51.8"/>
-              <rect x="229.2" y="306.2" width="4.2" height="33.8"/>
-              <rect x="234.0" y="315.0" width="4.2" height="25.0"/>
-              <rect x="238.9" y="325.5" width="4.2" height="14.5"/>
-              <rect x="243.7" y="333.1" width="4.2" height="6.9"/>
-              <rect x="248.5" y="333.0" width="4.2" height="7.0"/>
-              <rect x="253.4" y="337.9" width="4.2" height="2.1"/>
-              <rect x="258.2" y="338.6" width="4.2" height="1.4"/>
-              <rect x="263.1" y="339.4" width="4.2" height="0.6"/>
-              <rect x="267.9" y="339.8" width="4.2" height="0.2"/>
-              <rect x="282.5" y="339.8" width="4.2" height="0.2"/>
+              <rect x="108.1" y="223.9" width="4.2" height="0.1"/>
+              <rect x="112.9" y="223.8" width="4.2" height="0.2"/>
+              <rect x="117.7" y="223.8" width="4.2" height="0.2"/>
+              <rect x="122.6" y="223.5" width="4.2" height="0.5"/>
+              <rect x="127.4" y="223.5" width="4.2" height="0.5"/>
+              <rect x="132.3" y="221.7" width="4.2" height="2.3"/>
+              <rect x="137.1" y="220.1" width="4.2" height="3.9"/>
+              <rect x="142.0" y="217.6" width="4.2" height="6.4"/>
+              <rect x="146.8" y="215.6" width="4.2" height="8.4"/>
+              <rect x="151.7" y="209.9" width="4.2" height="14.1"/>
+              <rect x="156.5" y="203.3" width="4.2" height="20.7"/>
+              <rect x="161.3" y="191.6" width="4.2" height="32.4"/>
+              <rect x="166.2" y="183.8" width="4.2" height="40.2"/>
+              <rect x="171.0" y="172.0" width="4.2" height="52.0"/>
+              <rect x="175.9" y="158.7" width="4.2" height="65.3"/>
+              <rect x="180.7" y="145.8" width="4.2" height="78.2"/>
+              <rect x="185.6" y="143.2" width="4.2" height="80.8"/>
+              <rect x="190.4" y="128.4" width="4.2" height="95.6"/>
+              <rect x="195.3" y="124.9" width="4.2" height="99.1"/>
+              <rect x="200.1" y="130.2" width="4.2" height="93.8"/>
+              <rect x="204.9" y="140.4" width="4.2" height="83.6"/>
+              <rect x="209.8" y="149.0" width="4.2" height="75.0"/>
+              <rect x="214.6" y="165.9" width="4.2" height="58.1"/>
+              <rect x="219.5" y="179.0" width="4.2" height="45.0"/>
+              <rect x="224.3" y="189.8" width="4.2" height="34.2"/>
+              <rect x="229.2" y="201.7" width="4.2" height="22.3"/>
+              <rect x="234.0" y="207.5" width="4.2" height="16.5"/>
+              <rect x="238.9" y="214.4" width="4.2" height="9.6"/>
+              <rect x="243.7" y="219.5" width="4.2" height="4.5"/>
+              <rect x="248.5" y="219.4" width="4.2" height="4.6"/>
+              <rect x="253.4" y="222.6" width="4.2" height="1.4"/>
+              <rect x="258.2" y="223.1" width="4.2" height="0.9"/>
+              <rect x="263.1" y="223.6" width="4.2" height="0.4"/>
+              <rect x="267.9" y="223.9" width="4.2" height="0.1"/>
+              <rect x="282.5" y="223.9" width="4.2" height="0.1"/>
             </g>
             <g style="stroke: var(--grey, #5A5A5A)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke">
-              <path vector-effect="non-scaling-stroke" d="M52 46V340.0H706"/>
+              <path vector-effect="non-scaling-stroke" d="M52 28V224.0H706"/>
             </g>
-            <polyline class="mars-count__renewal" points="434.7,340.0 439.6,340.0 444.4,340.0 449.2,340.0 454.1,339.8 458.9,339.3 463.8,337.7 468.6,333.2 473.5,322.6 478.3,301.7 483.2,266.6 488.0,218.0 492.8,164.0 497.7,119.8 502.5,100.8 507.4,114.5 512.2,155.6 517.1,209.1 521.9,259.3 526.8,296.9 531.6,320.0 536.4,331.9 541.3,337.2 546.1,339.1 551.0,339.8 555.8,339.9 560.7,340.0 565.5,340.0 570.4,340.0" fill="none" style="stroke: #C26A61" stroke-width="1.75" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-            <polyline class="mars-count__icip" points="134.4,340.0 139.2,340.0 144.0,340.0 148.9,339.8 153.7,339.1 158.6,336.8 163.4,330.2 168.3,314.5 173.1,283.6 178.0,234.3 182.8,172.2 187.6,114.3 192.5,82.9 197.3,91.8 202.2,137.1 207.0,199.5 211.9,257.6 216.7,299.0 221.6,322.8 226.4,333.8 231.2,338.1 236.1,339.5 240.9,339.9 245.8,340.0 250.6,340.0 255.5,340.0" fill="none" style="stroke: #6190BA" stroke-width="1.75" stroke-dasharray="7 4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-            <polyline class="mars-count__ours" points="85.9,340.0 90.8,340.0 95.6,340.0 100.4,340.0 105.3,340.0 110.1,339.9 115.0,339.8 119.8,339.6 124.7,339.2 129.5,338.4 134.4,337.0 139.2,334.5 144.0,330.4 148.9,324.2 153.7,315.1 158.6,302.9 163.4,287.5 168.3,269.3 173.1,249.6 178.0,230.3 182.8,213.5 187.6,201.5 192.5,196.0 197.3,197.7 202.2,206.5 207.0,221.1 211.9,239.4 216.7,259.1 221.6,278.2 226.4,295.2 231.2,309.2 236.1,319.8 240.9,327.5 245.8,332.6 250.6,335.9 255.5,337.8 260.3,338.9 265.2,339.5 270.0,339.8 274.8,339.9 279.7,340.0 284.5,340.0 289.4,340.0 294.2,340.0 299.1,340.0 303.9,340.0" fill="none" style="stroke: var(--green, #0E7A46)" stroke-width="3.0" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-            <text x="502.5" y="90.8" text-anchor="middle" font-size="18" font-weight="600" style="fill: var(--red, #B03A2E)">Renewal</text>
-            <text x="192.5" y="72.9" text-anchor="middle" font-size="18" font-weight="600" style="fill: var(--blue, #2E6DA4)">Zhang et al.</text>
-            <path d="M149.1 255.5L164.1 271.5" style="stroke: var(--green, #0E7A46)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
-            <text x="145.1" y="251.5" text-anchor="end" font-size="18" font-weight="700" style="fill: var(--green, #0E7A46)">MaRS</text>
-            <path d="M255.9 277.3L232.9 299.3" style="stroke: var(--grey, #5A5A5A)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
-            <text x="259.9" y="283.3" text-anchor="start" font-size="18" font-weight="600" style="fill: var(--dark, #1F1F1F)">Gold standard</text>
-            <text x="706.0" y="328.0" text-anchor="end" font-size="18" font-weight="600" style="fill: var(--red, #B03A2E)">Poisson →</text>
-            <text x="379.0" y="386.0" text-anchor="middle" font-size="18" font-weight="500" style="fill: var(--grey, #5A5A5A)">Registered photon count</text>
-            <text x="0.0" y="0.0" text-anchor="middle" font-size="18" font-weight="500" style="fill: var(--grey, #5A5A5A)" transform="translate(36 196.0) rotate(-90)">Probability</text>
+            <polyline class="mars-count__renewal" points="434.7,224.0 439.6,224.0 444.4,224.0 449.2,224.0 454.1,223.9 458.9,223.5 463.8,222.5 468.6,219.5 473.5,212.5 478.3,198.7 483.2,175.6 488.0,143.5 492.8,107.9 497.7,78.7 502.5,66.2 507.4,75.3 512.2,102.3 517.1,137.6 521.9,170.8 526.8,195.6 531.6,210.8 536.4,218.7 541.3,222.1 546.1,223.4 551.0,223.9 555.8,224.0 560.7,224.0 565.5,224.0 570.4,224.0" fill="none" style="stroke: #C26A61" stroke-width="1.75" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+            <polyline class="mars-count__icip" points="134.4,224.0 139.2,224.0 144.0,224.0 148.9,223.9 153.7,223.4 158.6,221.9 163.4,217.6 168.3,207.2 173.1,186.8 178.0,154.3 182.8,113.3 187.6,75.1 192.5,54.4 197.3,60.3 202.2,90.1 207.0,131.3 211.9,169.6 216.7,197.0 221.6,212.6 226.4,219.9 231.2,222.8 236.1,223.7 240.9,223.9 245.8,224.0 250.6,224.0 255.5,224.0" fill="none" style="stroke: #6190BA" stroke-width="1.75" stroke-dasharray="7 4" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+            <polyline class="mars-count__ours" points="85.9,224.0 90.8,224.0 95.6,224.0 100.4,224.0 105.3,224.0 110.1,224.0 115.0,223.9 119.8,223.8 124.7,223.5 129.5,223.0 134.4,222.0 139.2,220.4 144.0,217.7 148.9,213.6 153.7,207.6 158.6,199.5 163.4,189.3 168.3,177.3 173.1,164.4 178.0,151.6 182.8,140.6 187.6,132.6 192.5,129.0 197.3,130.1 202.2,135.9 207.0,145.5 211.9,157.6 216.7,170.6 221.6,183.3 226.4,194.5 231.2,203.7 236.1,210.7 240.9,215.7 245.8,219.1 250.6,221.3 255.5,222.5 260.3,223.3 265.2,223.6 270.0,223.8 274.8,223.9 279.7,224.0 284.5,224.0 289.4,224.0 294.2,224.0 299.1,224.0 303.9,224.0" fill="none" style="stroke: var(--green, #0E7A46)" stroke-width="3.0" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+            <text x="502.5" y="56.2" text-anchor="middle" font-size="18" font-weight="600" style="fill: var(--red, #B03A2E)">Renewal</text>
+            <text x="192.5" y="44.4" text-anchor="middle" font-size="18" font-weight="600" style="fill: var(--blue, #2E6DA4)">Zhang et al.</text>
+            <path d="M149.1 162.1L164.1 178.1" style="stroke: var(--green, #0E7A46)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
+            <text x="145.1" y="158.1" text-anchor="end" font-size="18" font-weight="700" style="fill: var(--green, #0E7A46)">MaRS</text>
+            <path d="M255.9 174.5L232.9 196.5" style="stroke: var(--grey, #5A5A5A)" stroke-width="1.5" fill="none" vector-effect="non-scaling-stroke"/>
+            <text x="259.9" y="180.5" text-anchor="start" font-size="18" font-weight="600" style="fill: var(--dark, #1F1F1F)">Gold standard</text>
+            <text x="706.0" y="212.0" text-anchor="end" font-size="18" font-weight="600" style="fill: var(--red, #B03A2E)">Poisson →</text>
+            <text x="379.0" y="258.0" text-anchor="middle" font-size="18" font-weight="500" style="fill: var(--grey, #5A5A5A)">Registered photon count</text>
+            <text x="0.0" y="0.0" text-anchor="middle" font-size="18" font-weight="500" style="fill: var(--grey, #5A5A5A)" transform="translate(36 129.0) rotate(-90)">Probability</text>
           </svg>
           <!-- demo_count:end -->
         </div>
@@ -486,13 +730,13 @@
            length. -->
       <figure class="mars-demo__media mars-compare" id="demo-downstream-media"
               data-media-slot="demo-downstream" data-compare data-mode="refl">
-        <div class="mars-compare__toggle" role="group"
-             aria-label="Reconstruction shown">
-          <button type="button" class="mars-compare__mode" data-mode="refl"
-                  aria-pressed="true">Reflectivity</button>
-          <button type="button" class="mars-compare__mode" data-mode="depth"
-                  aria-pressed="false">Depth</button>
-        </div>
+        <!-- v2.1-D, interim until the Demo 3 redesign: the slider square (at
+             most 400 px) and a framed side panel share the column, the square
+             on the left edge and the panel's frame on the right. The panel
+             holds the toggle, the two test-set numbers (moved off the tiles:
+             same text, same data-depth swap; CSS arrows tie each to its side
+             of the divider), their note and the ground truth. Phones
+             (<= 600 px): stacked, the slider full width. -->
         <div class="mars-compare__body">
           <div class="mars-compare__stage">
             <img class="mars-compare__img is-under" width="720" height="720"
@@ -512,21 +756,35 @@
                    aria-label="Divider: Poisson-trained left, MaRS-trained right"
                    aria-valuetext="50% Poisson-trained, 50% MaRS-trained">
             <span class="mars-compare__handle" aria-hidden="true"></span>
-            <span class="mars-compare__label is-left"
-                  data-depth="&lt;span&gt;Poisson-trained&lt;/span&gt; &lt;b&gt;1.654&amp;nbsp;m&lt;/b&gt;"><span>Poisson-trained</span>
-              <b>7.02&nbsp;dB</b></span>
-            <span class="mars-compare__label is-right"
-                  data-depth="&lt;span&gt;MaRS-trained&lt;/span&gt; &lt;b&gt;0.074&amp;nbsp;m&lt;/b&gt;"><span>MaRS-trained</span>
-              <b>24.25&nbsp;dB</b></span>
           </div>
-          <figure class="mars-compare__gt">
-            <img width="720" height="720" alt="" decoding="async"
-                 data-src-refl="assets/img/res_refl_gt.webp"
-                 data-src-depth="assets/img/res_depth_gt.webp"
-                 data-alt-refl="Ground-truth reflectivity of the test scene: a bookshelf, a chair and a table."
-                 data-alt-depth="Ground-truth depth of the test scene.">
-            <figcaption>Ground truth</figcaption>
-          </figure>
+          <div class="mars-compare__panel">
+            <div class="mars-compare__toggle" role="group"
+                 aria-label="Reconstruction shown">
+              <button type="button" class="mars-compare__mode" data-mode="refl"
+                      aria-pressed="true">Reflectivity</button>
+              <button type="button" class="mars-compare__mode" data-mode="depth"
+                      aria-pressed="false">Depth</button>
+            </div>
+            <div class="mars-compare__nums">
+              <p class="mars-compare__label is-left"
+                 data-depth="&lt;span&gt;Poisson-trained&lt;/span&gt; &lt;b&gt;1.654&amp;nbsp;m&lt;/b&gt;"><span>Poisson-trained</span>
+                <b>7.02&nbsp;dB</b></p>
+              <p class="mars-compare__label is-right"
+                 data-depth="&lt;span&gt;MaRS-trained&lt;/span&gt; &lt;b&gt;0.074&amp;nbsp;m&lt;/b&gt;"><span>MaRS-trained</span>
+                <b>24.25&nbsp;dB</b></p>
+            </div>
+            <p class="mars-demo__note mars-compare__note"
+               data-depth="Test-set RMSE, SBR 0.6.">Test-set PSNR, SBR
+              0.6.</p>
+            <figure class="mars-compare__gt">
+              <img width="720" height="720" alt="" decoding="async"
+                   data-src-refl="assets/img/res_refl_gt.webp"
+                   data-src-depth="assets/img/res_depth_gt.webp"
+                   data-alt-refl="Ground-truth reflectivity of the test scene: a bookshelf, a chair and a table."
+                   data-alt-depth="Ground-truth depth of the test scene.">
+              <figcaption>Ground truth</figcaption>
+            </figure>
+          </div>
         </div>
         <noscript>
           <div class="mars-demo__pair">
@@ -536,9 +794,6 @@
                  alt="Reflectivity recovered by the MaRS-trained network: close to ground truth.">
           </div>
         </noscript>
-        <figcaption class="mars-demo__note mars-compare__note"
-                    data-depth="Test-set RMSE, SBR 0.6.">Test-set PSNR, SBR
-          0.6.</figcaption>
       </figure>
     </article>
   </div>
@@ -633,8 +888,7 @@
   year      = {2026}
 }</pre>
     </div>
-    <p class="mars-closing__note">Provisional entry — page numbers and the
-      exact proceedings title are pending ECCV camera-ready.</p>
+    <p class="mars-closing__note">Provisional entry — pending ECCV camera-ready.</p>
 
     <hr class="mars-closing__rule">
 

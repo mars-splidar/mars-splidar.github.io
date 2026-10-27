@@ -18,11 +18,11 @@ vanilla-JS modules. No build step, no framework, no bundler.
   and stops it silently dropping any path beginning with `_`.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
-Three pages (v2, `v2.0`, 2026-10-23):
+Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The lean main page: the hero teaser, *In short* + four gains, two result demos, the film inline, BibTeX |
+| `index.html` | The lean main page: the paper's Fig. 1 question, the hero teaser, the cube slicer (v2.1), *In short* + four gains, two result demos, the film inline, BibTeX |
 | `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
 | `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
 
@@ -536,3 +536,15 @@ Each build stage appends one line here.
   a 400 px slider beside a side panel (toggle, test-set numbers, ground truth);
   Demo 2's chart about 376 px tall. In short and the BibTeX note trimmed: prose
   419/420. Review pack: `build_instructions/review/v21D/`.
+- **Stage v2.1-E — independent review, merge and launch (2026-10-27),
+  `v2.1`.** A session that built none of v2.1 re-measured it: the twelve
+  non-negotiables per page (Fig. 1's burned-in text, the teaser labels, both
+  guiding sentences, the slicer, the trimmed In short, the share card); a
+  number-provenance table for `/`; the slicer's readouts recomputed from
+  `assets/data/slicer/` with independent code (four presets, three pools, and
+  six further pixels incl. border and corners: all match); the teaser stepped
+  every 0.5 s in all four encodes; all nine gates; Chrome and Firefox at
+  twelve widths on both pages; Lighthouse mobile and desktop. No rule
+  violation and no defect needing a fix. `v2.1` was merged into `main`
+  (`--no-ff`) and tagged `v2.1`. Review pack and the author's v2.1 phone
+  checklist: `build_instructions/review/v21E/`.

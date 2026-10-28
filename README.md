@@ -103,8 +103,9 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.7's limits since v2.2-A — visible words ≤ 520 (420 from v2.1-A, 350
-before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
+§0.7's limits since v2.2-A — visible words ≤ 612 since v2.2-C, pinned at
+that stage's measured total by the author (520 from v2.2-A, 420 from v2.1-A,
+350 before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
 before), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
 non-zero on a breach. Its docstring defines exactly what counts as a word and
@@ -114,7 +115,9 @@ separately as "UI words" and is not held against the 420; it also checks the
 cube slicer's title, guiding text and media slot. Since v2.2-B text inside a
 `.mars-schematic` element (the Efficiency diagram's SVG labels) is reported
 the same way, once per SVG, and `#demo-efficiency` may hold its three-sentence,
-38-word lead (the limit is pinned at that approved length). `details_move_diff.py` extracts each of the seven bands,
+38-word lead (the limit is pinned at that approved length). Since v2.2-C
+`#demo-downstream` may hold three sentences and `#demo-ablation` two (the
+stage doc's verbatim leads). `details_move_diff.py` extracts each of the seven bands,
 banner comment included, from `git show v1.0-launch:index.html` and from
 `details/index.html`, undoes the `../` path prefix and diffs them; the only
 allowed difference is the Simulator card's demo-lab link.
@@ -229,7 +232,9 @@ js/site.config.js       EVERY external URL, in one object (resolved against
 js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
 js/mars-main.js         main page only: teaser, video poster, BibTeX copy
-js/mars-compare.js      main page only: Demo 3 before/after slider (stage 09)
+js/mars-compare.js      main page only: Downstream before/after slider (stage 09),
+                        hold to see ground truth on phones (v2.2-C)
+js/mars-ablation.js     main page only: the count-model ablation's chart and tiles (v2.2-C)
 js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
 js/mars-efficiency.js   main page only: the Efficiency schematic's animation (v2.2-B)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
@@ -576,3 +581,17 @@ Each build stage appends one line here.
   phrase and "At fixed S and B", all checked by `audit_claims.py`. Smallest
   text 12.5 px at the 960 px column, 12.5 px at 375. CLS 0. Prose 502/520,
   media 7/9. Review pack: `build_instructions/review/v22B/`.
+- **Stage v2.2-C — Downstream and the count-model ablation (2026-10-28).**
+  On branch `v2.2-dev`, not pushed. `#demo-downstream` is now *Ignoring dead
+  time biases downstream networks*: the Poisson-trained vs MaRS-trained slider
+  and the ground truth as two equal squares, the test-set numbers as chips on
+  the image corners, and on phones a *Hold to see ground truth* button
+  (pointer, touch, Space / Enter; a screen reader's click toggles it). New
+  `#demo-ablation`, *Why an accurate count model matters*: a dumbbell chart
+  (val vs test for the Renewal, Zhang et al. and MaRS count models, drawn by
+  `js/mars-ablation.js` from a visually hidden table) and four tiles, with
+  the footnote that there is no separate Renewal or Zhang et al. simulator.
+  `audit_claims.py` checks the table, captions and chips against
+  PROJECT_BRIEF §3.5 and requires the footnote. Prose 612/612 (limit pinned
+  by the author), media 8/9. CLS 0. Review pack:
+  `build_instructions/review/v22C/`.

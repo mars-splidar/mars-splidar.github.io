@@ -20,15 +20,21 @@
  * small per-realization jitter, different for the two simulators, so no two
  * realizations are pixel-identical.
  *
- * The markup holds both layouts (two SVGs, the site's 600/601 query pair) and
- * all of their text; this script draws the grids, the photon strip, the
- * table cells and the PDF into each from its data-* geometry.
+ * The markup holds both layouts (two SVGs) and all of their text; this script
+ * draws the grids, the photon strip, the table cells and the PDF into each
+ * from its data-* geometry. Which layout is shown follows ONE media query,
+ * the figure's data-eff-stack (v2.2-P: "(max-width: 971px)", the stacked
+ * layout up to where the wide one's labels reach 12 px); css/mars.css uses
+ * the same query. Until v2.2-P it was the site's 600/601 pair.
  *
  * HYGIENE. One requestAnimationFrame loop, and only while it has work: the
  * figure is on screen (IntersectionObserver), the tab is visible and motion
  * is allowed. Otherwise no frame is scheduled at all. The clock advances only
  * while running (a resume continues where it stopped; a long frame is clamped
- * to 0.1 s). Only the SVG that is shown is updated, and only attributes whose
+ * to 0.1 s). v2.2-P: it DRAWS at most 30 frames a second. Every rAF tick
+ * still advances the clock by real time, so the loop's length and motion are
+ * unchanged; the ticks in between draw nothing (half the style and layout
+ * work on a 60 Hz screen). Only the SVG that is shown is updated, and only attributes whose
  * value changed are written; nothing is read back from layout.
  * prefers-reduced-motion: the end state is drawn once (step 3 done, the PDF
  * at τ, the strip fully swept, the gold grids part filled) and no frame is
@@ -45,7 +51,8 @@
   var LOOP = 11, SWEEP = 2.6, GOLD_RATE = 12;
   var T1 = 0.6, T2 = 3.2, T3 = 5.6, T4 = 10.2, SLIDE = 1.6, FADE = 0.25;
   var STATIC_T = 8.6;                       // the reduced-motion frame
-  var PHONE = "(max-width: 600px)";         // the site's breakpoint
+  var STACK = fig.getAttribute("data-eff-stack") || "(max-width: 600px)";
+  var FRAME_MS = 1000 / 30;                 // v2.2-P: at most 30 drawn frames/s
 
   var C_EMPTY = "#eef0ee", C_GOLD = "#CFB991", C_DROP = "#c8c8c8",
       C_AGED = "#8E6F3E";
@@ -243,7 +250,7 @@
     wide: new Layout(fig.querySelector(".mars-eff__svg.is-wide")),
     tall: new Layout(fig.querySelector(".mars-eff__svg.is-tall"))
   };
-  var mq = window.matchMedia(PHONE);
+  var mq = window.matchMedia(STACK);
   function active() { return mq.matches ? layouts.tall : layouts.wide; }
 
   var reduce = window.matchMedia &&
@@ -256,20 +263,26 @@
     return;                                  // never a frame requested
   }
 
-  var t = 0, prev = null, raf = 0, onScreen = false;
+  var t = 0, prev = null, lastDraw = null, raf = 0, onScreen = false;
   active().render(0, false);
 
   function frame(now) {
     raf = 0;
     if (prev !== null) t = (t + Math.min(0.1, (now - prev) / 1000)) % LOOP;
     prev = now;
-    active().render(t, false);
+    /* draw on every other tick at 60 Hz (every 4th at 120 Hz); the 1 ms
+       slack absorbs vsync jitter, and a late frame does not shift the grid */
+    var since = lastDraw === null ? Infinity : now - lastDraw;
+    if (since >= FRAME_MS - 1) {
+      lastDraw = since > 2 * FRAME_MS ? now : lastDraw + FRAME_MS;
+      active().render(t, false);
+    }
     if (running()) raf = requestAnimationFrame(frame);
   }
   function running() { return onScreen && !document.hidden; }
   function update() {
     if (running()) {
-      if (!raf) { prev = null; raf = requestAnimationFrame(frame); }
+      if (!raf) { prev = null; lastDraw = null; raf = requestAnimationFrame(frame); }
       fig.setAttribute("data-eff-state", "running");
     } else {
       if (raf) { cancelAnimationFrame(raf); raf = 0; }

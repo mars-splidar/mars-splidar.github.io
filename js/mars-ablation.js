@@ -18,7 +18,12 @@
  * NARROW below, so drawing it shifts nothing. The layout switches on the
  * site's breakpoint, (max-width: 600px), the same query as the CSS. Hollow
  * circle = val, filled = test, joined by a line in the row colour (renewal
- * --red, Zhang et al. --blue, MaRS --green; MaRS's name bold). Value labels:
+ * --red, Zhang et al. --blue, MaRS --green; MaRS's name bold). v2.2-P: the
+ * hollow val ring is drawn ABOVE the filled test dot, with a white hairline
+ * just inside it, so a pair that nearly coincides (Zhang et al. 22.74 /
+ * 22.54 dB, MaRS 24.03 / 24.25 dB) reads as a ring around a dot instead of
+ * one dot hiding the other. A white disk under the dot keeps the line out of
+ * the ring; a pair far apart (Renewal) looks exactly as before. Value labels:
  * val on the outer side of its dot, test on the inner side, so the two of a
  * row never collide. Colours are read from the CSS tokens.
  *
@@ -43,7 +48,7 @@
   };
   /* geometry, per layout. css/mars.css reserves TOP + 3 * ROW_H + FOOT. */
   var WIDE = { top: 14, row: 42, foot: 44, label: 190, right: 64, name: 14, val: 13 };
-  var NARROW = { top: 14, row: 40, foot: 44, label: 122, right: 50, name: 12.5, val: 12 };
+  var NARROW = { top: 14, row: 34, foot: 44, label: 122, right: 50, name: 12.5, val: 12 };   // v2.2-P: row 34 (was 40)
 
   function el(tag, attrs, parent, text) {
     var e = document.createElementNS(NS, tag);
@@ -122,8 +127,11 @@
                      "font-weight": r.bold ? 700 : 500, "class": "mars-abl__name" }, svg, r.name);
         el("line", { x1: X(v), y1: y, x2: X(t), y2: y, stroke: c,
                      "stroke-width": 2.5, "stroke-opacity": 0.85 }, svg);
-        el("circle", { cx: X(v), cy: y, r: 7, fill: "#fff", stroke: c, "stroke-width": 2.5 }, svg);
+        el("circle", { cx: X(v), cy: y, r: 7, fill: "#fff" }, svg);
         el("circle", { cx: X(t), cy: y, r: 7, fill: c }, svg);
+        el("circle", { cx: X(v), cy: y, r: 5, fill: "none", stroke: "#fff", "stroke-width": 1.5 }, svg);
+        el("circle", { cx: X(v), cy: y, r: 7, fill: "none", stroke: c, "stroke-width": 2.5,
+                       "class": "mars-abl__ring" }, svg);
         /* val on the outer side, test on the inner side */
         var valLeft = v <= t;
         el("text", { x: X(v) + (valLeft ? -12 : 12), y: y + 4.5, "font-size": G.val,

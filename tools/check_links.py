@@ -69,6 +69,13 @@ BY_PATH_MAIN = [
     "assets/img/fig1_context_infer.png",
     "assets/img/fig1_context_infer.webp",
     "assets/img/fig1_context_infer_600.webp",
+    # v2.2-P: the tight inference crop phones show (the three above stay in
+    # the repo, unreferenced, until v2.2-D retires them)
+    "assets/img/fig1_context_infer_tight.png",
+    "assets/img/fig1_context_infer_tight.webp",
+    "assets/img/fig1_context_infer_tight_600.webp",
+    # v2.2-P: Demo 2's phone chart, inlined like the desktop one
+    "assets/img/demo_count_phone.svg",
 ]
 
 

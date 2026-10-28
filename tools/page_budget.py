@@ -14,7 +14,8 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
 420 words, at most 6 media items; since stage v2.2-A those of guide 0.7 —
 520 words, at most 9 media items), and exactly how each is measured:
 
-  1. VISIBLE WORDS <= 612, pinned at v2.2-C's measured total (350 until v2.1-A, 420 until
+  1. VISIBLE WORDS <= 600, re-pinned by v2.2-P at the measured total once Demo 2's 12 chart
+     words became schematic text (612 at v2.2-C's pin; 350 until v2.1-A, 420 until
      v2.2-A, 520 until v2.2-C; 580 was the planned v2.2-C limit), excluding the nav, the BibTeX
      code block and the funding line. "Visible" means what a sighted reader sees on the built
      page, so these are also EXCLUDED: anything inside an element with the
@@ -48,7 +49,8 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      `mars-schematic` (the Efficiency diagram's SVG labels and captions)
      counts like `.mars-ui`: reported, not counted against the prose budget.
      It is reported per schematic, because the module ships one SVG per
-     breakpoint and only one of them is ever shown.
+     breakpoint and only one of them is ever shown. v2.2-P: Demo 2's chart
+     joined it (two wrappers, desktop and phone, 12 words each).
      A WORD is a whitespace-separated token containing at least one letter or
      digit. So "—", "·", "→" and "↓" are not words; a hyphenated or
      ×-joined compound ("single-photon", "128×128×1024") is one word; "40×"
@@ -118,7 +120,12 @@ REPO = Path(__file__).resolve().parent.parent
 # the author's choice of 2026-10-28, like v2.2-B's 38-word pin: the planning
 # raise to 580 assumed ~60 new words, and the approved Downstream + ablation
 # copy is +110 net. Nothing on `/` can grow without a new decision.
-WORD_LIMIT = 612        # v2.2-C pin; 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
+# v2.2-P: RE-PINNED at 600. Demo 2's chart words (12: Renewal, Zhang et al.,
+# MaRS, Gold standard, Poisson, Registered photon count, Probability) moved
+# into .mars-schematic wrappers, by the 2026-10-28 rule (WEBSITE_BUILD_STATUS
+# 2, "Budget pinned at 612"): moving words out re-pins the limit at the new
+# measured total, so it never creates room for new copy.
+WORD_LIMIT = 600        # v2.2-P re-pin; 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
 MEDIA_ITEMS = 9         # guide 0.7 (v2.2-A): at most 9; 6 from v2.1-A, exactly 4 before
 SWITCH_MAX = 0
 EQ_MAX = 0
@@ -324,7 +331,8 @@ def main() -> int:
         print("            " + " ".join(w for w in ui_words))
     for n in sch_nodes:
         w = words(text_of(n, ui_only=True))
-        cls = " ".join(c for c in n.classes if c.startswith("is-")) or n.tag
+        cls = (" ".join(c for c in n.classes if c.startswith("is-"))
+               or next((c for c in n.classes if c != "mars-schematic"), n.tag))
         print(f"      schematic words in .mars-schematic {n.tag}.{cls} "
               f"(reported, not counted): {len(w)}")
     check(total <= WORD_LIMIT, "visible PROSE words (nav, BibTeX code, funding, .mars-ui, .mars-schematic excluded)",

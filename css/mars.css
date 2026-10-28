@@ -1542,7 +1542,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   height: auto;
 }
 .mars-context__main { aspect-ratio: 1920 / 496; }
-.mars-context__infer { aspect-ratio: 1200 / 724; }
+.mars-context__infer { aspect-ratio: 1200 / 799; }   /* v2.2-P: the tight crop (was 1200 / 724) */
 .mars-context__more { margin-top: 0.75rem; }
 @media (max-width: 600px) {
   .mars-context__main { aspect-ratio: 1200 / 477; }
@@ -1604,16 +1604,25 @@ img, video { max-width: 100%; height: auto; display: block; }
   background: var(--paper);
   padding: 0.5rem 0 0.25rem;
 }
-.mars-count {
+.mars-count,
+.mars-count-ph {
   display: block;
   width: 100%;
   height: auto;
   overflow: visible;
 }
+/* v2.2-P (T5): the phone chart, its own 340 x 240-unit SVG (>= 200 px tall,
+   13 px text at 375), shown on the site's exact 600/601 query pair. */
+.mars-count-fig__phone { display: none; }
+@media (max-width: 600px) {
+  .mars-count-fig__wide { display: none; }
+  .mars-count-fig__phone { display: block; }
+}
 
 /* ---- Efficiency: the schematic (stage v2.2-B, js/mars-efficiency.js) -----
-   Two inline SVGs inside one frame, one per breakpoint, on the site's exact
-   600/601 query pair (a zoomed 600.5 px viewport shows exactly one). Each
+   Two inline SVGs inside one frame, one per breakpoint, on an exact query
+   pair (a zoomed viewport between the two widths shows exactly one): 600/601
+   until v2.2-P, 971/972 since (below). Each
    has a fixed aspect ratio, so the frame's height is reserved before the
    script runs. Sizes are in SVG units: the wide viewBox is 940 units across
    the frame's 938 px at the 960 px column, the phone one 340 units across
@@ -1635,11 +1644,20 @@ img, video { max-width: 100%; height: auto; display: block; }
   overflow: visible;
 }
 .mars-eff__svg.is-wide { aspect-ratio: 940 / 568; }
-.mars-eff__svg.is-tall { aspect-ratio: 340 / 1116; }
-@media not all and (max-width: 600px) { .mars-eff__svg.is-wide { display: block; } }
+.mars-eff__svg.is-tall { aspect-ratio: 340 / 914; }   /* v2.2-P: was 340 / 1116 */
+/* v2.2-P (T4): the stacked SVG serves every width up to 971 px, where the
+   wide one's smallest label would render under 12 px (7.3 px at 601; 12.0
+   at 955 without a classic scrollbar, at 972 with a 17 px one). The query
+   is the figure's data-eff-stack, which js/mars-efficiency.js reads: keep
+   the two in step. Tablets draw it at most 480 px wide, centred; phones at
+   most 340 px (1 unit = 1 px), so its height stops growing with the phone. */
+@media not all and (max-width: 971px) { .mars-eff__svg.is-wide { display: block; } }
+@media (max-width: 971px) {
+  .mars-eff__svg.is-tall { display: block; max-width: 480px; margin: 0 auto; }
+}
 @media (max-width: 600px) {
-  .mars-eff__svg.is-tall { display: block; }
-  .mars-eff__frame { padding: 14px 0 12px; }
+  .mars-eff__svg.is-tall { max-width: 340px; }
+  .mars-eff__frame { padding: 12px 0 10px; }   /* v2.2-P: was 14px 0 12px */
 }
 .mars-eff text { font-family: var(--font-body); fill: var(--dark); }
 .mars-eff .mars-eff__h { font-family: var(--font-head); font-weight: 600; font-size: 17px; }
@@ -1850,7 +1868,8 @@ img, video { max-width: 100%; height: auto; display: block; }
    One toggle drives the dumbbell chart and the four tiles. The chart's SVG
    is drawn at its own CSS width (1 unit = 1 px); its height is reserved
    here from the script's constants: 14 + 3 x 42 + 44 = 184 px, phones
-   14 + 3 x 40 + 44 = 178 px, so nothing shifts when it draws. Chart text
+   14 + 3 x 34 + 44 = 160 px (v2.2-P; was 3 x 40 = 178), so nothing shifts
+   when it draws. Chart text
    is --grey / --dark / the row colours on white: 6.9:1, 16.5:1, red 6.0:1,
    blue 5.5:1, green 5.4:1 (SVG fill, which the contrast pass does not read).
    Tiles: four equal squares, 2 x 2 on phones. */
@@ -1917,7 +1936,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-abl__note { margin-top: 0.75rem; }
 @media (max-width: 600px) {
   .mars-abl__card { padding: 12px 12px 10px; }
-  .mars-abl__chart { height: 178px; }
+  .mars-abl__chart { height: 160px; }   /* v2.2-P: was 178 */
   .mars-abl__tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -2225,6 +2244,108 @@ img, video { max-width: 100%; height: auto; display: block; }
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
+
+/* --------------------------------------------------------------------------
+   THE PHONE PASS (stage v2.2-P) — `/` at <= 600 px only.
+   The approved mock is build_instructions/review/concepts/v22/
+   phone_polish_mock.html ("Polished", author 2026-10-28). Its body.pol rules
+   are the source of the values below; the modules under the mock (Accuracy,
+   Efficiency, Downstream, Ablation, film, Go deeper, BibTeX) take the same
+   scale. Every rule is scoped to body.mars-home, so /details/ (which shares
+   this file) is untouched, and to the site's phone query, so nothing at
+   601 px and up changes. No copy changes here: the teaser descriptors are
+   VISUALLY hidden, still read by screen readers and still counted by
+   tools/page_budget.py.
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  /* Type: leads and the In short paragraph 16 px / 1.55 (were 18 / 1.62);
+     section titles 22 px (the demo titles were already 22 at this width). */
+  .mars-home .mars-demo__sentence,
+  .mars-home .mars-section__lede { font-size: 1rem; line-height: 1.55; }
+  .mars-home .mars-demo__sentence { margin-bottom: 1rem; }
+  .mars-home .mars-section__title,
+  .mars-home .mars-closing__title { font-size: 1.375rem; }
+  .mars-home .mars-eyebrow { line-height: 1.3; }   /* the mock's `normal` (was 1.62) */
+
+  /* Band padding 1.6rem (In short 1.8rem). The hero keeps its 36 px under
+     the teaser's guide (the gap to the slicer, whose band has no top
+     padding); the button row keeps its 1rem to the teaser (the mock's 51 px
+     there comes from its blanket band rule, not from a decision). */
+  .mars-home .mars-hero__inner { padding-top: 1.6rem; }
+  .mars-home .mars-slicer-band > .mars-band__inner,
+  .mars-home #results > .mars-band__inner,
+  .mars-home #video > .mars-band__inner,
+  .mars-home #deeper > .mars-band__inner,
+  .mars-home #bibtex > .mars-band__inner { padding-bottom: 1.6rem; }
+  .mars-home #results > .mars-band__inner,
+  .mars-home #video > .mars-band__inner,
+  .mars-home #deeper > .mars-band__inner,
+  .mars-home #bibtex > .mars-band__inner { padding-top: 1.6rem; }
+  .mars-home .mars-inshort-band > .mars-band__inner { padding-top: 1.8rem; padding-bottom: 1.8rem; }
+  .mars-home .mars-demo + .mars-demo { margin-top: 1.6rem; padding-top: 1.6rem; }
+
+  /* Hero (T1). The title's column-filling size is untouched. */
+  .mars-home .mars-hero__subhead { font-size: 1rem; margin-bottom: 0.8rem; }
+  .mars-home .mars-hero__authors { font-size: 0.9375rem; }
+  .mars-home .mars-hero__affil { font-size: 0.8125rem; }
+  .mars-home .mars-hero__buttons .mars-btn { font-size: 0.8125rem; padding: 0.36rem 0.7rem; }
+  .mars-home .mars-hero__soon { font-size: 0.8125rem; }
+  /* The empty row's reservation (stage 10's CLS rule), re-measured for these
+     buttons at every width 300-600 in Chrome on Poppins (review/v22P/
+     measurements.txt). Built heights: 62.8 px at 493-600 (one row of
+     buttons, "Code coming soon" under it); 76.3 at 356-492; 104.5 at 355
+     and below. Each breakpoint sits 4 px inside its wrap point, so the
+     reservation is never above the built row. 601-672 keeps v2.2-A's 67.9. */
+  .mars-home .mars-hero__buttons:empty { min-height: 62.7px; }
+
+  /* Teaser (T2): name + time only. The descriptors stay in the DOM. */
+  .mars-home .mars-teaser__col dt,
+  .mars-home .mars-teaser__col dd { font-size: 0.8125rem; }
+  .mars-home .mars-teaser__desc {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .mars-home .mars-teaser__workload { font-size: 0.75rem; }   /* the mock's 11 px is under the 12 px floor */
+  .mars-home .mars-teaser__tagline { font-size: 0.9375rem; }
+  .mars-home .mars-teaser__guide { font-size: 0.875rem; line-height: 1.5; }
+
+  /* Fig. 1 card (T3): 10 px inside the card, the inference crop at 68 %
+     of it, centred, 12 px under the acquisition crop; caption 13 px. */
+  .mars-home .mars-context { padding: 10px; }
+  .mars-home .mars-context__caption { padding: 0; font-size: 0.8125rem; }
+  .mars-home .mars-context__more { width: 68%; margin: 12px auto 0; }
+
+  /* Buttons inside the modules take the hero buttons' scale (T6, T7). */
+  .mars-home .mars-slicer__chip,
+  .mars-home .mars-slicer__seg button,
+  .mars-home .mars-compare__mode,
+  .mars-home .mars-compare__hold {
+    min-height: 0;
+    padding: 0.36rem 0.7rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Captions under the figures: 13 px as before, line-height 1.45 (was
+     1.62). Toggles: 0.6rem above the figure (was 0.85). The ablation (T6):
+     a tighter chart card, legend and tile grid, 13 px tile captions. */
+  .mars-home .mars-demo__note { line-height: 1.45; }
+  .mars-home .mars-compare__toggle { margin-bottom: 0.6rem; }
+  .mars-home .mars-abl__card { padding: 10px 12px 8px; }
+  .mars-home .mars-abl__legend { gap: 0.2rem 1.25rem; line-height: 1.4; }
+  .mars-home .mars-abl__tiles { gap: 10px; margin-top: 12px; }
+  .mars-home .mars-abl__cap { margin-top: 0.3rem; font-size: 0.8125rem; line-height: 1.3; }
+  .mars-home .mars-abl__note { margin-top: 0.6rem; }
+
+  /* Demo 2's caption: its subscript d was 10.8 px (the default `smaller`). */
+  .mars-home .mars-demo__note sub { font-size: 0.75rem; }
+}
+@media (max-width: 488px) { .mars-home .mars-hero__buttons:empty { min-height: 76.2px; } }
+@media (max-width: 351px) { .mars-home .mars-hero__buttons:empty { min-height: 104.5px; } }
 
 /* --------------------------------------------------------------------------
    Reduced motion — suppress every autoplay and transition

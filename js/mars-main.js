@@ -36,6 +36,15 @@
  *     1500 px away, so they are in place before the block is reached.
  *     Save-Data or prefers-reduced-data: the stills only, plus a button that
  *     loads the module on request.
+ *
+ *  5. FIG. 1 IN THE IN SHORT BAND (stage v2.2-A). Below the first screen
+ *     now, so it ships as data-srcset / data-src and is promoted by the same
+ *     rule as the slicer's stills: within 1500 px once the reader has
+ *     scrolled, or as soon as it is on screen (a tall window). A cold load
+ *     at the top of the page fetches none of it. Native loading="lazy" would
+ *     not do: Chrome fetches lazy images 1250-2500 px ahead of the viewport.
+ *     Save-Data does not hold it back: it is a 27-87 KB still, and the band's
+ *     one picture.
  */
 (function () {
   "use strict";
@@ -282,10 +291,61 @@
     }
   }
 
+  /* ---------------- 5. Fig. 1 context (lazy) ---------------- */
+
+  function initContext() {
+    var fig = document.getElementById("mars-context");
+    if (!fig) return;
+    var done = false, ticking = false, io = null;
+
+    function promote() {
+      if (done) return;
+      done = true;
+      window.removeEventListener("scroll", onScroll);
+      if (io) io.disconnect();
+      /* Sources first, then the <img>: a <source> gaining srcset makes the
+         <picture> re-select, and the <img>'s own src is only the fallback. */
+      Array.prototype.slice.call(fig.querySelectorAll("source[data-srcset]"))
+        .forEach(function (el) {
+          el.srcset = el.getAttribute("data-srcset");
+          el.removeAttribute("data-srcset");
+        });
+      Array.prototype.slice.call(fig.querySelectorAll("img[data-src]"))
+        .forEach(function (el) {
+          el.src = el.getAttribute("data-src");
+          el.removeAttribute("data-src");
+        });
+    }
+
+    function near(margin) {
+      var r = fig.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      return r.top < vh + margin && r.bottom > -margin;
+    }
+    function check() {
+      ticking = false;
+      if (near(1500)) promote();
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; window.requestAnimationFrame(check); }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if ("IntersectionObserver" in window) {
+      io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) promote(); });
+      }, { threshold: 0 });
+      io.observe(fig);
+    } else {
+      promote();
+    }
+  }
+
   ready(function () {
     initTeaser();
     initVideo();
     initCopy();
     initSlicer();
+    initContext();
   });
 })();

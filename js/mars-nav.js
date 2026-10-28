@@ -2,10 +2,12 @@
  * plus the button row rendered from window.MARS_CONFIG so that a null URL can
  * never become a dead link.
  *
- * THE NULL RULE (stage_01_foundation.md 3.2): a null URL renders as a
- * NON-CLICKABLE <span> pill with " · soon" appended. Rendering a <span> rather
- * than a styled <a href="#"> is deliberate — there is nothing to click, nothing
- * to focus, and nothing for tools/audit_claims.py's href="#" grep to find.
+ * THE NULL RULE (stage_01_foundation.md 3.2): a null URL never becomes a
+ * link. Since v2.2-A it renders as plain text, "<Label> coming soon", after
+ * the buttons (it was a non-clickable <span> pill with " · soon"). Plain text
+ * rather than a styled <a href="#"> is deliberate — there is nothing to
+ * click, nothing to focus, and nothing for tools/audit_claims.py's href="#"
+ * grep to find.
  */
 (function () {
   "use strict";
@@ -97,101 +99,126 @@
   /* ---------------- hero button row ---------------- */
 
   /* Each entry: label, the config key holding its URL, and how to behave when
-   * that URL is present. `kind` "link" navigates, "lightbox" renders a
-   * [data-mars-lightbox] button (v1's lightbox script that handled it was
-   * deleted in stage 09), "anchor" is an in-page jump that always exists.
+   * that URL is present. `kind` "link" navigates, "anchor" is an in-page jump
+   * that always exists.
    *
-   * STAGE 07 (v2): `Video` is now an "anchor" to the inline #video band
-   * (guide 0.3). The "lightbox" kind below is kept, unused; bringing the
-   * lightbox back would also mean restoring its script and CSS from git
-   * history (removed in stage 09, decision of 2026-10-23). */
+   * STAGE 07 (v2): `Video` is an "anchor" to the inline #video band
+   * (guide 0.3). v1's "lightbox" kind went with its script in stage 09.
+   *
+   * STAGE v2.2-A ("Compact" hero, guide 0.7): smaller buttons, each with a
+   * 16 px stroke icon drawn from ICONS below (aria-hidden, not focusable; the
+   * label is the accessible name). THE NULL RULE, restated: a null URL
+   * renders NOTHING clickable. It is no longer a dashed `· soon` pill but
+   * plain grey text, "<Label> coming soon", in its own <li> AFTER the real
+   * buttons, so the row reads as five buttons and a note. It is a text node
+   * in an <li>: not a link, not a button, not focusable. When the URL is set,
+   * the same entry renders as an ordinary button in its own slot. */
   var BUTTONS = [
-    { label: "Paper",   key: "paperPdf",  kind: "link",     newTab: true,
-      primaryWhenReady: true },
-    { label: "arXiv",   key: "arxivUrl",  kind: "link",     newTab: true },
-    { label: "Code",    key: "codeUrl",   kind: "link",     newTab: true },
-    { label: "Video",   kind: "anchor", href: "#video" },
-    { label: "Poster",  key: "posterPdf", kind: "link",     newTab: true },
-    { label: "BibTeX ↓", kind: "anchor", href: "#bibtex" }
+    { label: "Paper",   key: "paperPdf",  kind: "link",   icon: "paper",
+      newTab: true, primaryWhenReady: true },
+    { label: "arXiv",   key: "arxivUrl",  kind: "link",   icon: "arxiv",
+      newTab: true },
+    { label: "Code",    key: "codeUrl",   kind: "link",   icon: "code",
+      newTab: true },
+    { label: "Video",   kind: "anchor", href: "#video",   icon: "video" },
+    { label: "Poster",  key: "posterPdf", kind: "link",   icon: "poster",
+      newTab: true },
+    { label: "BibTeX",  kind: "anchor", href: "#bibtex",  icon: "bibtex" }
   ];
 
-  function soonPill(label) {
-    var span = document.createElement("span");
-    span.className = "mars-btn is-soon";
-    span.setAttribute("aria-disabled", "true");
-    span.appendChild(document.createTextNode(label + " "));
-    var s = document.createElement("span");
-    s.className = "mars-btn__soon";
-    s.textContent = "· soon";
-    span.appendChild(s);
-    return span;
+  /* 24 x 24 stroke paths (the approved mock's, hero_refinements.html "2 ·
+     Compact"; Code is Tabler's outline "code", for the day codeUrl is set). */
+  var ICONS = {
+    paper:  ["M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z",
+             "M14 3v6h6"],
+    arxiv:  ["M5 19 12 5l7 14", "M8.5 13h7"],
+    code:   ["M7 8l-4 4l4 4", "M17 8l4 4l-4 4", "M14 4l-4 16"],
+    video:  ["M8 5v14l11-7z"],
+    poster: ["M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z",
+             "M4 15l5-5 4 4 3-3 4 4"],
+    bibtex: ["M8 4c-2 0-2 2-2 4s-1 4-3 4c2 0 3 2 3 4s0 4 2 4",
+             "M16 4c2 0 2 2 2 4s1 4 3 4c-2 0-3 2-3 4s0 4-2 4"]
+  };
+  var SVGNS = "http://www.w3.org/2000/svg";
+
+  function icon(name) {
+    var svg = document.createElementNS(SVGNS, "svg");
+    svg.setAttribute("class", "mars-btn__ico");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("width", "16");
+    svg.setAttribute("height", "16");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    (ICONS[name] || []).forEach(function (d) {
+      var path = document.createElementNS(SVGNS, "path");
+      path.setAttribute("d", d);
+      svg.appendChild(path);
+    });
+    return svg;
   }
 
-  function videoAvailable() {
-    if (cfg.videoMode === "youtube") return !!cfg.videoYoutubeId;
-    return !!cfg.videoSelfUrl;
+  function button(el, spec) {
+    el.appendChild(icon(spec.icon));
+    el.appendChild(document.createTextNode(spec.label));
+    return el;
   }
 
   function buildButtons() {
     var host = document.getElementById("mars-hero-buttons");
     if (!host) return;
     host.textContent = "";
+    var soon = [];
 
     BUTTONS.forEach(function (spec) {
-      var li = document.createElement("li");
-
       if (spec.kind === "anchor") {
         var a = document.createElement("a");
         a.className = "mars-btn is-outline";
         a.href = spec.href;
-        a.textContent = spec.label;
-        li.appendChild(a);
-        host.appendChild(li);
-        return;
-      }
-
-      if (spec.kind === "lightbox") {
-        if (!videoAvailable()) {
-          li.appendChild(soonPill(spec.label));
-        } else {
-          var btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "mars-btn is-outline";
-          btn.setAttribute("data-mars-lightbox", "video");
-          btn.textContent = spec.label;
-          li.appendChild(btn);
-        }
-        host.appendChild(li);
+        var li0 = document.createElement("li");
+        li0.appendChild(button(a, spec));
+        host.appendChild(li0);
         return;
       }
 
       var url = cfg[spec.key];
-      if (!url) {
-        li.appendChild(soonPill(spec.label));
-      } else {
-        var link = document.createElement("a");
-        link.className = "mars-btn " +
-          (spec.primaryWhenReady ? "is-primary" : "is-outline");
-        link.href = url;
-        if (spec.newTab) {
-          link.target = "_blank";
-          link.rel = "noopener";
-        }
-        link.textContent = spec.label;
-        li.appendChild(link);
+      if (!url) { soon.push(spec.label); return; }   /* the null rule */
+      var link = document.createElement("a");
+      link.className = "mars-btn " +
+        (spec.primaryWhenReady ? "is-primary" : "is-outline");
+      link.href = url;
+      if (spec.newTab) {
+        link.target = "_blank";
+        link.rel = "noopener";
       }
+      var li = document.createElement("li");
+      li.appendChild(button(link, spec));
       host.appendChild(li);
     });
 
-    /* Secondary full-resolution links.
-     *
-     * Both the paper and the poster ship as a compressed web copy behind the
-     * button plus an untouched original behind a link here, so nobody is
-     * forced to pull 25 MB over conference wifi to read the paper and nobody
-     * who wants the print-resolution file is denied it. A pair only appears
-     * when BOTH of its copies exist, so a half-configured pair can never
-     * become a dead link. */
-    var note = document.getElementById("mars-hero-note");
+    soon.forEach(function (label) {
+      var li = document.createElement("li");
+      li.className = "mars-hero__soon";
+      li.textContent = label + " coming soon";
+      host.appendChild(li);
+    });
+  }
+
+  /* Secondary full-resolution links.
+   *
+   * Both the paper and the poster ship as a compressed web copy behind the
+   * button plus an untouched original behind a link here, so nobody is
+   * forced to pull 25 MB over conference wifi to read the paper and nobody
+   * who wants the print-resolution file is denied it. A pair only appears
+   * when BOTH of its copies exist, so a half-configured pair can never
+   * become a dead link. Since v2.2-A the line sits in Go deeper
+   * (#mars-originals), not under the hero buttons (guide 0.7). */
+  function buildOriginals() {
+    var note = document.getElementById("mars-originals");
     if (!note) return;
 
     var pairs = [
@@ -260,6 +287,7 @@
   ready(function () {
     initNav();
     buildButtons();
+    buildOriginals();
     buildClosingLinks();
     applyConfigHrefs();
   });

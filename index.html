@@ -126,7 +126,7 @@
 <!-- js/mars-sections.js (the stub gate) is NOT loaded on this page since
      stage 07: every gate-able band moved to /details/, which loads it. -->
 </head>
-<body>
+<body class="mars-home">
 
 <a class="mars-skip" href="#main">Skip to content</a>
 
@@ -162,10 +162,12 @@
 <span id="top"></span>
 
 <!-- ======================================================================
-     HERO (guide 0.3 ①) — light PAPER. Title rules unchanged from v1
-     (guide 4.2 + stage 06's F3: the <h1> is visually hidden, never
-     display:none'd, at 600 px and below, where the two-line title shows —
-     v2.1-D; it was 467 px).
+     HERO (guide 0.3 ①, "Compact" since v2.2-A, guide 0.7) — light PAPER.
+     Title rules unchanged from v1 (guide 4.2 + stage 06's F3: the <h1> is
+     visually hidden, never display:none'd, at 600 px and below, where the
+     two-line title shows — v2.1-D; it was 467 px). v2.2-A tightens the
+     spacing and shrinks the buttons so the teaser and its label row sit on
+     the first 1280 x 800 screen, and moves Fig. 1 down into In short.
      ====================================================================== -->
 <section class="mars-band" aria-labelledby="hero-title">
   <div class="mars-band__inner mars-hero__inner">
@@ -192,8 +194,7 @@
       <span class="mars-hero__line2">Single-Photon LiDAR <span class="mars-hl">S</span>imulator</span>
     </p>
 
-    <p class="mars-hero__subhead">Accurate, efficient single-photon LiDAR
-      simulation — even under detector dead time.</p>
+    <p class="mars-hero__subhead">Accurate and efficient single-photon LiDAR simulation under detector dead time.</p>
 
     <p class="mars-hero__authors">
       <a href="https://orcid.org/0009-0001-8142-3421" target="_blank" rel="noopener">Weijian Zhang</a> ·
@@ -204,66 +205,12 @@
     </p>
     <p class="mars-hero__affil">Elmore Family School of ECE, Purdue University</p>
 
-    <!-- Built by js/mars-nav.js from window.MARS_CONFIG so a null URL renders
-         a non-clickable `· soon` pill instead of a dead link. Since v2 the
-         Video button is an in-page jump to #video, not a lightbox. -->
+    <!-- Built by js/mars-nav.js from window.MARS_CONFIG, each button with a
+         16 px icon (v2.2-A). A null URL renders no link at all: plain grey
+         text "<Label> coming soon" after the buttons (today: Code). Since v2
+         the Video button is an in-page jump to #video, not a lightbox. The
+         "Full-resolution originals" line moved to Go deeper in v2.2-A. -->
     <ul class="mars-hero__buttons" id="mars-hero-buttons"></ul>
-    <p class="mars-hero__note" id="mars-hero-note" hidden></p>
-
-    <!-- ==================================================================
-         THE QUESTION — stage v2.1-A (guide 0.6 item 2). The whole top half of
-         the paper's Fig. 1: the acquisition process, the 3-D photon timestamp
-         histogram, data-driven inference of reflectivity and depth, and "Can
-         we simulate this process? Fast and Precise?". The teaser right below
-         is the answer, and stands in for Fig. 1's own three static cubes.
-         Exported from the vector Fig1_teaser.pdf by
-         tools/build_fig1_question.py — re-run it, never edit the images. The
-         cube's red edges are pixels of a raster in the PDF, so they stay red
-         (author, 2026-10-26).
-
-         TWO PICTURES, ONE SLOT. Desktop (>= 601 px) shows the whole top half
-         from the first <picture>. Phones (<= 600 px) get two stacked crops so
-         the labels stay as large as they can: the first <picture> switches to
-         the acquisition panel, and the second shows the inference panel with
-         the question. On a desktop the second resolves to a 1 x 1 data: GIF
-         and is display:none, so it fetches nothing. Every <source> carries its
-         own width/height, so each crop reserves its box before it loads (no
-         layout shift). Not lazy: at 390 x 844, 412 x 823 and 1280 x 800 it
-         starts on the first screen (v2.1-A measurements.txt). But
-         fetchpriority="low", so it does not compete with the preloaded fonts:
-         on a phone the LCP is the title's "MaRS", which waits for Poppins
-         (Lighthouse mobile LCP 3.23 s without it, 2.78 s with it).
-         ================================================================== -->
-    <figure class="mars-question" data-media-slot="question">
-      <picture>
-        <source media="(max-width: 600px)" type="image/webp"
-                srcset="assets/img/fig1_question_acq_600.webp 600w,
-                        assets/img/fig1_question_acq.webp 1200w"
-                sizes="calc(100vw - 32px)" width="1200" height="477">
-        <source media="(max-width: 600px)"
-                srcset="assets/img/fig1_question_acq.png"
-                width="1200" height="477">
-        <source type="image/webp"
-                srcset="assets/img/fig1_question_960.webp 960w,
-                        assets/img/fig1_question.webp 1920w"
-                sizes="(max-width: 992px) calc(100vw - 32px), 960px"
-                width="1920" height="496">
-        <img src="assets/img/fig1_question.png" width="1920" height="496"
-             fetchpriority="low" decoding="async"
-             alt="The question, from the paper's Figure 1. Single-photon LiDAR data acquisition: a laser illuminates a scene, and a SPAD detector with TCSPC timing electronics records the returning photons as a 3-D photon timestamp histogram cube. Data-driven inference turns that cube into reflectivity and depth images. Beside it: Can we simulate this process? Fast and precise?">
-      </picture>
-      <picture class="mars-question__more">
-        <source media="not all and (max-width: 600px)"
-                srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                width="1" height="1">
-        <source type="image/webp"
-                srcset="assets/img/fig1_question_infer_600.webp 600w,
-                        assets/img/fig1_question_infer.webp 1200w"
-                sizes="calc(100vw - 32px)" width="1200" height="884">
-        <img src="assets/img/fig1_question_infer.png" width="1200" height="884"
-             fetchpriority="low" decoding="async" alt="">
-      </picture>
-    </figure>
 
     <!-- ==================================================================
          THE TEASER SLOT — Demo 1 (guide 0.3 ①, contract WEBSITE_BUILD_STATUS
@@ -339,8 +286,9 @@
            in Demo 2's caption, as the 75 ns simulation grid (#4). No machine
            is named: the files do not record one, so the 9700X is NOT this
            run's. 16.1 / 0.3 = 54x on this small cube — never set beside the
-           40x as one claim; the line says they are different runs. Trimmed
-           from 18 to 13 words by stage 09 for the word budget. -->
+           40x as one claim. Since v2.2-A the line no longer says "not the 40x
+           benchmark": with the gains strip gone, the only 40x on `/` is in In
+           short, three bands down, with its own 128x128x1024 workload. -->
       <div class="mars-teaser__labels" id="mars-teaser-labels">
         <dl class="mars-teaser__cols">
           <div class="mars-teaser__col">
@@ -356,19 +304,16 @@
             <dd>correct and fast · <strong>0.3 s</strong></dd>
           </div>
         </dl>
-        <p class="mars-teaser__workload">Seconds per
-          128&times;128&times;256-bin cube, 100 laser cycles (paper Fig. 1)
-          — not the 40&times; benchmark.</p>
+        <p class="mars-teaser__workload">Seconds per 128&times;128&times;256-bin cube, 100 laser cycles (paper Fig. 1).</p>
       </div>
 
-      <!-- The guiding sentence (v2.1-D; guide 0.6 item 3, in the stage doc's
-           wording): the teaser's one message is HOW MANY photons; the slicer
-           below carries WHEN. "Alike", never "the same photons": the cubes are
-           independent realizations (3.7 honesty rule 2). Inside the
+      <!-- Tagline and guiding sentence, verbatim from guide 0.7 (v2.2-A). The
+           teaser's one message is HOW MANY photons; the slicer below carries
+           WHEN. "Their dimmer cubes match", never "the same photons": the
+           cubes are independent realizations (3.7 honesty rule 2). Inside the
            figcaption so the figure keeps one caption; regular weight. -->
-      <figcaption class="mars-teaser__tagline">Physically correct
-        single-photon LiDAR histograms, at Poisson speed.
-        <span class="mars-teaser__guide">Watch the slab: Poisson stays bright everywhere; the gold standard and MaRS lose photons to dead time alike.</span></figcaption>
+      <figcaption class="mars-teaser__tagline">MaRS: an accurate and fast single-photon LiDAR simulator.
+        <span class="mars-teaser__guide">Poisson ignores dead time and keeps every photon, so its cube looks brighter. The gold standard and MaRS both account for the photons lost to dead time, and their dimmer cubes match.</span></figcaption>
     </figure>
   </div>
 </section>
@@ -402,17 +347,17 @@
      teaser's), readout and footnote are prose and counted — 420/420 with
      them; control labels, the legend and the status line sit in .mars-ui
      and are reported separately by tools/page_budget.py.
-     The guiding text is the approved two-sentence wording of guide 0.6
-     item 3, verbatim, so this is not an article.mars-demo (whose gate wants
-     exactly one sentence); page_budget.py checks the slicer on its own.
+     The guiding text is guide 0.7's three-sentence wording, verbatim
+     (v2.2-A; it was guide 0.6 item 3's two sentences), so this is not an
+     article.mars-demo (whose gate wants exactly one sentence);
+     page_budget.py checks the slicer on its own. The eyebrow is the
+     approved mock's sentence-case "Cube slicer" (v2.2-A).
      ====================================================================== -->
 <section class="mars-band mars-slicer-band" id="slicer" aria-labelledby="slicer-title">
   <div class="mars-band__inner">
-    <p class="mars-eyebrow is-neutral">Cube slicer · Visualize dead-time effects</p>
+    <p class="mars-eyebrow is-neutral">Cube slicer</p>
     <h2 class="mars-demo__title" id="slicer-title">Look inside the three cubes</h2>
-    <p class="mars-demo__sentence mars-slicer__guide">Pick a pixel to see when
-      its photons arrived. On bright surfaces, the gold standard and MaRS
-      register the return earlier than Poisson, by matching amounts.</p>
+    <p class="mars-demo__sentence mars-slicer__guide">Click a pixel to see when its photons were registered. Dead time shifts the peak earlier. While Poisson ignores this, the gold standard and MaRS show it.</p>
 
     <figure class="mars-slicer" id="mars-slicer" data-media-slot="slicer"
             data-slicer-state="idle" data-slicer-base="assets/data/slicer/">
@@ -549,42 +494,93 @@
 </section>
 
 <!-- ======================================================================
-     IN SHORT (guide 0.3 ②) — MINT. One paragraph of at most 70 words, then
-     the four gains UNCHANGED from v1 (order and captions are
-     non-negotiable #11). The paragraph is the planning session's v2.1-D
-     tightening of the guide's draft (63 -> 52 words), verbatim; claims unchanged.
-     Hygiene: the gold standard handles dead time CORRECTLY (#2); MaRS
-     MATCHES it (#3); the 40x carries its workload in the same sentence.
+     IN SHORT (guide 0.7, stage v2.2-A) — a full-bleed MINT band right after
+     the slicer: the demos come first, then the words and the context.
+     The paragraph is the v2 63-word text, verbatim, with its one semicolon
+     replaced by a full stop (guide 0.7). Hygiene: the gold standard handles
+     dead time CORRECTLY (#2); MaRS MATCHES it (#3); the 40x carries its
+     workload, 128x128x1024, in the same sentence. The four gains strip that
+     sat here until v2.1 is GONE (guide 0.7; WEBSITE_BUILD_STATUS 3.7, v2.2
+     amendment): each number now lives in its own module.
      ====================================================================== -->
-<section class="mars-band is-mint" id="in-short" aria-labelledby="in-short-heading">
+<section class="mars-band is-mint mars-inshort-band" id="in-short" aria-labelledby="in-short-heading">
   <div class="mars-band__inner">
-    <h2 class="mars-eyebrow is-neutral" id="in-short-heading">In short</h2>
-    <p class="mars-section__lede mars-inshort">Single-photon detectors go
-      blind for a short dead time after every detection. Poisson simulators
-      ignore this; the sequential gold standard handles it correctly but is
-      too slow for training data. MaRS derives the first analytic
-      photon-count law under dead time, matching the gold standard&rsquo;s
-      statistics about 40&times; faster on a 128&times;128&times;1024 cube.</p>
+    <h2 class="mars-demo__title" id="in-short-heading">In short</h2>
+    <p class="mars-section__lede mars-inshort">A single-photon detector goes blind for a short dead time after every detection, and that breaks the statistics simulators rely on. Fast Poisson models ignore it. The sequential gold standard handles it correctly but is too slow to generate training data. MaRS derives the first analytic photon-count law under dead time, matching the gold standard&rsquo;s statistics about 40&times; faster on a 128&times;128&times;1024 cube.</p>
 
-    <h3 class="mars-visually-hidden">Headline results</h3>
-    <ul class="mars-stats">
-      <li class="mars-stat">
-        <span class="mars-stat__num">30×</span>
-        <span class="mars-stat__cap">closer to true count law</span>
-      </li>
-      <li class="mars-stat">
-        <span class="mars-stat__num">1000×</span>
-        <span class="mars-stat__cap">smaller lookup table</span>
-      </li>
-      <li class="mars-stat">
-        <span class="mars-stat__num">40×</span>
-        <span class="mars-stat__cap">faster than gold standard</span>
-      </li>
-      <li class="mars-stat">
-        <span class="mars-stat__num">+17dB</span>
-        <span class="mars-stat__cap">better downstream reconstruction</span>
-      </li>
-    </ul>
+    <!-- ==================================================================
+         FIG. 1 TOP HALF, WITHOUT THE QUESTION (v2.2-A; guide 0.7). The
+         paper's acquisition process, the 3-D photon timestamp histogram and
+         data-driven inference of reflectivity and depth, as context after
+         the demos. Exported from the vector Fig1_teaser.pdf by
+         tools/build_fig1_context.py, which removes "Can we simulate this
+         process? Fast and Precise?" and its yellow arrow from the PDF
+         content and verifies that no other pixel changes — re-run it, never
+         edit the images. The cube's red edges are pixels of a raster in the
+         PDF, so they stay red (author, 2026-10-26).
+
+         A WHITE CARD inside the mint band. The image spans the card's full
+         width (the card's edge is a 1 px ring drawn outside it, and its
+         padding is vertical only), so its text is never smaller than v2.1's
+         column-wide export; the caption has its own side padding.
+
+         TWO PICTURES, ONE SLOT, as v2.1-A's question: desktop (>= 601 px)
+         the whole top half; phones (<= 600 px) two stacked crops, the
+         acquisition panel and then inference (the second resolves to a 1 x 1
+         data: GIF on a desktop and is hidden).
+
+         LAZY, BY SCRIPT. It is below the first screen now, and Chrome's
+         native loading="lazy" fetches anything within ~1250-2500 px of the
+         viewport, so a cold load at 1280 x 800 would still pull it. Instead
+         every URL ships as data-srcset / data-src and js/mars-main.js
+         promotes them once the reader has scrolled to within 1500 px, or the
+         figure is on screen (the slicer stills' rule). The <img> carries a
+         1 x 1 data: GIF until then (no request, no alt-text flash), and CSS
+         aspect-ratio reserves each crop's exact box, so the swap shifts
+         nothing. <noscript> carries the real pictures.
+         ================================================================== -->
+    <figure class="mars-context" id="mars-context" data-media-slot="context">
+      <picture class="mars-context__pic">
+        <source media="(max-width: 600px)" type="image/webp"
+                data-srcset="assets/img/fig1_context_acq_600.webp 600w,
+                             assets/img/fig1_context_acq.webp 1200w"
+                sizes="calc(100vw - 32px)" width="1200" height="477">
+        <source media="(max-width: 600px)"
+                data-srcset="assets/img/fig1_context_acq.png"
+                width="1200" height="477">
+        <source type="image/webp"
+                data-srcset="assets/img/fig1_context_960.webp 960w,
+                             assets/img/fig1_context.webp 1920w"
+                sizes="(max-width: 992px) calc(100vw - 32px), 960px"
+                width="1920" height="496">
+        <img class="mars-context__main" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+             data-src="assets/img/fig1_context.png" width="1920" height="496"
+             decoding="async"
+             alt="From the paper's Figure 1, single-photon LiDAR data acquisition and use. A laser illuminates a scene, and a SPAD detector with TCSPC timing electronics records the returning photons as a 3-D photon timestamp histogram cube. Data-driven inference turns that cube into reflectivity and depth images.">
+      </picture>
+      <picture class="mars-context__pic mars-context__more">
+        <source media="not all and (max-width: 600px)"
+                srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                width="1" height="1">
+        <source type="image/webp"
+                data-srcset="assets/img/fig1_context_infer_600.webp 600w,
+                             assets/img/fig1_context_infer.webp 1200w"
+                sizes="calc(100vw - 32px)" width="1200" height="724">
+        <img class="mars-context__infer" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+             data-src="assets/img/fig1_context_infer.png" width="1200" height="724"
+             decoding="async" alt="">
+      </picture>
+      <noscript>
+        <style>.mars-context__pic { display: none !important; }</style>
+        <picture class="mars-context__ns">
+          <source media="(max-width: 600px)" srcset="assets/img/fig1_context_acq.png"
+                  width="1200" height="477">
+          <img src="assets/img/fig1_context.png" width="1920" height="496"
+               alt="From the paper's Figure 1, single-photon LiDAR data acquisition and use: a SPAD detector records a 3-D photon timestamp histogram cube, which data-driven inference turns into reflectivity and depth.">
+        </picture>
+      </noscript>
+      <figcaption class="mars-context__caption">Single-photon LiDAR: a laser and a SPAD detector record a 3-D histogram cube of photon arrival times, and networks trained on such cubes recover reflectivity and depth. Training them needs large amounts of simulated cubes.</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -615,12 +611,13 @@
     <article class="mars-demo" id="demo-accuracy"
              aria-labelledby="demo-accuracy-title">
       <p class="mars-eyebrow is-theory">Accuracy</p>
-      <h3 class="mars-demo__title" id="demo-accuracy-title">The photon count,
-        finally right.</h3>
-      <p class="mars-demo__sentence">Against the sequential gold standard,
-        renewal theory misplaces the count and the best prior model misjudges
-        its spread; MaRS matches both, with a grid-averaged KL 30&times; below
-        the best prior model&rsquo;s.</p>
+      <h3 class="mars-demo__title" id="demo-accuracy-title">The first analytic photon-count distribution under dead time.</h3>
+      <!-- v2.2-A (guide 0.7, stage doc T5): the title says "first analytic",
+           not "accurate for the first time" (the gold standard is accurate
+           already, by brute force, #2). The sentence's semicolon became a
+           full stop, so it is two sentences now; page_budget.py allows that
+           for this card. No other word changed. -->
+      <p class="mars-demo__sentence">Against the sequential gold standard, renewal theory misplaces the count and the best prior model misjudges its spread. MaRS matches both, with a grid-averaged KL 30&times; below the best prior model&rsquo;s.</p>
       <!-- The operating point is data.py's default, grid index (8, 8, 5):
            S = B = 8.2, t_d = 75 ns — the SIMULATION grid's dead time, not the
            real hardware's (non-negotiable #4; the hardware figure is not on
@@ -838,7 +835,8 @@
 </section>
 
 <!-- ======================================================================
-     GO DEEPER (guide 0.3 ⑤) — PAPER. Three plain links, then the
+     GO DEEPER (guide 0.3 ⑤) — PAPER. Three plain links, the full-resolution
+     originals line (moved here from the hero in v2.2-A), then the
      limitations as ONE muted sentence (guide 0.3's wording, verbatim). The
      full Limitations band moved to /details/#limitations.
      ====================================================================== -->
@@ -853,6 +851,10 @@
              data-mars-config-href="posterPdf"
              target="_blank" rel="noopener">Poster</a></li>
     </ul>
+    <!-- "Full-resolution originals: paper (25 MB) · poster (16 MB)", rendered
+         by js/mars-nav.js from site.config.js (a pair appears only when both
+         copies exist). It sat under the hero buttons until v2.2-A. -->
+    <p class="mars-deeper__originals" id="mars-originals" hidden></p>
     <p class="mars-deeper__limits">Assumes a nonparalyzable detector with
       negligible afterpulsing; paralyzable detectors, timing jitter and
       afterpulsing are future work.</p>

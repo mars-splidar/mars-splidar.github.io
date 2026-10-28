@@ -98,6 +98,11 @@ MAIN = [
     ("Demo 2 sentence", "#demo-accuracy .mars-demo__sentence", "L"),
     ("Demo 2 chart frame", ".mars-count-fig__frame", "F"),
     ("Demo 2 note", "#demo-accuracy .mars-demo__note", "L"),
+    # v2.2-B: the Efficiency module; the schematic's frame fills the column
+    ("Efficiency eyebrow", "#demo-efficiency .mars-eyebrow", "L"),
+    ("Efficiency title", "#demo-efficiency-title", "L"),
+    ("Efficiency sentence", "#demo-efficiency .mars-demo__sentence", "L"),
+    ("Efficiency frame", ".mars-eff__frame", "F"),
     ("Demo 3 eyebrow", "#demo-downstream .mars-eyebrow", "L"),
     ("Demo 3 title", "#demo-downstream-title", "L"),
     ("Demo 3 sentence", "#demo-downstream .mars-demo__sentence", "L"),

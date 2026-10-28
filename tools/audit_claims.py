@@ -217,6 +217,10 @@ SANCTIONED_ROUNDINGS = {
 # from SANCTIONED_ROUNDINGS on purpose: these are not re-written canonical
 # numbers, and listing them there would misdescribe them. (Stage 09.)
 NON_CLAIM_NUMBERS = {
+    "64": "the Efficiency schematic's grid size, '3 realizations × 64 pixels' "
+          "(8 x 8 cells, stage v2.2-B). A count of drawn cells, not a "
+          "measurement; within 2% of the Zhang et al. variance difference "
+          "64.558 only by coincidence",
     "8.2": "Demo 2's operating point, S = B = 8.2 (grid index 8 of the stored "
            "count-distribution results; video/data.py::count_distributions). "
            "A coordinate, not a measurement; 1.9% from the gold standard's "
@@ -843,6 +847,64 @@ def check_dead_time_sections(rep: Report) -> None:
                     f"{where['75 ns'] or 'nowhere'} (must never share a band)")
 
 
+# v2.2-B — THE EFFICIENCY MODULE. Its note is the one place on `/` that states
+# the table's size and the delay shift, so it must carry, in EVERY schematic
+# (one SVG per breakpoint, only one shown), PROJECT_BRIEF 3.4's two LUT sizes,
+# #1's sanctioned phrase and #8's conditioned statement. The note is the stage
+# doc's verbatim copy, which splits #1's phrase around the sizes ("So one
+# table per sensor configuration is 105 MB instead of 108 GB, reused for
+# every pixel and depth."), so #1 is matched as both halves in one sentence.
+EFFICIENCY_ID = "demo-efficiency"
+EFFICIENCY_REQUIRED = [
+    ("105 MB [PROJECT_BRIEF 3.4]", r"\b105\s*MB\b"),
+    ("108 GB [PROJECT_BRIEF 3.4]", r"\b108\s*GB\b"),
+    ("#1 sanctioned phrase", r"one\s+table\s+per\s+sensor\s+configuration[^.]{0,60}"
+                             r"reused\s+for\s+every\s+pixel\s+and\s+depth"),
+    ("#8 conditioned delay statement",
+     r"At\s+fixed\s+S\s+and\s+B,\s+the\s+delay\s+only\s+shifts\s+π"),
+]
+# #8, the unconditioned form, anywhere on any page: "the delay / depth (change)
+# only shifts ..." with no fixed (S, B) / signal and background in the 80
+# characters before it. /details/ conditions it in the sentence before
+# ("with those held, moving the delay ... only shifts"), which this pattern
+# does not match.
+DELAY_SHIFT = re.compile(r"\b(delay|depth|τ)(\s+change)?\s+only\s+shifts?\b", re.I)
+DELAY_COND = re.compile(r"fixed\s+(S\s+and\s+B|\(\s*S\s*,\s*B\s*\)|signal\s+and\s+background)",
+                        re.I)
+
+
+def check_delay_condition(text: str, rel: str, rep: Report) -> None:
+    for m in DELAY_SHIFT.finditer(text):
+        before = text[max(0, m.start() - 80):m.start()]
+        if not DELAY_COND.search(before):
+            ctx = re.sub(r"\s+", " ", text[max(0, m.start() - 60):m.end() + 30])
+            rep.fail(rel, "delay invariance stated without fixed (S, B) [#8]",
+                     f"...{ctx}...")
+
+
+def check_efficiency(rep: Report) -> None:
+    source = (REPO / "index.html").read_text(encoding="utf-8", errors="replace")
+    source = COMMENT_RE.sub(" ", source)
+    art = re.search(r'<article\b[^>]*\bid="%s"(.*?)</article>' % EFFICIENCY_ID,
+                    source, re.S)
+    if not art:
+        rep.fail("index.html", "Efficiency module missing [v2.2-B]",
+                 f"no article#{EFFICIENCY_ID}")
+        return
+    svgs = re.findall(r'<svg\b[^>]*\bmars-schematic\b[^>]*>.*?</svg>', art.group(1), re.S)
+    if len(svgs) != 2:
+        rep.fail("index.html", "Efficiency schematics [v2.2-B]",
+                 f"expected 2 .mars-schematic SVGs (wide, phone), found {len(svgs)}")
+    for k, svg in enumerate(svgs):
+        text = visible_text(svg)
+        for label, rx in EFFICIENCY_REQUIRED:
+            if not re.search(rx, text):
+                rep.fail("index.html", f"Efficiency schematic {k + 1}: {label} missing",
+                         "the note must carry it in every layout [v2.2-B]")
+    rep.info.append(f"Efficiency note: 105 MB, 108 GB, #1 and #8 phrasing present in "
+                    f"{len(svgs)} schematic(s)")
+
+
 def check_gain_order(rep: Report) -> None:
     """#11 — accuracy -> table size -> speed -> downstream, in that order.
 
@@ -930,9 +992,11 @@ def main() -> int:
         check_forbidden(source, text, rel, rep)
         check_conflation(text, rel, rep)
         check_numbers(text, rel, rep, found)
+        check_delay_condition(text, rel, rep)
 
     check_equation_count(files, rep)
     check_gain_order(rep)
+    check_efficiency(rep)
     check_public_pages(rep)
     check_third_party(files, rep)
     check_dead_time_sections(rep)

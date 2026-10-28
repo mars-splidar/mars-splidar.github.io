@@ -42,6 +42,12 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      prose, like the teaser's.) It is counted and reported separately
      ("UI words") and is not held against the 420. Prose stays counted
      wherever it sits: headings, paragraphs, captions, label rows, readouts.
+     SCHEMATIC SCOPE (stage v2.2-B, WEBSITE_BUILD_STATUS 2, "Budget scope
+     extended (2026-10-28)"): text inside an element with class
+     `mars-schematic` (the Efficiency diagram's SVG labels and captions)
+     counts like `.mars-ui`: reported, not counted against the prose budget.
+     It is reported per schematic, because the module ships one SVG per
+     breakpoint and only one of them is ever shown.
      A WORD is a whitespace-separated token containing at least one letter or
      digit. So "—", "·", "→" and "↓" are not words; a hyphenated or
      ×-joined compound ("single-photon", "128×128×1024") is one word; "40×"
@@ -67,6 +73,10 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      TWO sentences. Guide 0.7's style rule (no semicolons) and the stage doc's
      T5 turned its one sentence's semicolon into a full stop — the same
      words, now two sentences. The 35-word limit is unchanged.
+     v2.2-B, by id: #demo-efficiency holds THREE sentences, the lead of
+     guide 0.7 verbatim, which is 38 words. SENTENCE_WORDS_MAX pins its word
+     limit at exactly that approved length (not a looser round number), so
+     the lead cannot grow; every other demo keeps 35.
      AMBIGUITY, flagged rather than resolved: the guide writes "eyebrow +
      title <= 8 words". Read as a combined limit, the guide's own approved
      Demo 3 title ("Train on wrong physics, fail on real physics.", 8 words)
@@ -103,7 +113,11 @@ DEMO_TITLE_MAX = 8
 DEMO_SENTENCE_MAX = 35
 # v2.2-A: sentences allowed in a demo's `.mars-demo__sentence`, by article id
 # (default 1). See docstring item 5.
-SENTENCES_MAX = {"demo-accuracy": 2}
+SENTENCES_MAX = {"demo-accuracy": 2, "demo-efficiency": 3}
+# v2.2-B: a demo's sentence word limit, by article id (default
+# DEMO_SENTENCE_MAX). The Efficiency lead is guide 0.7's three sentences,
+# verbatim: 38 words. See docstring item 5.
+SENTENCE_WORDS_MAX = {"demo-efficiency": 38}
 INSHORT_MAX = 70
 
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
@@ -163,7 +177,14 @@ class Builder(HTMLParser):
 
 
 def is_ui(n: Node) -> bool:
-    return any("mars-ui" in x.classes for x in [n, *n.ancestors()])
+    """`.mars-ui` control text, or `.mars-schematic` diagram text (v2.2-B):
+    neither is prose."""
+    return any("mars-ui" in x.classes or "mars-schematic" in x.classes
+               for x in [n, *n.ancestors()])
+
+
+def is_schematic(n: Node) -> bool:
+    return any("mars-schematic" in x.classes for x in [n, *n.ancestors()])
 
 
 def excluded(n: Node, ui_too: bool = True) -> bool:
@@ -280,11 +301,19 @@ def main() -> int:
             if args.words:
                 print("            " + " ".join(w))
     print(f"      {len(js_words):>4}  rendered by js/mars-nav.js: {js_text}")
+    sch_nodes = [n for n in nodes if "mars-schematic" in n.classes]
+    sch_words = [w for n in sch_nodes for w in words(text_of(n, ui_only=True))]
     ui_words = words(text_of(body, ui_only=True))
-    print(f"      UI words in .mars-ui (reported, not counted): {len(ui_words)}")
+    print(f"      UI words in .mars-ui (reported, not counted): "
+          f"{len(ui_words) - len(sch_words)}")
     if args.words and ui_words:
-        print("            " + " ".join(ui_words))
-    check(total <= WORD_LIMIT, "visible PROSE words (nav, BibTeX code, funding, .mars-ui excluded)",
+        print("            " + " ".join(w for w in ui_words))
+    for n in sch_nodes:
+        w = words(text_of(n, ui_only=True))
+        cls = " ".join(c for c in n.classes if c.startswith("is-")) or n.tag
+        print(f"      schematic words in .mars-schematic {n.tag}.{cls} "
+              f"(reported, not counted): {len(w)}")
+    check(total <= WORD_LIMIT, "visible PROSE words (nav, BibTeX code, funding, .mars-ui, .mars-schematic excluded)",
           total, f"<= {WORD_LIMIT}")
 
     # 2 — media items above BibTeX
@@ -344,8 +373,8 @@ def main() -> int:
             sw_ = len(words(s))
             breaks = re.findall(r"[.!?]\s+[A-Z]", s)
             nmax = SENTENCES_MAX.get(did, 1)
-            check(sw_ <= DEMO_SENTENCE_MAX, f"#{did} sentence words", sw_,
-                  f"<= {DEMO_SENTENCE_MAX}")
+            wmax = SENTENCE_WORDS_MAX.get(did, DEMO_SENTENCE_MAX)
+            check(sw_ <= wmax, f"#{did} sentence words", sw_, f"<= {wmax}")
             check(len(breaks) <= nmax - 1 and s.rstrip()[-1:] in ".!?",
                   f"#{did} is {'ONE sentence' if nmax == 1 else f'<= {nmax} sentences'}",
                   f"{len(breaks)} internal break(s)",

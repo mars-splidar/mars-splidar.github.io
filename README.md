@@ -103,9 +103,10 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.7's limits since v2.2-A — visible words ≤ 612 since v2.2-C, pinned at
-that stage's measured total by the author (520 from v2.2-A, 420 from v2.1-A,
-350 before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
+§0.7's limits since v2.2-A — visible words ≤ 600 since v2.2-P, re-pinned at
+the measured total when Demo 2's 12 chart words became schematic text (612
+from v2.2-C, pinned at that stage's measured total by the author; 520 from
+v2.2-A, 420 from v2.1-A, 350 before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
 before), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
 non-zero on a breach. Its docstring defines exactly what counts as a word and
@@ -117,7 +118,8 @@ cube slicer's title, guiding text and media slot. Since v2.2-B text inside a
 the same way, once per SVG, and `#demo-efficiency` may hold its three-sentence,
 38-word lead (the limit is pinned at that approved length). Since v2.2-C
 `#demo-downstream` may hold three sentences and `#demo-ablation` two (the
-stage doc's verbatim leads). `details_move_diff.py` extracts each of the seven bands,
+stage doc's verbatim leads). Since v2.2-P Demo 2's two charts sit in
+`.mars-schematic` wrappers too, so their words are reported, not counted. `details_move_diff.py` extracts each of the seven bands,
 banner comment included, from `git show v1.0-launch:index.html` and from
 `details/index.html`, undoes the `../` path prefix and diffs them; the only
 allowed difference is the Simulator card's demo-lab link.
@@ -137,6 +139,10 @@ It prints the operating point, the realization count and every model's
 stored vs plotted mean and variance, asserts that no `<text>` node or the
 `aria-label` carries a digit, and exits non-zero on any mismatch or, with
 `--check`, on drift between the script, the file and the inline copy.
+Since v2.2-P it also draws the phone chart (`assets/img/demo_count_phone.svg`,
+340 x 240 units, spliced between the `demo_count_phone:` markers, shown at
+≤ 600 px) from the same arrays and runs the same text checks on it; the
+desktop SVG is unchanged, byte for byte.
 
 ### The cube slicer (stage v2.1-C)
 
@@ -595,3 +601,15 @@ Each build stage appends one line here.
   PROJECT_BRIEF §3.5 and requires the footnote. Prose 612/612 (limit pinned
   by the author), media 8/9. CLS 0. Review pack:
   `build_instructions/review/v22C/`.
+- **Stage v2.2-P — the phone pass (2026-10-28).** On branch `v2.2-dev`, not
+  pushed. `/` at ≤ 600 px takes the approved phone mock's scale: leads and In
+  short 16 px, smaller hero and module buttons, 1.6rem bands, teaser labels as
+  name + time (descriptors visually hidden, still read and counted), the Fig. 1
+  inference crop re-cut tight (`fig1_context_infer_tight*`, no arrow, no blank
+  band) at 68 % of the card. Efficiency: the stacked SVG up to 971 px (the wide
+  one's text reaches 12 px only from there), 914 units tall (was 1116), 30
+  drawn frames/s. Demo 2: a phone chart (`demo_count_phone.svg`, ≥ 200 px) and
+  its words now schematic, so the word limit is re-pinned at 600. Ablation:
+  each val ring drawn above its test dot. No copy changed; desktop pixel-
+  identical outside the dumbbell. Page at 390 px 8149 → 7182 px. Review pack:
+  `build_instructions/review/v22P/`.

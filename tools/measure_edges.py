@@ -106,11 +106,20 @@ MAIN = [
     ("Demo 3 eyebrow", "#demo-downstream .mars-eyebrow", "L"),
     ("Demo 3 title", "#demo-downstream-title", "L"),
     ("Demo 3 sentence", "#demo-downstream .mars-demo__sentence", "L"),
-    # v2.1-D: square + framed side panel; the toggle, the numbers and the
-    # note sit inside the panel, so only the block's outer edges are judged
-    ("Demo 3 block", ".mars-compare__body", "F"),
-    ("Demo 3 square", ".mars-compare__stage", "X"),
-    ("Demo 3 panel", ".mars-compare__panel", "X"),
+    # v2.2-C: two equal squares (slider | ground truth) fill the column; on
+    # phones the GT square is hidden and the slider fills it alone
+    ("Demo 3 toggle", "#demo-downstream .mars-compare__toggle", "L"),
+    ("Demo 3 pair", ".mars-compare__pair", "F"),
+    ("Demo 3 slider", "#demo-downstream .mars-compare__cell .mars-compare__stage", "X"),
+    ("Demo 3 note", "#demo-downstream .mars-compare__note", "L"),
+    # v2.2-C: the count-model ablation; chart card and tile grid fill the column
+    ("ablation eyebrow", "#demo-ablation .mars-eyebrow", "L"),
+    ("ablation title", "#demo-ablation-title", "L"),
+    ("ablation sentence", "#demo-ablation .mars-demo__sentence", "L"),
+    ("ablation toggle", "#demo-ablation .mars-compare__toggle", "L"),
+    ("ablation chart card", ".mars-abl__card", "F"),
+    ("ablation tiles", ".mars-abl__tiles", "F"),
+    ("ablation note", ".mars-abl__note", "L"),
     ("film heading", "#video-heading", "L"),
     ("film", ".mars-video__frame", "F"),
     ("film meta", ".mars-video__meta", "L"),

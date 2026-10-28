@@ -14,7 +14,8 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
 420 words, at most 6 media items; since stage v2.2-A those of guide 0.7 —
 520 words, at most 9 media items), and exactly how each is measured:
 
-  1. VISIBLE WORDS <= 520 (350 until v2.1-A, 420 until v2.2-A), excluding the nav, the BibTeX
+  1. VISIBLE WORDS <= 612, pinned at v2.2-C's measured total (350 until v2.1-A, 420 until
+     v2.2-A, 520 until v2.2-C; 580 was the planned v2.2-C limit), excluding the nav, the BibTeX
      code block and the funding line. "Visible" means what a sighted reader sees on the built
      page, so these are also EXCLUDED: anything inside an element with the
      `hidden` attribute, `aria-hidden="true"` or class `mars-visually-hidden`;
@@ -77,6 +78,14 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      guide 0.7 verbatim, which is 38 words. SENTENCE_WORDS_MAX pins its word
      limit at exactly that approved length (not a looser round number), so
      the lead cannot grow; every other demo keeps 35.
+     v2.2-C, by id: #demo-downstream holds THREE sentences ("We trained ...
+     gold-standard data. Trained on Poisson, it fails. Trained on MaRS, it
+     works.", 25 words) and #demo-ablation TWO (26 words), the stage doc's
+     verbatim leads (stage_v22C_downstream.md 1). Both are within 35.
+     v2.2-C also moved Downstream's Reflectivity / Depth toggle into
+     `.mars-ui` (it was counted as prose before) along with the new
+     toggle, legend and hold button; the image chips and tile captions are
+     a label row and captions, so they stay prose.
      AMBIGUITY, flagged rather than resolved: the guide writes "eyebrow +
      title <= 8 words". Read as a combined limit, the guide's own approved
      Demo 3 title ("Train on wrong physics, fail on real physics.", 8 words)
@@ -105,7 +114,11 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
-WORD_LIMIT = 520        # guide 0.7 (v2.2-A); 420 from v2.1-A, 350 before
+# v2.2-C: PINNED at the measured total of the verbatim v2.2-C copy (612),
+# the author's choice of 2026-10-28, like v2.2-B's 38-word pin: the planning
+# raise to 580 assumed ~60 new words, and the approved Downstream + ablation
+# copy is +110 net. Nothing on `/` can grow without a new decision.
+WORD_LIMIT = 612        # v2.2-C pin; 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
 MEDIA_ITEMS = 9         # guide 0.7 (v2.2-A): at most 9; 6 from v2.1-A, exactly 4 before
 SWITCH_MAX = 0
 EQ_MAX = 0
@@ -113,7 +126,8 @@ DEMO_TITLE_MAX = 8
 DEMO_SENTENCE_MAX = 35
 # v2.2-A: sentences allowed in a demo's `.mars-demo__sentence`, by article id
 # (default 1). See docstring item 5.
-SENTENCES_MAX = {"demo-accuracy": 2, "demo-efficiency": 3}
+SENTENCES_MAX = {"demo-accuracy": 2, "demo-efficiency": 3,
+                 "demo-downstream": 3, "demo-ablation": 2}
 # v2.2-B: a demo's sentence word limit, by article id (default
 # DEMO_SENTENCE_MAX). The Efficiency lead is guide 0.7's three sentences,
 # verbatim: 38 words. See docstring item 5.

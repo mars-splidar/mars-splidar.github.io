@@ -319,6 +319,10 @@ SURFACES: list[tuple[str, str, str]] = [
     (r"\.is-mint",                   "--mint",  "mint band"),
     # --- gold-wash hover states, which repaint the ground under the label ---
     (r"\.mars-(btn|switch__pill)[^,]*:hover", "--gold-soft", "gold-wash hover"),
+    # --- v2.2-C: the Downstream chips sit on the IMAGES, as INK at 82 %
+    # (rgba(20, 24, 26, .82)). The worst case is a white image pixel under
+    # the chip, which composites to #3e4243; text is checked against that.
+    (r"\.mars-compare__chip",        "#3e4243", "image chip (INK 82 % over white)"),
     # --- the skip link paints itself AGED but only in the :focus rule ---
     (r"\.mars-skip",                 "--aged",  "skip link"),
 ]
@@ -905,6 +909,120 @@ def check_efficiency(rep: Report) -> None:
                     f"{len(svgs)} schematic(s)")
 
 
+# v2.2-C — THE DOWNSTREAM MODULE AND THE COUNT-MODEL ABLATION. Every number
+# they show is PROJECT_BRIEF 3.5's (SBR 0.6), which rounds the paper's
+# tab:reconstruction_results (paper/sec/6_experiments.tex l. 195-233; the four
+# decimals are in the comments below). TRANSFER_35 is that table, by row:
+# reflectivity PSNR val, test (dB), depth RMSE val, test (m). "val" is tested
+# on the row's own simulator / count model, "test" on gold-standard data.
+TRANSFER_35 = {
+    "poisson": ("36.49", "7.02", "0.072", "1.654"),   # 36.4946 7.0237 0.0722 1.6537
+    "renewal": ("29.72", "12.12", "0.054", "0.096"),  # 29.7230 12.1210 0.0543 0.0959
+    "zhang":   ("22.74", "22.54", "0.053", "0.082"),  # 22.7444 22.5421 0.0526 0.0820
+    "mars":    ("24.03", "24.25", "0.053", "0.074"),  # 24.0321 24.2488 0.0532 0.0739
+}
+TRANSFER_NAMES = {"poisson": "Poisson", "renewal": "Renewal",
+                  "zhang": "Zhang et al.", "mars": "MaRS"}
+BRIEF = REPO.parent.parent / "PROJECT_BRIEF.md"   # absent in a bare site clone
+# The ablation's framing is the point (stage doc 0): the three rows share the
+# prior-work temporal PDF and our pipeline; only the count model changes.
+ABLATION_REQUIRED = [
+    ("'no separate Renewal or Zhang et al. simulator'",
+     r"There\s+is\s+no\s+separate\s+Renewal\s+or\s+Zhang\s+et\s+al\.\s+simulator\."),
+    ("'They differ only in the count mean and variance'",
+     r"They\s+differ\s+only\s+in\s+the\s+count\s+mean\s+and\s+variance\."),
+    ("'same accurate temporal PDF from prior work'",
+     r"same\s+accurate\s+temporal\s+PDF\s+from\s+prior\s+work"),
+]
+
+
+def _brief_35() -> dict[str, tuple[str, ...]] | None:
+    """PROJECT_BRIEF 3.5's table, parsed, when the brief is beside the repo."""
+    if not BRIEF.exists():
+        return None
+    md = BRIEF.read_text(encoding="utf-8")
+    sec = md[md.index("### 3.5"):]
+    sec = sec[:sec.index("### 3.6")]
+    out = {}
+    for name, key in (("Poisson", "poisson"), ("Renewal", "renewal"),
+                      ("Zhang et al.", "zhang"), ("MaRS", "mars")):
+        row = re.search(r"^\|\s*\**" + re.escape(name) + r"\**\s*\|(.*)$", sec, re.M)
+        if row:
+            out[key] = tuple(re.findall(r"\d+\.\d+", row.group(1)))
+    return out
+
+
+def _num(s: str) -> str:
+    return re.sub(r"[^\d.]", "", html.unescape(s))
+
+
+def check_downstream(rep: Report) -> None:
+    source = COMMENT_RE.sub(" ", (REPO / "index.html").read_text(
+        encoding="utf-8", errors="replace"))
+    brief = _brief_35()
+    if brief is None:
+        rep.info.append("v2.2-C: PROJECT_BRIEF.md not beside the repo; "
+                        "TRANSFER_35 used as written")
+    elif brief != TRANSFER_35:
+        rep.fail("tools/audit_claims.py", "TRANSFER_35 differs from PROJECT_BRIEF 3.5 [v2.2-C]",
+                 f"brief {brief} vs {TRANSFER_35}")
+
+    # Part 1: the two chips, Reflectivity as shipped and Depth in data-depth
+    art = re.search(r'<article\b[^>]*\bid="demo-downstream"(.*?)</article>', source, re.S)
+    if not art:
+        rep.fail("index.html", "Downstream module missing [v2.2-C]", "no article#demo-downstream")
+    else:
+        for side, key in (("is-left", "poisson"), ("is-right", "mars")):
+            m = re.search(r'<p class="mars-compare__chip %s"\s+data-depth="([^"]*)">(.*?)</p>'
+                          % side, art.group(1), re.S)
+            if not m:
+                rep.fail("index.html", f"Downstream chip {side} missing [v2.2-C]", "")
+                continue
+            depth = re.search(r"<b>(.*?)</b>", html.unescape(m.group(1)))
+            refl = re.search(r"<b>(.*?)</b>", m.group(2))
+            got = (_num(refl.group(1)) if refl else None, _num(depth.group(1)) if depth else None)
+            want = (TRANSFER_35[key][1], TRANSFER_35[key][3])
+            if got != want:
+                rep.fail("index.html", f"Downstream chip {key} != PROJECT_BRIEF 3.5 [v2.2-C]",
+                         f"shows {got}, 3.5 test values {want}")
+
+    # Part 2: the table is the one source; it must equal 3.5, and the
+    # captions shipped in the HTML must equal the table.
+    art = re.search(r'<article\b[^>]*\bid="demo-ablation"(.*?)</article>', source, re.S)
+    if not art:
+        rep.fail("index.html", "Ablation module missing [v2.2-C]", "no article#demo-ablation")
+        return
+    body = art.group(1)
+    rows = dict(re.findall(r'<tr data-k="(\w+)">(.*?)</tr>', body, re.S))
+    if sorted(rows) != ["mars", "renewal", "zhang"]:
+        rep.fail("index.html", "Ablation table rows [v2.2-C]",
+                 f"expected renewal, zhang, mars (no Poisson), found {sorted(rows)}")
+    for key, row in rows.items():
+        cells = tuple(c.strip() for c in re.findall(r"<td>(.*?)</td>", row))
+        if key not in TRANSFER_35 or cells != TRANSFER_35[key]:
+            rep.fail("index.html", f"Ablation table row {key} != PROJECT_BRIEF 3.5 [v2.2-C]",
+                     f"{cells} vs {TRANSFER_35.get(key)}")
+        name = re.search(r"<th[^>]*>(.*?)</th>", row).group(1)
+        if name != TRANSFER_NAMES.get(key, "?") + " count":
+            rep.fail("index.html", f"Ablation table row {key} named {name!r} [v2.2-C]", "")
+    caps = re.findall(r'<b data-k="(\w+)">(.*?)</b>', body)
+    if sorted(k for k, _ in caps) != ["mars", "renewal", "zhang"]:
+        rep.fail("index.html", "Ablation tile captions [v2.2-C]", f"found {caps}")
+    for key, val in caps:
+        cells = re.findall(r"<td>(.*?)</td>", rows.get(key, ""))
+        if len(cells) < 2 or _num(val) != cells[1].strip() or "dB" not in val:
+            rep.fail("index.html", f"Ablation caption {key} != its table value [v2.2-C]",
+                     f"caption {val!r}, table test PSNR {cells[1] if len(cells) > 1 else None}")
+    text = visible_text(body)
+    for label, rx in ABLATION_REQUIRED:
+        if not re.search(rx, text):
+            rep.fail("index.html", f"Ablation footnote: {label} missing [v2.2-C]",
+                     "the framing must be unmistakable (stage doc 0)")
+    rep.info.append("Downstream + ablation: chips, table and captions = PROJECT_BRIEF 3.5"
+                    + (" (parsed from the brief)" if brief else "")
+                    + "; the 'no separate simulator' footnote present")
+
+
 def check_gain_order(rep: Report) -> None:
     """#11 — accuracy -> table size -> speed -> downstream, in that order.
 
@@ -997,6 +1115,7 @@ def main() -> int:
     check_equation_count(files, rep)
     check_gain_order(rep)
     check_efficiency(rep)
+    check_downstream(rep)
     check_public_pages(rep)
     check_third_party(files, rep)
     check_dead_time_sections(rep)

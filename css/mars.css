@@ -165,7 +165,6 @@
 .mars-eq,
 .mars-media__frame,
 .mars-lab__caveat,
-.mars-compare__panel,           /* v2.1-D: Demo 3's side panel */
 #playground-root {
   --aged-fg: var(--aged-text);
 }
@@ -1675,17 +1674,21 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-eff__blind { fill: rgba(176, 58, 46, 0.10); }
 .mars-eff__playhead { stroke: var(--dark); stroke-width: 1.5; }
 
-/* ---- Demo 3: the before/after slider (stage 09, js/mars-compare.js) ------
-   Poisson-trained underneath on the left, MaRS-trained on top on the right,
-   clipped at --pos. The <input type="range"> is the real control (keyboard,
-   screen readers); it is visually hidden but focusable, and its focus ring
-   is drawn on the handle. Pointer and touch drags are handled on the stage,
-   with touch-action: pan-y so a vertical swipe still scrolls the page. */
+/* ---- Downstream: the before/after slider (stage 09; v2.2-C layout) -------
+   js/mars-compare.js. Poisson-trained underneath on the left, MaRS-trained
+   on top on the right, clipped at --pos. The <input type="range"> is the
+   real control (keyboard, screen readers); it is visually hidden but
+   focusable, and its focus ring is drawn on the handle. Pointer and touch
+   drags are handled on the stage, with touch-action: pan-y so a vertical
+   swipe still scrolls the page.
+   v2.2-C: the slider and the ground truth are two EQUAL squares on the
+   column, 24 px apart (468 px each at the 960 column), the test-set numbers
+   on the image corners as chips. Phones (<= 600 px): the GT square is
+   hidden and the hold button shows the GT inside the slider frame. */
 .mars-compare__toggle {
   display: inline-flex;
-  align-self: flex-start;
   gap: 0;
-  margin: 0;
+  margin: 0 0 0.85rem;
   border: 1px solid var(--aged);
   border-radius: var(--radius-pill);
   overflow: hidden;
@@ -1714,23 +1717,15 @@ img, video { max-width: 100%; height: auto; display: block; }
   box-shadow: inset 0 0 0 5px #ffffff;
 }
 
-/* v2.1-D, interim until the Demo 3 redesign (author, 2026-10-26): the
-   square is at most 400 px (52 % of the column below 770 px) and a framed
-   panel fills the rest of the column at the square's height — the square's
-   left edge and the panel frame's right edge are the column edges. The card
-   (eyebrow to panel bottom) is ~550 px at the 960 column; it was ~895 with
-   v2.1-A's 658 px square. Phones (<= 600 px) stack: slider full width, the
-   panel under it. */
-.mars-compare__body {
+.mars-compare__pair {
   display: grid;
-  grid-template-columns: minmax(0, min(25rem, 52%)) minmax(0, 1fr);
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  align-items: stretch;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
 }
+.mars-compare__cell { min-width: 0; }
 .mars-compare__stage {
   --pos: 50%;
   position: relative;
-  align-self: start;            /* stays square if the panel is ever taller */
   aspect-ratio: 1 / 1;
   border-radius: var(--radius);
   overflow: hidden;
@@ -1740,6 +1735,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   user-select: none;
   -webkit-user-select: none;
 }
+.mars-compare__stage.is-static { cursor: auto; touch-action: auto; }
 .mars-compare__img {
   position: absolute;
   inset: 0;
@@ -1750,6 +1746,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   -webkit-user-drag: none;
 }
 .mars-compare__img.is-over { clip-path: inset(0 0 0 var(--pos)); }
+.mars-compare__img.is-gt { visibility: hidden; }
 .mars-compare__range {
   position: absolute;
   left: 0;
@@ -1788,81 +1785,140 @@ img, video { max-width: 100%; height: auto; display: block; }
   outline: 3px solid var(--aged);
   outline-offset: 3px;
 }
-/* the panel and its two numbers. Each number names its side of the divider
-   with an arrow drawn in CSS (decorative: "/ ''" gives it no spoken text),
-   so the swap to Depth (innerHTML from data-depth) keeps it. */
-.mars-compare__panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  min-width: 0;
-  padding: clamp(0.85rem, 2vw, 1.25rem);
+/* The chips: the test-set number on its image's top corner. White on INK at
+   82 % reads on black and on the brightest tile: over pure white the chip
+   composites to #3e4243, 10.2:1 (over black, 18:1). tools/audit_claims.py
+   pins .mars-compare__chip to that worst-case #3e4243 in SURFACES. */
+.mars-compare__chip {
+  position: absolute;
+  top: 10px;
+  margin: 0;
+  padding: 5px 9px;
+  max-width: calc(50% - 22px);
+  border-radius: 6px;
+  background: rgba(20, 24, 26, 0.82);
+  color: #ffffff;
+  font-family: var(--font-head);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  pointer-events: none;
+}
+.mars-compare__chip b { display: block; font-weight: 700; font-size: 0.9375rem; white-space: nowrap; }
+.mars-compare__chip.is-left { left: 10px; }
+.mars-compare__chip.is-right { right: 10px; text-align: right; }
+.mars-compare__chip.is-gt { left: 10px; }
+/* holding: only the ground truth and its chip */
+.mars-compare__stage.is-holding .mars-compare__img.is-under,
+.mars-compare__stage.is-holding .mars-compare__img.is-over,
+.mars-compare__stage.is-holding .mars-compare__handle,
+.mars-compare__stage.is-holding .mars-compare__chip.is-left,
+.mars-compare__stage.is-holding .mars-compare__chip.is-right { visibility: hidden; }
+.mars-compare__stage.is-holding .mars-compare__img.is-gt { visibility: visible; }
+.mars-compare__hold { display: none; }
+@media (max-width: 600px) {
+  .mars-compare__pair { grid-template-columns: minmax(0, 1fr); }
+  .mars-compare__gt { display: none; }
+  .mars-compare__hold {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 0.6rem;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--aged);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--aged-fg);
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    touch-action: none;           /* the press is a hold, never a scroll */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;  /* no iOS long-press menu */
+  }
+  .mars-compare__hold[aria-pressed="true"] { background: var(--aged); color: #ffffff; }
+  .mars-compare__hold:focus-visible {
+    outline: 3px solid var(--aged);
+    outline-offset: 2px;
+  }
+}
+.mars-compare__note { margin: 0.6rem 0 0; }
+
+/* ---- The count-model ablation (stage v2.2-C, js/mars-ablation.js) --------
+   One toggle drives the dumbbell chart and the four tiles. The chart's SVG
+   is drawn at its own CSS width (1 unit = 1 px); its height is reserved
+   here from the script's constants: 14 + 3 x 42 + 44 = 184 px, phones
+   14 + 3 x 40 + 44 = 178 px, so nothing shifts when it draws. Chart text
+   is --grey / --dark / the row colours on white: 6.9:1, 16.5:1, red 6.0:1,
+   blue 5.5:1, green 5.4:1 (SVG fill, which the contrast pass does not read).
+   Tiles: four equal squares, 2 x 2 on phones. */
+.mars-abl__card {
   border: 1px solid var(--rule);
   border-radius: var(--radius);
-  background: var(--mint);
-  container-type: inline-size;
+  background: #ffffff;
+  padding: 16px 16px 12px;
 }
-.mars-compare__nums {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-.mars-compare__label {
-  margin: 0;
-  font-family: var(--font-head);
-  line-height: 1.25;
-}
-.mars-compare__label span {
+.mars-abl__chart {
   display: block;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: var(--dark);
-  white-space: nowrap;
+  width: 100%;
+  height: 184px;
+  overflow: visible;
 }
-.mars-compare__label.is-left span::before { content: "\2190\00a0" / ""; }
-.mars-compare__label.is-right span::after { content: "\00a0\2192" / ""; }
-.mars-compare__label b {
-  display: block;
-  margin-top: 0.15rem;
-  font-weight: 600;
-  font-size: clamp(1.375rem, 3vw, 1.75rem);
-  white-space: nowrap;
-}
-.mars-compare__label.is-left b { color: var(--red); }     /* 5.9:1 on MINT */
-.mars-compare__label.is-right { text-align: right; }
-.mars-compare__label.is-right b { color: var(--green); }  /* 5.1:1 on MINT */
-.mars-compare__note { margin: -0.5rem 0 0; }
-.mars-compare__gt {
-  margin: auto 0 0;               /* sits on the panel's bottom edge */
+.mars-abl__legend {
   display: flex;
-  align-items: flex-end;
-  gap: 0.75rem;
-  min-height: 0;
-}
-.mars-compare__gt img {
-  display: block;
-  width: clamp(72px, 40%, 180px);
-  height: auto;
-  aspect-ratio: 1 / 1;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--paper);
-}
-.mars-compare__gt figcaption {
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin: 0.4rem 0 0;
   font-size: 0.8125rem;
-  color: var(--grey);
+  color: var(--grey);            /* 6.9:1 on the white card */
 }
-
-/* a narrow panel (about 601-700 px viewports): the two numbers stack, and
-   the thumbnail takes its phone size, so nothing collides */
-@container (max-width: 290px) {
-  .mars-compare__nums { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
-  .mars-compare__gt img { width: 72px; }
+.mars-abl__key { display: inline-flex; align-items: center; gap: 0.4rem; }
+.mars-abl__dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--grey);
+  background: #ffffff;
 }
-
+.mars-abl__dot.is-filled { background: var(--grey); }
+.mars-abl__tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.mars-abl__tile { min-width: 0; }
+.mars-abl__im {
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+}
+.mars-abl__im img { display: block; width: 100%; height: 100%; }
+.mars-abl__cap {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-head);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.mars-abl__cap span {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--grey);            /* 6.65:1 on PAPER */
+}
+.mars-abl__cap b { font-weight: 400; white-space: nowrap; }
+.mars-abl__note { margin-top: 0.75rem; }
 @media (max-width: 600px) {
-  .mars-compare__body { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; }
-  .mars-compare__gt img { width: 72px; }
+  .mars-abl__card { padding: 12px 12px 10px; }
+  .mars-abl__chart { height: 178px; }
+  .mars-abl__tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ---- The cube slicer (stage v2.1-C, js/mars-slicer.js) -------------------

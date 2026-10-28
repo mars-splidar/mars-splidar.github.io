@@ -689,6 +689,178 @@
       </figure>
     </article>
 
+    <!-- EFFICIENCY (stage v2.2-B). The approved concept is
+         build_instructions/review/concepts/v22/efficiency_concept_v3.html.
+         One animated schematic, no data: the gold standard's loops fill the
+         cube one cell at a time, MaRS's three steps fill it in one go. NO
+         timer, clock or runtime number anywhere in it (non-negotiable #6
+         stays moot). The note carries #1's sanctioned phrase ("one table per
+         sensor configuration ... reused for every pixel and depth") and #8's
+         conditioned delay statement ("At fixed S and B"); 105 MB and 108 GB
+         are PROJECT_BRIEF 3.4. tools/audit_claims.py checks all three.
+         TWO SVGs, one per breakpoint (the site's 600/601 query pair): SVG
+         text cannot reflow, and the phone arrangement is stacked, so each
+         layout is its own viewBox with its own fixed aspect ratio (no layout
+         shift, the box is reserved by CSS before any script runs). Both are
+         driven by js/mars-efficiency.js, which builds the grids, the photon
+         strip, the table cells and the PDF from the data-* geometry below and
+         animates only the SVG that is shown, only while it is on screen.
+         Text inside the schematic is class mars-schematic: page_budget.py
+         reports it apart from the prose budget (status 2, 2026-10-28). -->
+    <article class="mars-demo" id="demo-efficiency"
+             aria-labelledby="demo-efficiency-title">
+      <p class="mars-eyebrow is-simulator">Efficiency</p>
+      <h3 class="mars-demo__title" id="demo-efficiency-title">Fast enough for training data</h3>
+      <p class="mars-demo__sentence">The gold standard checks every photon, pixel by pixel. Because our count model is analytic, MaRS computes all the statistics once and stores them in a lookup table. Simulation then fills every pixel and realization in one step.</p>
+      <figure class="mars-demo__media mars-eff" id="demo-efficiency-media"
+              data-media-slot="demo-efficiency">
+        <div class="mars-eff__frame">
+          <!-- WIDE (>= 601 px). 940 units across the frame's 938 px at the
+               960 px column, so a 12.5-unit label renders at 12.5 px. -->
+          <svg class="mars-eff__svg mars-schematic is-wide" viewBox="0 0 940 568"
+               xmlns="http://www.w3.org/2000/svg" role="img"
+               aria-label="The sequential gold standard checks every photon against the dead time and fills the histogram cube one pixel at a time. MaRS looks up each pixel’s mean, variance and temporal PDF in a precomputed table, shifts the PDF by the pixel’s delay, and fills every pixel and realization in one step.">
+            <text class="mars-eff__h" x="0" y="22">Sequential gold standard</text>
+            <g class="mars-eff__code">
+              <text x="0" y="50">for each realization</text>
+              <text x="16" y="71">for each pixel</text>
+              <text x="32" y="92">for each photon:</text>
+              <text x="48" y="113">blind? drop it</text>
+            </g>
+            <g class="mars-eff__strip" transform="translate(0 138)" data-w="620" data-blind="62"
+               data-photons="31 60 76 134 157 177 248 271 341 364 378 444 486 504 558 594"></g>
+            <text class="mars-eff__small" x="0" y="206">Photons at one pixel. After each detection the detector is blind (shaded) and later photons are dropped (grey).</text>
+            <text class="mars-eff__cap" x="680" y="22">3 realizations × 64 pixels, one at a time</text>
+            <g class="mars-eff__grids is-gold" transform="translate(680 52)" data-pitch="10" data-gap="10"></g>
+
+            <line class="mars-eff__rule" x1="0" y1="230" x2="940" y2="230"/>
+
+            <text class="mars-eff__h is-mars" x="0" y="266">MaRS</text>
+            <text class="mars-eff__step" x="0" y="298" data-step="1">1. Look up the pixel’s (S, B) entry</text>
+            <text class="mars-eff__step" x="0" y="324" data-step="2">2. Shift its PDF by the pixel’s delay</text>
+            <text class="mars-eff__step" x="0" y="350" data-step="3">3. Sample all pixels and realizations</text>
+            <text class="mars-eff__cap" x="0" y="384">Steps 1 to 3 run on every pixel at once.</text>
+
+            <text class="mars-eff__label" x="282" y="266">Lookup table</text>
+            <text class="mars-eff__small" x="282" y="283">one entry per (S, B)</text>
+            <g class="mars-eff__lut" transform="translate(282 296)" data-cols="10" data-rows="9"
+               data-pitch="12" data-hi="4 7" data-to="424"></g>
+            <text class="mars-eff__small" x="282" y="424">S →</text>
+            <text class="mars-eff__small" x="274" y="404" transform="rotate(-90 274 404)">B →</text>
+
+            <g class="mars-eff__entry" transform="translate(424 254)">
+              <rect class="mars-eff__card" x="0" y="0" width="228" height="208" rx="8"/>
+              <text class="mars-eff__label is-mars" x="12" y="22">One entry holds</text>
+              <text class="mars-eff__def" x="12" y="46"><tspan class="mars-eff__sym">μ</tspan><tspan x="36">mean photon count</tspan></text>
+              <text class="mars-eff__def" x="12" y="66"><tspan class="mars-eff__sym">σ²</tspan><tspan x="36">count variance</tspan></text>
+              <text class="mars-eff__def" x="12" y="86"><tspan class="mars-eff__sym">π</tspan><tspan x="36">temporal PDF</tspan></text>
+              <g class="mars-eff__pdf" transform="translate(12 100)" data-w="204" data-h="80">
+                <rect class="mars-eff__plot" x="0" y="0" width="204" height="80"/>
+                <line class="mars-eff__ref" x1="46" y1="4" x2="46" y2="76"/>
+                <line class="mars-eff__tau" x1="158" y1="4" x2="158" y2="76"/>
+                <text class="mars-eff__small" x="46" y="96" text-anchor="middle">reference delay</text>
+                <text class="mars-eff__small mars-eff__taulbl" x="158" y="96" text-anchor="middle">pixel’s delay τ</text>
+              </g>
+            </g>
+            <path class="mars-eff__arrow" d="M658 340h14"/>
+            <path class="mars-eff__head" d="M674 340l-6-4v8z"/>
+
+            <text class="mars-eff__cap" x="680" y="266">3 realizations × 64 pixels, in one step</text>
+            <g class="mars-eff__grids is-mars" transform="translate(680 300)" data-pitch="10" data-gap="10"></g>
+
+            <line class="mars-eff__rule" x1="0" y1="480" x2="940" y2="480"/>
+            <g transform="translate(0 500)">
+              <rect class="mars-eff__icon" x="0" y="0" width="40" height="40" rx="4"/>
+              <text class="mars-eff__iconlbl" x="20" y="25" text-anchor="middle">S×B</text>
+              <text class="mars-eff__noteh" x="54" y="14">Why the table is small: it has no delay axis.</text>
+              <text class="mars-eff__note" x="54" y="35">At fixed S and B, the delay only shifts π. So one table per sensor configuration</text>
+              <text class="mars-eff__note" x="54" y="55">is 105 MB instead of 108 GB, reused for every pixel and depth.</text>
+            </g>
+          </svg>
+          <!-- PHONE (<= 600 px), stacked: gold standard, then MaRS, then the
+               note. 340 units across the frame's 341 px at a 375 px screen. -->
+          <svg class="mars-eff__svg mars-schematic is-tall" viewBox="0 0 340 1116"
+               xmlns="http://www.w3.org/2000/svg" role="img"
+               aria-label="The sequential gold standard checks every photon against the dead time and fills the histogram cube one pixel at a time. MaRS looks up each pixel’s mean, variance and temporal PDF in a precomputed table, shifts the PDF by the pixel’s delay, and fills every pixel and realization in one step.">
+            <g transform="translate(10 0)">
+              <text class="mars-eff__h" x="0" y="24">Sequential gold standard</text>
+              <g class="mars-eff__code">
+                <text x="0" y="52">for each realization</text>
+                <text x="16" y="72">for each pixel</text>
+                <text x="32" y="92">for each photon:</text>
+                <text x="48" y="112">blind? drop it</text>
+              </g>
+              <g class="mars-eff__strip" transform="translate(0 128)" data-w="320" data-blind="40"
+                 data-photons="12 30 44 92 110 158 174 188 236 254 290 306"></g>
+              <text class="mars-eff__small" x="0" y="194">Photons at one pixel. After each detection</text>
+              <text class="mars-eff__small" x="0" y="211">the detector is blind (shaded) and later</text>
+              <text class="mars-eff__small" x="0" y="228">photons are dropped (grey).</text>
+              <text class="mars-eff__cap" x="0" y="258">3 realizations × 64 pixels, one at a time</text>
+              <g class="mars-eff__grids is-gold" transform="translate(0 284)" data-pitch="12" data-gap="16"></g>
+
+              <line class="mars-eff__rule" x1="0" y1="400" x2="320" y2="400"/>
+
+              <text class="mars-eff__h is-mars" x="0" y="434">MaRS</text>
+              <text class="mars-eff__step" x="0" y="464" data-step="1">1. Look up the pixel’s (S, B) entry</text>
+              <text class="mars-eff__step" x="0" y="488" data-step="2">2. Shift its PDF by the pixel’s delay</text>
+              <text class="mars-eff__step" x="0" y="512" data-step="3">3. Sample all pixels and realizations</text>
+              <text class="mars-eff__cap" x="0" y="542">Steps 1 to 3 run on every pixel at once.</text>
+
+              <text class="mars-eff__label" x="14" y="578">Lookup table</text>
+              <text class="mars-eff__small" x="14" y="595">one entry per (S, B)</text>
+              <g class="mars-eff__lut" transform="translate(14 606)" data-cols="10" data-rows="7"
+                 data-pitch="12" data-hi="3 7" data-to="152"></g>
+              <text class="mars-eff__small" x="14" y="708">S →</text>
+              <text class="mars-eff__small" x="8" y="690" transform="rotate(-90 8 690)">B →</text>
+
+              <g class="mars-eff__entry" transform="translate(152 566)">
+                <rect class="mars-eff__card" x="0" y="0" width="168" height="204" rx="8"/>
+                <text class="mars-eff__label is-mars" x="12" y="22">One entry holds</text>
+                <text class="mars-eff__def" x="12" y="44"><tspan class="mars-eff__sym">μ</tspan><tspan x="34">mean photon count</tspan></text>
+                <text class="mars-eff__def" x="12" y="63"><tspan class="mars-eff__sym">σ²</tspan><tspan x="34">count variance</tspan></text>
+                <text class="mars-eff__def" x="12" y="82"><tspan class="mars-eff__sym">π</tspan><tspan x="34">temporal PDF</tspan></text>
+                <g class="mars-eff__pdf" transform="translate(12 94)" data-w="144" data-h="64">
+                  <rect class="mars-eff__plot" x="0" y="0" width="144" height="64"/>
+                  <line class="mars-eff__ref" x1="34" y1="4" x2="34" y2="60"/>
+                  <line class="mars-eff__tau" x1="104" y1="4" x2="104" y2="60"/>
+                  <text class="mars-eff__small" x="30" y="81">reference delay</text>
+                  <text class="mars-eff__small mars-eff__taulbl" x="108" y="99" text-anchor="end">pixel’s delay τ</text>
+                </g>
+              </g>
+              <path class="mars-eff__arrow" d="M160 780v14"/>
+              <path class="mars-eff__head" d="M160 796l-4-6h8z"/>
+
+              <text class="mars-eff__cap" x="0" y="822">3 realizations × 64 pixels, in one step</text>
+              <g class="mars-eff__grids is-mars" transform="translate(0 848)" data-pitch="12" data-gap="16"></g>
+
+              <line class="mars-eff__rule" x1="0" y1="964" x2="320" y2="964"/>
+              <g transform="translate(0 982)">
+                <rect class="mars-eff__icon" x="0" y="0" width="40" height="40" rx="4"/>
+                <text class="mars-eff__iconlbl" x="20" y="25" text-anchor="middle">S×B</text>
+                <text class="mars-eff__noteh" x="54" y="15">Why the table is small:</text>
+                <text class="mars-eff__noteh" x="54" y="34">it has no delay axis.</text>
+                <text class="mars-eff__note" x="0" y="64">At fixed S and B, the delay only shifts π.</text>
+                <text class="mars-eff__note" x="0" y="84">So one table per sensor configuration is</text>
+                <text class="mars-eff__note" x="0" y="104">105 MB instead of 108 GB, reused for</text>
+                <text class="mars-eff__note" x="0" y="124">every pixel and depth.</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <!-- For screen readers: the SVGs are role="img" (their children are
+             not read), so the three steps and the note are repeated here, in
+             order, visually hidden. -->
+        <div class="mars-visually-hidden">
+          <ol>
+            <li>Look up the pixel’s (S, B) entry.</li>
+            <li>Shift its PDF by the pixel’s delay.</li>
+            <li>Sample all pixels and realizations.</li>
+          </ol>
+          <p>Steps 1 to 3 run on every pixel at once. Why the table is small: it has no delay axis. At fixed S and B, the delay only shifts π. So one table per sensor configuration is 105 MB instead of 108 GB, reused for every pixel and depth.</p>
+        </div>
+      </figure>
+    </article>
+
     <!-- DEMO 3 — DOWNSTREAM. SBR 0.6 only (PROJECT_BRIEF 8). The title is an
          approved soundbite (PROJECT_BRIEF 4.3). +17 dB is 24.25 - 7.02 dB,
          MaRS-trained over Poisson-trained, reflectivity PSNR on gold-standard
@@ -913,5 +1085,6 @@
 <script src="js/mars-nav.js"></script>
 <script src="js/mars-main.js"></script>
 <script src="js/mars-compare.js"></script>
+<script src="js/mars-efficiency.js"></script>
 </body>
 </html>

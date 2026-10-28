@@ -1612,6 +1612,69 @@ img, video { max-width: 100%; height: auto; display: block; }
   overflow: visible;
 }
 
+/* ---- Efficiency: the schematic (stage v2.2-B, js/mars-efficiency.js) -----
+   Two inline SVGs inside one frame, one per breakpoint, on the site's exact
+   600/601 query pair (a zoomed 600.5 px viewport shows exactly one). Each
+   has a fixed aspect ratio, so the frame's height is reserved before the
+   script runs. Sizes are in SVG units: the wide viewBox is 940 units across
+   the frame's 938 px at the 960 px column, the phone one 340 units across
+   341 px at 375, so 1 unit is 1 CSS px at those widths and the smallest
+   label (12.5 units) renders at 12.5 px. SVG text is coloured by `fill`, which
+   tools/audit_claims.py's contrast pass does not read, so the figures are
+   here: --dark and --grey on white 16.5:1 and 6.9:1; on the mint card --grey
+   6.2:1, --green 4.9:1, --blue 5.0:1; the green S×B on its tint 4.7:1. */
+.mars-eff__frame {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 16px 9px 14px;        /* 940 px inside at the 960 px column */
+}
+.mars-eff__svg {
+  display: none;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.mars-eff__svg.is-wide { aspect-ratio: 940 / 568; }
+.mars-eff__svg.is-tall { aspect-ratio: 340 / 1116; }
+@media not all and (max-width: 600px) { .mars-eff__svg.is-wide { display: block; } }
+@media (max-width: 600px) {
+  .mars-eff__svg.is-tall { display: block; }
+  .mars-eff__frame { padding: 14px 0 12px; }
+}
+.mars-eff text { font-family: var(--font-body); fill: var(--dark); }
+.mars-eff .mars-eff__h { font-family: var(--font-head); font-weight: 600; font-size: 17px; }
+.mars-eff .is-mars { fill: var(--green); }
+.mars-eff .mars-eff__code text { font-family: var(--font-mono); font-size: 13.5px; fill: var(--grey); }
+.mars-eff .mars-eff__cap { font-size: 13px; fill: var(--grey); }
+.mars-eff .mars-eff__small { font-size: 12.5px; fill: var(--grey); }
+.mars-eff .mars-eff__label { font-size: 13px; font-weight: 600; }
+.mars-eff .mars-eff__step { font-size: 14.5px; fill: var(--grey); }
+.mars-eff .mars-eff__step.is-on { fill: var(--green); font-weight: 700; }
+.mars-eff .mars-eff__def { font-size: 13.5px; }
+.mars-eff .is-tall .mars-eff__def { font-size: 13px; }
+.mars-eff .mars-eff__sym { font-weight: 600; }
+.mars-eff .mars-eff__taulbl { fill: var(--blue); }
+.mars-eff .mars-eff__noteh { font-size: 14px; font-weight: 600; }
+.mars-eff .mars-eff__note { font-size: 14px; }
+.mars-eff .mars-eff__iconlbl { font-size: 12.5px; font-weight: 600; fill: var(--green); }
+.mars-eff__rule { stroke: var(--rule); stroke-width: 1; }
+.mars-eff__card { fill: var(--mint); stroke: #bcd9c7; }
+.mars-eff__plot { fill: #fff; stroke: #dfe6e1; }
+.mars-eff__ref { stroke: var(--grey); stroke-dasharray: 3 3; }
+.mars-eff__tau { stroke: var(--blue); stroke-dasharray: 3 3; stroke-width: 1.4; }
+.mars-eff__arrow { stroke: #9aa59f; stroke-width: 1.5; fill: none; }
+.mars-eff__head { fill: #9aa59f; }
+.mars-eff__icon { fill: #e6f1ea; stroke: var(--green); }
+.mars-eff__pdfpath { fill: rgba(14, 122, 70, 0.12); stroke: var(--green); stroke-width: 1.8; stroke-linejoin: round; }
+.mars-eff__bar { fill: var(--dark); fill-opacity: 0.55; }
+.mars-eff__cell { fill: #eef6f1; stroke: #d5e7dc; }
+.mars-eff__cell.is-hi { fill: var(--green); stroke: var(--green); }
+.mars-eff__lead { stroke: var(--green); stroke-width: 1.2; fill: none; }
+.mars-eff__axis { stroke: #cfd3cf; stroke-width: 1; }
+.mars-eff__blind { fill: rgba(176, 58, 46, 0.10); }
+.mars-eff__playhead { stroke: var(--dark); stroke-width: 1.5; }
+
 /* ---- Demo 3: the before/after slider (stage 09, js/mars-compare.js) ------
    Poisson-trained underneath on the left, MaRS-trained on top on the right,
    clipped at --pos. The <input type="range"> is the real control (keyboard,

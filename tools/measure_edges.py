@@ -85,9 +85,14 @@ MAIN = [
     # v2.1's question above the teaser and the gains strip
     ("In short heading", "#in-short-heading", "L"),
     ("In short prose", ".mars-inshort", "L"),
+    # The card is the judged block. Its image spans the card's full width,
+    # but its painted ancestor is the WHITE card, so this script's +/- 8 px
+    # crop reaches the card's ring and the mint beyond it and reports -8/+9:
+    # the image and the caption (inset 14 px inside the card) are reported
+    # only. v2.2-A measures the image box from the DOM instead.
     ("Fig. 1 card", ".mars-context", "F"),
-    ("Fig. 1 image", ".mars-context__pic", "F"),
-    ("Fig. 1 caption", ".mars-context__caption", "L"),
+    ("Fig. 1 image", ".mars-context__pic", "X"),
+    ("Fig. 1 caption", ".mars-context__caption", "X"),
     ("Demo 2 eyebrow", "#demo-accuracy .mars-eyebrow", "L"),
     ("Demo 2 title", "#demo-accuracy-title", "L"),
     ("Demo 2 sentence", "#demo-accuracy .mars-demo__sentence", "L"),

@@ -37,6 +37,21 @@ inference crop is rendered exactly as before and THEN trimmed in pixel space
 below its lowest remaining ink (the depth tile), so every pixel it keeps is a
 pixel of the old export, and the phone does not scroll past a blank block.
 
+THE TIGHT INFERENCE CROP (stage v2.2-P, T3): fig1_context_infer_tight (1200,
++ PNG) and _infer_tight_600, what phones show since v2.2-P, at 68 % of the
+card. The box is found from the ink of the question-free PDF, not by eye:
+the inference panel's region (x 2468-3789 pt) holds four runs of ink
+columns — the black arrow coming in from the cube (it starts on the crop's
+left edge), the inference shape, the bracket and the two output tiles. The
+tight box starts INFER_TIGHT_MARGIN_PT left of the shape, ends at the
+panel's right edge (the tiles run to the figure's edge), and spans the ink
+of shape, bracket and tiles plus the same margin above and below. Asserted:
+the arrow's last ink column is left of the box, and the box's left column
+and its top and bottom rows hold no ink in every output file (the edge
+check is printed). It is rendered by the same pipeline (pdftocairo at 2x,
+Lanczos down), so every pixel is the PDF's; the older infer files are kept
+until v2.2-D.
+
 THE DIFF (written to stdout; the stage keeps it as fig1_diff.txt). For each
 PNG: (1) the ORIGINAL PDF re-rendered through this pipeline vs the committed
 fig1_question*.png, which shows the pipeline is deterministic here; (2) the
@@ -92,6 +107,11 @@ QUESTION_WORDS = ["Can", "we", "simulate", "this", "process?", "Fast", "and",
 PAGE_H = 2157                 # MediaBox height, pt: user space is y-up
 LANCZOS_PAD = 3               # output px; Lanczos-3 at a 2x downsample reaches 3
 INFER_MARGIN_PT = 12          # white kept under the depth tile's lowest ink
+INFER_TIGHT_MARGIN_PT = 8     # v2.2-P: white kept around the tight crop's ink
+TIGHT_FILES = [               # v2.2-P (T3): (basename, width, PNG?)
+    ("fig1_context_infer_tight", 1200, True),
+    ("fig1_context_infer_tight_600", 600, False),
+]
 
 
 def strip_question(src: Path, dst: Path) -> tuple[list[float], list[float]]:
@@ -149,21 +169,59 @@ def words(pdf: Path) -> list[tuple[str, float, float, float, float]]:
     return out
 
 
-def render(pdf: Path, x0, x1, width) -> Image.Image:
-    """build_fig1_question.py's render(), with the PDF as an argument."""
-    wpt, hpt = x1 - x0, Y1 - Y0
+def render(pdf: Path, x0, x1, width, y0=Y0, y1=Y1) -> Image.Image:
+    """build_fig1_question.py's render(), with the PDF as an argument (and,
+    since v2.2-P, an optional vertical range; the default is the old one)."""
+    wpt, hpt = x1 - x0, y1 - y0
     height = round(width * hpt / wpt)
     dpi = 2 * width / wpt * 72
     s = dpi / 72
     with tempfile.TemporaryDirectory() as td:
         stem = Path(td) / "r"
         subprocess.run(["pdftocairo", "-png", "-singlefile", "-r", f"{dpi:.4f}",
-                        "-x", str(round(x0 * s)), "-y", str(round(Y0 * s)),
+                        "-x", str(round(x0 * s)), "-y", str(round(y0 * s)),
                         "-W", str(round(wpt * s)), "-H", str(round(hpt * s)),
                         str(pdf), str(stem)], check=True)
         im = Image.open(str(stem) + ".png").convert("RGB")
         im.load()
     return im.resize((width, height), Image.LANCZOS)
+
+
+def tight_box(clean: Path) -> tuple[float, float, float, float]:
+    """v2.2-P: the tight inference box (x0, x1, y0, y1) in pt, from the ink."""
+    x0, x1 = CROPS["infer"]
+    width = 2400
+    a = np.asarray(render(clean, x0, x1, width).convert("L"))
+    k = width / (x1 - x0)
+    ink = a < 250
+    cols = np.nonzero(ink.any(axis=0))[0]
+    runs, start = [], cols[0]
+    for c, nxt in zip(cols, list(cols[1:]) + [None]):
+        if nxt is None or nxt != c + 1:
+            runs.append((int(start), int(c)))
+            start = nxt
+    assert len(runs) == 4 and runs[0][0] == 0, runs     # arrow, shape, bracket, tiles
+    arrow_end = x0 + (runs[0][1] + 1) / k
+    shape_start = x0 + runs[1][0] / k
+    rows = np.nonzero(ink[:, runs[1][0]:].any(axis=1))[0]
+    m = INFER_TIGHT_MARGIN_PT
+    box = (round(shape_start - m, 1), x1,
+           round(max(Y0, Y0 + rows[0] / k - m), 1),
+           round(min(Y1, Y0 + (rows[-1] + 1) / k + m), 1))
+    assert box[0] > arrow_end + 2, (box, arrow_end)
+    print(f"Tight inference crop (v2.2-P): ink runs in x 2468-3789 pt: "
+          + ", ".join(f"{x0 + r0 / k:.1f}-{x0 + (r1 + 1) / k:.1f}" for r0, r1 in runs)
+          + f" pt (arrow, shape, bracket, tiles).")
+    print(f"  box x {box[0]}-{box[1]}, y {box[2]}-{box[3]} pt; the arrow ends at "
+          f"{arrow_end:.1f} pt, {box[0] - arrow_end:.1f} pt left of the box.")
+    return box
+
+
+def edge_check(im: Image.Image) -> dict[str, int]:
+    """Ink pixels (< 250 grey) on each edge: left/top/bottom must be 0."""
+    a = np.asarray(im.convert("L")) < 250
+    return {"left": int(a[:, :2].sum()), "top": int(a[:2].sum()),
+            "bottom": int(a[-2:].sum()), "right": int(a[:, -2:].sum())}
 
 
 def md5(p: Path) -> str:
@@ -221,6 +279,22 @@ def main() -> int:
                 im.save(td / f"{base}.png", "PNG", optimize=True)
                 line += f"   png {(td / f'{base}.png').stat().st_size:>9,} B"
             print(line)
+
+        tb = tight_box(clean)
+        for base, width, png in TIGHT_FILES:
+            im = render(clean, tb[0], tb[1], width, tb[2], tb[3])
+            im.save(td / f"{base}.webp", "WEBP", quality=WEBP_Q, method=6)
+            line = (f"  {base:<24} {im.width:>4} x {im.height:<4} "
+                    f"webp {(td / f'{base}.webp').stat().st_size:>7,} B")
+            if png:
+                im.save(td / f"{base}.png", "PNG", optimize=True)
+                line += f"   png {(td / f'{base}.png').stat().st_size:>9,} B"
+            e = edge_check(im)
+            line += f"   edge ink px {e}"
+            assert e["left"] == 0 and e["top"] == 0 and e["bottom"] == 0, (base, e)
+            print(line)
+        print("  (left, top and bottom edges hold no ink; the right edge is the "
+              "tiles, which run to the figure's edge)")
 
         print("\nPixel diff, PNG only (WebP is lossy). Region = the arrow's and the "
               f"question's boxes in px, grown by {LANCZOS_PAD} px.")

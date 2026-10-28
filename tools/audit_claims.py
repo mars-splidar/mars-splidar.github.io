@@ -844,7 +844,18 @@ def check_dead_time_sections(rep: Report) -> None:
 
 
 def check_gain_order(rep: Report) -> None:
-    """#11 — accuracy -> table size -> speed -> downstream, in that order."""
+    """#11 — accuracy -> table size -> speed -> downstream, in that order.
+
+    RETIRED FOR `/` IN STAGE v2.2-A, deliberately and not silently: the four
+    gains strip is gone from the main page (MARS_WEBSITE_BUILD_GUIDE.md 0.7;
+    WEBSITE_BUILD_STATUS.md 3.7, "v2.2 amendments": "Non-negotiable #11 no
+    longer applies to `/`: the strip is gone. The auditor's check is retired
+    for `/` with a comment saying why"). Each number now lives in its own
+    module (30x Accuracy, 40x / 1000x Efficiency, +17 dB Downstream), and
+    every one of them is still traced by pass 2 and by its own copy rule.
+    The function stays so the rule comes back by itself if a `ul.mars-stats`
+    strip ever returns to the page: then it must be in the settled order.
+    """
     index = REPO / "index.html"
     if not index.exists():
         rep.fail("index.html", "missing [#11]", "cannot check gain order")
@@ -856,6 +867,11 @@ def check_gain_order(rep: Report) -> None:
     # search reported a false 40x -> 30x -> 1000x order. #11 is about the four
     # gain blocks, so read the order out of the one `ul.mars-stats` list.
     strips = re.findall(r'<ul class="mars-stats">(.*?)</ul>', source, re.S)
+    if not strips:
+        rep.info.append(
+            "four gains order [#11]: retired for / (v2.2-A, guide 0.7 / status "
+            "3.7 v2.2 amendment) — no ul.mars-stats strip on the page")
+        return
     if len(strips) != 1:
         rep.fail("index.html", "gains strip [#11]",
                  f"expected exactly one <ul class=\"mars-stats\">, found "

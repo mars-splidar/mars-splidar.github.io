@@ -56,6 +56,19 @@ BY_PATH_MAIN = [
     "assets/img/slicer_ph_mars.webp",
     "assets/img/slicer_ph_chart_960.webp",
     "assets/img/slicer_ph_chart_390.webp",
+    # Fig. 1 without the question, in the In short band (v2.2-A). It ships
+    # as data-srcset / data-src (js/mars-main.js promotes it below the first
+    # screen), and the data-src scan above does not read srcset lists, so
+    # every file is checked here, by path.
+    "assets/img/fig1_context.png",
+    "assets/img/fig1_context.webp",
+    "assets/img/fig1_context_960.webp",
+    "assets/img/fig1_context_acq.png",
+    "assets/img/fig1_context_acq.webp",
+    "assets/img/fig1_context_acq_600.webp",
+    "assets/img/fig1_context_infer.png",
+    "assets/img/fig1_context_infer.webp",
+    "assets/img/fig1_context_infer_600.webp",
 ]
 
 

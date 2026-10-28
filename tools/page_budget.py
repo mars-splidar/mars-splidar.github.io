@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Main-page budget gate — MARS_WEBSITE_BUILD_GUIDE.md 0.1, as revised by 0.6 item 6.
+"""Main-page budget gate — MARS_WEBSITE_BUILD_GUIDE.md 0.1, as revised by 0.6 item 6 and 0.7.
 
 v1's main page measured about 2,440 visible words, 21 images, 5 animations and
 12 switch-bar tabs. v2's rule is that `/` answers "what is this, why does it
@@ -11,17 +11,20 @@ so the page cannot quietly grow back.
     python tools/page_budget.py --words    # also print every counted word
 
 Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
-420 words, at most 6 media items), and exactly how each is measured:
+420 words, at most 6 media items; since stage v2.2-A those of guide 0.7 —
+520 words, at most 9 media items), and exactly how each is measured:
 
-  1. VISIBLE WORDS <= 420 (350 until v2.1-A), excluding the nav, the BibTeX
+  1. VISIBLE WORDS <= 520 (350 until v2.1-A, 420 until v2.2-A), excluding the nav, the BibTeX
      code block and the funding line. "Visible" means what a sighted reader sees on the built
      page, so these are also EXCLUDED: anything inside an element with the
      `hidden` attribute, `aria-hidden="true"` or class `mars-visually-hidden`;
      <script>, <style>, <template>, comments; attribute text (alt, title,
      aria-label). These are INCLUDED even though they are not in the HTML
-     source: the hero button labels and the "Full-resolution originals" line,
-     which js/mars-nav.js renders from js/site.config.js — read here from
-     those two files, so a new button is counted.
+     source: the hero button labels, a null URL's "<Label> coming soon" text
+     (v2.2-A; it was "<Label> · soon"), and the "Full-resolution originals"
+     line (in Go deeper since v2.2-A), which js/mars-nav.js renders from
+     js/site.config.js — read here from those two files, so a new button is
+     counted.
      ONE DELIBERATE EXCEPTION to the `hidden` rule: the teaser's HTML label
      row (`.mars-teaser__labels`) is counted even if it ships `hidden`.
      Stage 07 shipped it hidden behind an interim raster and un-hid it at
@@ -43,10 +46,12 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      digit. So "—", "·", "→" and "↓" are not words; a hyphenated or
      ×-joined compound ("single-photon", "128×128×1024") is one word; "40×"
      and "+17dB" are one word each.
-  2. MEDIA ITEMS above the BibTeX band <= 6 (v2.1-A; was == 4) — guide 0.6
-     item 6 names six: the Fig. 1 top half, the teaser, the cube slicer,
-     Demo 2, Demo 3 and the film. The Fig. 1 figure is ONE item although it
-     holds two <picture>s (the desktop image, and the second phone crop).
+  2. MEDIA ITEMS above the BibTeX band <= 9 (v2.2-A, guide 0.7; 6 from
+     v2.1-A, == 4 before) — guide 0.6 item 6 named six: the Fig. 1 top half,
+     the teaser, the cube slicer, Demo 2, Demo 3 and the film; v2.2-B/C add
+     Efficiency and the ablation. The Fig. 1 figure (in the In short band
+     since v2.2-A) is ONE item although it holds two <picture>s (the desktop
+     image, and the second phone crop).
      Counted as `[data-media-slot]` containers, not as <img> tags: a demo's
      one media item may legitimately hold several images (stage 07's interim
      Demo 3 is a two-up). As a guard, any <img>, <video>, <picture>,
@@ -58,6 +63,10 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
      (`.mars-demo__title`) of at most 8 words; exactly ONE sentence
      (`.mars-demo__sentence`) of at most 35 words, ending in . ! or ? with no
      sentence break inside it; exactly one media slot.
+     v2.2-A EXCEPTION, by id (SENTENCES_MAX below): #demo-accuracy may hold
+     TWO sentences. Guide 0.7's style rule (no semicolons) and the stage doc's
+     T5 turned its one sentence's semicolon into a full stop — the same
+     words, now two sentences. The 35-word limit is unchanged.
      AMBIGUITY, flagged rather than resolved: the guide writes "eyebrow +
      title <= 8 words". Read as a combined limit, the guide's own approved
      Demo 3 title ("Train on wrong physics, fail on real physics.", 8 words)
@@ -68,8 +77,9 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
   6. THE CUBE SLICER (v2.1-C, guide 0.6 items 3 and 5), `section#slicer`:
      one eyebrow; a title (`#slicer-title`) of at most 8 words; the guiding
      text (`.mars-slicer__guide`) at most 35 words — it is the guide's
-     approved TWO sentences, verbatim, so the per-demo one-sentence rule is
-     not applied (it is not an article.mars-demo); exactly one media slot.
+     approved sentences, verbatim (three since v2.2-A, guide 0.7), so the
+     per-demo one-sentence rule is not applied (it is not an
+     article.mars-demo); exactly one media slot.
      The readout and footnote are prose and counted above.
 
 Standard library only.
@@ -85,12 +95,15 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 
-WORD_LIMIT = 420        # guide 0.6 item 6 (v2.1-A); was 350
-MEDIA_ITEMS = 6         # guide 0.6 item 6 (v2.1-A): at most 6; was exactly 4
+WORD_LIMIT = 520        # guide 0.7 (v2.2-A); 420 from v2.1-A, 350 before
+MEDIA_ITEMS = 9         # guide 0.7 (v2.2-A): at most 9; 6 from v2.1-A, exactly 4 before
 SWITCH_MAX = 0
 EQ_MAX = 0
 DEMO_TITLE_MAX = 8
 DEMO_SENTENCE_MAX = 35
+# v2.2-A: sentences allowed in a demo's `.mars-demo__sentence`, by article id
+# (default 1). See docstring item 5.
+SENTENCES_MAX = {"demo-accuracy": 2}
 INSHORT_MAX = 70
 
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link",
@@ -215,7 +228,7 @@ def js_rendered_words() -> tuple[list[str], str]:
         out.append(label)
         km = re.search(r'key:\s*"(\w+)"', rest)
         if km and re.search(r"\b%s:\s*null\b" % km.group(1), cfg):
-            out.append("· soon")
+            out.append("coming soon")       # "Code coming soon" (v2.2-A)
     note = []
     for key, lab in (("paperPdfFull", "paperPdfFullLabel"),
                      ("posterPdfFull", "posterPdfFullLabel")):
@@ -247,7 +260,7 @@ def main() -> int:
         if not ok:
             fails.append(label)
 
-    print(f"MaRS main-page budget — {args.page}  (MARS_WEBSITE_BUILD_GUIDE.md 0.1 / 0.6)\n")
+    print(f"MaRS main-page budget — {args.page}  (MARS_WEBSITE_BUILD_GUIDE.md 0.1 / 0.6 / 0.7)\n")
 
     # 1 — visible words
     static_words = words(text_of(body))
@@ -330,11 +343,13 @@ def main() -> int:
             s = text_of(se[0])
             sw_ = len(words(s))
             breaks = re.findall(r"[.!?]\s+[A-Z]", s)
+            nmax = SENTENCES_MAX.get(did, 1)
             check(sw_ <= DEMO_SENTENCE_MAX, f"#{did} sentence words", sw_,
                   f"<= {DEMO_SENTENCE_MAX}")
-            check(not breaks and s.rstrip()[-1:] in ".!?",
-                  f"#{did} is ONE sentence", f"{len(breaks)} internal break(s)",
-                  "0, and ends . ! ?")
+            check(len(breaks) <= nmax - 1 and s.rstrip()[-1:] in ".!?",
+                  f"#{did} is {'ONE sentence' if nmax == 1 else f'<= {nmax} sentences'}",
+                  f"{len(breaks)} internal break(s)",
+                  f"{nmax - 1}, and ends . ! ?")
         check(len(ms) == 1, f"#{did} has one media slot", len(ms), "== 1")
 
     # 6 — the cube slicer
@@ -355,7 +370,7 @@ def main() -> int:
               tiw, f"<= {DEMO_TITLE_MAX}")
         gw = len(words(text_of(gd[0]))) if gd else 0
         check(len(gd) == 1 and gw <= DEMO_SENTENCE_MAX,
-              "#slicer guiding text words (2 approved sentences)", gw,
+              "#slicer guiding text words (guide 0.7, 3 sentences)", gw,
               f"<= {DEMO_SENTENCE_MAX}")
         check(len(ms) == 1, "#slicer has one media slot", len(ms), "== 1")
 
@@ -363,7 +378,7 @@ def main() -> int:
     if fails:
         print(f"FAIL — {len(fails)} budget breach(es): " + "; ".join(fails))
         return 1
-    print("PASS — every guide 0.1 / 0.6 budget holds on " + args.page)
+    print("PASS — every guide 0.1 / 0.6 / 0.7 budget holds on " + args.page)
     return 0
 
 

@@ -673,7 +673,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 /* The null rule's text (v2.2-A): "Code coming soon", plain grey, after the
    buttons. A text node in an <li> — not a link, not a button, not focusable.
-   --grey on PAPER is 6.3:1 (the mock's #8b8b8b would be 3.4:1). */
+   --grey on PAPER is 6.65:1 (the mock's #8b8b8b would be 3.4:1). */
 .mars-hero__soon {
   align-self: center;
   margin-left: 0.3rem;
@@ -1555,7 +1555,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   margin-top: 0.6rem;
   padding: 0 14px;
   font-size: 0.875rem;
-  color: var(--grey);            /* on the white card: 6.6:1 */
+  color: var(--grey);            /* on the white card: 6.9:1 */
 }
 
 /* ---- Results: the demo cards -------------------------------------------- */

@@ -111,7 +111,10 @@ non-zero on a breach. Its docstring defines exactly what counts as a word and
 as a media item. Since v2.1-C it counts PROSE only: text inside a `.mars-ui`
 element (control labels, legends, axis text) is reported
 separately as "UI words" and is not held against the 420; it also checks the
-cube slicer's title, guiding text and media slot. `details_move_diff.py` extracts each of the seven bands,
+cube slicer's title, guiding text and media slot. Since v2.2-B text inside a
+`.mars-schematic` element (the Efficiency diagram's SVG labels) is reported
+the same way, once per SVG, and `#demo-efficiency` may hold its three-sentence,
+38-word lead (the limit is pinned at that approved length). `details_move_diff.py` extracts each of the seven bands,
 banner comment included, from `git show v1.0-launch:index.html` and from
 `details/index.html`, undoes the `../` path prefix and diffs them; the only
 allowed difference is the Simulator card's demo-lab link.
@@ -228,6 +231,7 @@ js/mars-nav.js          sticky nav, hamburger, hero button row
 js/mars-main.js         main page only: teaser, video poster, BibTeX copy
 js/mars-compare.js      main page only: Demo 3 before/after slider (stage 09)
 js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
+js/mars-efficiency.js   main page only: the Efficiency schematic's animation (v2.2-B)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
 js/mars-switchbar.js    the switch-bar (tab) pattern (/details/)
 js/mars-media.js        scroll-triggered animation slots (/details/)
@@ -563,3 +567,12 @@ Each build stage appends one line here.
   lazy by script. The four gains strip is gone (`audit_claims.py` retires its
   order check for `/`). New copy from guide §0.7. Prose 458/520, media 6/9.
   Review pack: `build_instructions/review/v22A/`.
+- **Stage v2.2-B — the Efficiency module (2026-10-28).** On branch
+  `v2.2-dev`, not pushed. `article#demo-efficiency` sits between Accuracy and
+  Downstream: the approved concept as two inline SVGs (wide, and a stacked
+  phone layout at ≤ 600 px), animated by `js/mars-efficiency.js` only while on
+  screen and the tab is visible; reduced motion draws the end state once. Its
+  note carries 105 MB / 108 GB, the "one table per sensor configuration"
+  phrase and "At fixed S and B", all checked by `audit_claims.py`. Smallest
+  text 12.5 px at the 960 px column, 12.5 px at 375. CLS 0. Prose 502/520,
+  media 7/9. Review pack: `build_instructions/review/v22B/`.

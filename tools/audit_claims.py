@@ -911,7 +911,7 @@ def check_efficiency(rep: Report) -> None:
 
 # v2.2-C — THE DOWNSTREAM MODULE AND THE COUNT-MODEL ABLATION. Every number
 # they show is PROJECT_BRIEF 3.5's (SBR 0.6), which rounds the paper's
-# tab:reconstruction_results (paper/sec/6_experiments.tex l. 195-233; the four
+# tab:reconstruction_results (paper/sec/6_experiments.tex l. 195-234; the four
 # decimals are in the comments below). TRANSFER_35 is that table, by row:
 # reflectivity PSNR val, test (dB), depth RMSE val, test (m). "val" is tested
 # on the row's own simulator / count model, "test" on gold-standard data.

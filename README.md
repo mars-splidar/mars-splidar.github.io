@@ -98,13 +98,14 @@ gains strip on `/`, and "exactly one `.mars-eq`" counts across both.
 ### The two v2 gates (stage 07)
 
 ```bash
-python tools/page_budget.py          # the main page's budgets, guide 0.1 / 0.6
+python tools/page_budget.py          # the main page's budgets, guide 0.1 / 0.6 / 0.7
 python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.6 item 6's limits since v2.1-A — visible words ≤ 420 (was 350), at most six
-media slots above BibTeX (was exactly four), zero switch bars, zero
+§0.7's limits since v2.2-A — visible words ≤ 520 (420 from v2.1-A, 350
+before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
+before), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
 non-zero on a breach. Its docstring defines exactly what counts as a word and
 as a media item. Since v2.1-C it counts PROSE only: text inside a `.mars-ui`
@@ -250,8 +251,12 @@ tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ## Editing rules that are not obvious from the code
 
 - **`js/site.config.js` is the only place a URL belongs.** A `null` URL renders
-  a non-clickable `· soon` pill. Never `href="#"`, never a link to a missing
-  file — the audit greps for it.
+  nothing clickable: since v2.2-A, plain grey text "<Label> coming soon" after
+  the hero buttons (it was a `· soon` pill). Never `href="#"`, never a link to
+  a missing file — the audit greps for it.
+- **Eyebrows on `/` are sentence case** (v2.2-A): `body.mars-home` drops the
+  uppercase transform and the tracking, so write the label as it should read.
+  `/details/` keeps its uppercase eyebrows until stage 11.
 - **`--gold` (#CFB991) is ONLY EVER A FILL** — background, pill, bar,
   underline, border. Never a text colour, at any size; the "display numeral ≥
   2rem" exemption was removed in stage 1.5 because gold on mint measures
@@ -548,3 +553,13 @@ Each build stage appends one line here.
   violation and no defect needing a fix. `v2.1` was merged into `main`
   (`--no-ff`) and tagged `v2.1`. Review pack and the author's v2.1 phone
   checklist: `build_instructions/review/v21E/`.
+- **Stage v2.2-A — compact hero, demo-first order, the In short band
+  (2026-10-28).** On branch `v2.2-dev`, not pushed. The hero is the approved
+  "Compact" mock (smaller buttons with icons, "Code coming soon" as plain
+  text), so the teaser's label row ends at 653 px at 1280 x 800. Order: hero,
+  teaser, slicer, then a mint In short band holding the 63-word paragraph and
+  the paper's Fig. 1 top half without its question (removed from the vector
+  PDF by `tools/build_fig1_context.py`: 0 px changed outside that region),
+  lazy by script. The four gains strip is gone (`audit_claims.py` retires its
+  order check for `/`). New copy from guide §0.7. Prose 458/520, media 6/9.
+  Review pack: `build_instructions/review/v22A/`.

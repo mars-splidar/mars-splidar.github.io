@@ -125,7 +125,13 @@ REPO = Path(__file__).resolve().parent.parent
 # into .mars-schematic wrappers, by the 2026-10-28 rule (WEBSITE_BUILD_STATUS
 # 2, "Budget pinned at 612"): moving words out re-pins the limit at the new
 # measured total, so it never creates room for new copy.
-WORD_LIMIT = 600        # v2.2-P re-pin; 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
+# v2.2-D: RE-PINNED at 598, the measured total after the author's copy
+# changes (approved copy re-pins the same way, guide 0.7): the slicer eyebrow
+# "Cube slicer · Visualize dead-time effects" +3, the BibTeX "Provisional
+# entry" note removed (the entry is final, author 2026-10-29) -5; the Accuracy
+# title's full stop, the Efficiency note's word order and the dash and
+# semicolon sweep change no word count. The 2 freed words are not room.
+WORD_LIMIT = 598        # v2.2-D re-pin; 600 v2.2-P, 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
 MEDIA_ITEMS = 9         # guide 0.7 (v2.2-A): at most 9; 6 from v2.1-A, exactly 4 before
 SWITCH_MAX = 0
 EQ_MAX = 0

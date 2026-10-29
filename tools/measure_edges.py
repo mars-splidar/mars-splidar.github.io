@@ -129,7 +129,6 @@ MAIN = [
     ("limitations line", ".mars-deeper__limits", "L"),
     ("BibTeX heading", ".mars-closing__title", "L"),
     ("BibTeX block", ".mars-code", "F"),
-    ("BibTeX note", ".mars-closing__note", "L"),
     ("footer rule", ".mars-closing__rule", "F"),
     ("footer links", ".mars-closing__links", "C"),
     ("footer funding", ".mars-closing__footer", "C"),

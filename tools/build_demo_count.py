@@ -146,8 +146,8 @@ FONT = "var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)"
 
 ARIA = ("Count distribution at one high-flux operating point. Bars: the "
         "sequential gold standard's histogram. The renewal model's "
-        "distribution sits far to the right of it; Zhang et al.'s is centred "
-        "on it but much too narrow; MaRS matches both its centre and its "
+        "distribution sits far to the right of it. Zhang et al.'s is centred "
+        "on it but much too narrow. MaRS matches both its centre and its "
         "width. Poisson's prediction lies far off the chart to the right.")
 
 FAIL: list[str] = []

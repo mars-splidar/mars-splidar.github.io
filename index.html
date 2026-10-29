@@ -10,8 +10,8 @@
      so a redirect happens before anything renders. Tiny, no dependencies. -->
 <script src="js/mars-redirect.js"></script>
 
-<title>MaRS — Markov-Renewal Single-Photon LiDAR Simulator</title>
-<meta name="description" content="MaRS gives the first analytic photon-count distribution under detector dead time — matching the sequential gold standard about 40× faster for a 128×128×1024 cube, and making physically faithful single-photon LiDAR training data practical. ECCV 2026.">
+<title>MaRS, Markov-Renewal Single-Photon LiDAR Simulator</title>
+<meta name="description" content="MaRS gives the first analytic photon-count distribution under detector dead time, matching the sequential gold standard about 40× faster for a 128×128×1024 cube, and making physically faithful single-photon LiDAR training data practical. ECCV 2026.">
 <link rel="canonical" href="https://mars-splidar.github.io/">
 
 <!-- Inline SVG favicon. Declared so the browser never falls back to
@@ -30,17 +30,17 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MaRS">
 <meta property="og:url" content="https://mars-splidar.github.io/">
-<meta property="og:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
+<meta property="og:title" content="MaRS, Markov-Renewal Single-Photon LiDAR Simulator">
 <meta property="og:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster for a 128×128×1024 cube. ECCV 2026.">
 <meta property="og:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=3">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike; the Poisson cube does not.">
+<meta property="og:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike. The Poisson cube does not.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MaRS — Markov-Renewal Single-Photon LiDAR Simulator">
+<meta name="twitter:title" content="MaRS, Markov-Renewal Single-Photon LiDAR Simulator">
 <meta name="twitter:description" content="The first analytic photon-count distribution under detector dead time. Matches the sequential gold standard, 40× faster for a 128×128×1024 cube. ECCV 2026.">
 <meta name="twitter:image" content="https://mars-splidar.github.io/assets/img/og_card.png?v=3">
-<meta name="twitter:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike; the Poisson cube does not.">
+<meta name="twitter:image:alt" content="Three simulated photon-count histogram cubes of the same scene, side by side: Poisson (fast, ignores dead time), the sequential gold standard (correct, the reference) and MaRS (correct and fast). The gold-standard and MaRS cubes look alike. The Poisson cube does not.">
 
 <!-- Google Scholar. citation_pdf_url points at the WEB copy of the paper, the
      same file the hero's Paper button serves; the full-resolution original is
@@ -259,7 +259,7 @@
                      assets/media/anim_hero_cubes.jpg 1920w"
              sizes="(max-width: 992px) calc(100vw - 32px), 960px"
              width="1920" height="484" fetchpriority="high" decoding="async"
-             alt="Three simulated photon-count histogram cubes of the same scene, side by side: the Poisson simulator, the sequential gold standard and MaRS. The gold-standard and MaRS cubes look alike; the Poisson cube, which ignores dead time, does not.">
+             alt="Three simulated photon-count histogram cubes of the same scene, side by side: the Poisson simulator, the sequential gold standard and MaRS. The gold-standard and MaRS cubes look alike. The Poisson cube, which ignores dead time, does not.">
         <video class="mars-teaser__video" muted loop playsinline
                preload="none" width="1920" height="484" aria-hidden="true"
                tabindex="-1" disablepictureinpicture>
@@ -355,11 +355,12 @@
      (v2.2-A; it was guide 0.6 item 3's two sentences), so this is not an
      article.mars-demo (whose gate wants exactly one sentence);
      page_budget.py checks the slicer on its own. The eyebrow is the
-     approved mock's sentence-case "Cube slicer" (v2.2-A).
+     author's sentence-case "Cube slicer · Visualize dead-time effects"
+     (restored in v2.2-D; v2.2-A had shortened it to "Cube slicer").
      ====================================================================== -->
 <section class="mars-band mars-slicer-band" id="slicer" aria-labelledby="slicer-title">
   <div class="mars-band__inner">
-    <p class="mars-eyebrow is-neutral">Cube slicer</p>
+    <p class="mars-eyebrow is-neutral">Cube slicer · Visualize dead-time effects</p>
     <h2 class="mars-demo__title" id="slicer-title">Look inside the three cubes</h2>
     <p class="mars-demo__sentence mars-slicer__guide">Click a pixel to see when its photons were registered. Dead time shifts the peak earlier. While Poisson ignores this, the gold standard and MaRS show it.</p>
 
@@ -391,7 +392,7 @@
                    src="assets/img/slicer_ph_poisson.webp" alt="Poisson time slice, bright-surface view."></noscript>
               <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
                       role="img" data-cube="poisson"
-                      aria-label="Poisson time slice; arrow keys move the selected pixel."></canvas>
+                      aria-label="Poisson time slice. Arrow keys move the selected pixel."></canvas>
             </div>
           </div>
           <div class="mars-slicer__cell is-gold">
@@ -403,7 +404,7 @@
                    src="assets/img/slicer_ph_gold.webp" alt="Gold-standard time slice, bright-surface view."></noscript>
               <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
                       role="img" data-cube="gold"
-                      aria-label="Gold-standard time slice; arrow keys move the selected pixel."></canvas>
+                      aria-label="Gold-standard time slice. Arrow keys move the selected pixel."></canvas>
             </div>
           </div>
           <div class="mars-slicer__cell is-mars">
@@ -415,7 +416,7 @@
                    src="assets/img/slicer_ph_mars.webp" alt="MaRS time slice, bright-surface view."></noscript>
               <canvas class="mars-slicer__cv" width="128" height="128" tabindex="0"
                       role="img" data-cube="mars"
-                      aria-label="MaRS time slice; arrow keys move the selected pixel."></canvas>
+                      aria-label="MaRS time slice. Arrow keys move the selected pixel."></canvas>
             </div>
           </div>
         </div>
@@ -459,7 +460,7 @@
           <p class="mars-slicer__msg" data-msg="loading" hidden>Loading the
             three cubes…</p>
           <p class="mars-slicer__msg is-error" data-msg="error" hidden>The
-            interactive slicer could not load; this is a still of the
+            interactive slicer could not load. This is a still of the
             bright-surface view.</p>
           <button type="button" class="mars-slicer__load" data-msg="saver"
                   hidden>Load the interactive slicer (&asymp;&nbsp;1.8&nbsp;MB)</button>
@@ -620,7 +621,7 @@
     <article class="mars-demo" id="demo-accuracy"
              aria-labelledby="demo-accuracy-title">
       <p class="mars-eyebrow is-theory">Accuracy</p>
-      <h3 class="mars-demo__title" id="demo-accuracy-title">The first analytic photon-count distribution under dead time.</h3>
+      <h3 class="mars-demo__title" id="demo-accuracy-title">The first analytic photon-count distribution under dead time</h3>
       <!-- v2.2-A (guide 0.7, stage doc T5): the title says "first analytic",
            not "accurate for the first time" (the gold standard is accurate
            already, by brute force, #2). The sentence's semicolon became a
@@ -641,7 +642,7 @@
                the desktop SVG stays byte-identical. -->
           <div class="mars-schematic mars-count-fig__wide">
           <!-- demo_count:start (generated by tools/build_demo_count.py; do not edit by hand) -->
-          <svg class="mars-count" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 272" role="img" aria-label="Count distribution at one high-flux operating point. Bars: the sequential gold standard's histogram. The renewal model's distribution sits far to the right of it; Zhang et al.'s is centred on it but much too narrow; MaRS matches both its centre and its width. Poisson's prediction lies far off the chart to the right." font-family="Inter, Helvetica Neue, Arial, sans-serif" style="font-family: var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)">
+          <svg class="mars-count" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 272" role="img" aria-label="Count distribution at one high-flux operating point. Bars: the sequential gold standard's histogram. The renewal model's distribution sits far to the right of it. Zhang et al.'s is centred on it but much too narrow. MaRS matches both its centre and its width. Poisson's prediction lies far off the chart to the right." font-family="Inter, Helvetica Neue, Arial, sans-serif" style="font-family: var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)">
             <style>.mars-count text{font-size:18px}@media (min-width:901px){.mars-count text{font-size:13.5px}}@media (max-width:600px){.mars-count text{font-size:26px}}</style>
             <g style="fill: var(--dark, #1F1F1F); stroke: var(--dark, #1F1F1F)" fill-opacity="0.34" stroke-opacity="0.55" stroke-width="0.75">
               <rect x="108.1" y="223.9" width="4.2" height="0.1"/>
@@ -700,7 +701,7 @@
           </div>
           <div class="mars-schematic mars-count-fig__phone">
           <!-- demo_count_phone:start (generated by tools/build_demo_count.py; do not edit by hand) -->
-          <svg class="mars-count-ph" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 240" role="img" aria-label="Count distribution at one high-flux operating point. Bars: the sequential gold standard's histogram. The renewal model's distribution sits far to the right of it; Zhang et al.'s is centred on it but much too narrow; MaRS matches both its centre and its width. Poisson's prediction lies far off the chart to the right." font-family="Inter, Helvetica Neue, Arial, sans-serif" style="font-family: var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)">
+          <svg class="mars-count-ph" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 240" role="img" aria-label="Count distribution at one high-flux operating point. Bars: the sequential gold standard's histogram. The renewal model's distribution sits far to the right of it. Zhang et al.'s is centred on it but much too narrow. MaRS matches both its centre and its width. Poisson's prediction lies far off the chart to the right." font-family="Inter, Helvetica Neue, Arial, sans-serif" style="font-family: var(--font-body, Inter, 'Helvetica Neue', Arial, sans-serif)">
             <g style="fill: var(--dark, #1F1F1F); stroke: var(--dark, #1F1F1F)" fill-opacity="0.34" stroke-opacity="0.55" stroke-width="0.75">
               <rect x="72.3" y="209.9" width="1.8" height="0.1"/>
               <rect x="74.5" y="209.8" width="1.8" height="0.2"/>
@@ -758,7 +759,7 @@
           </div>
         </div>
         <figcaption class="mars-demo__note"><i>S</i> = <i>B</i> = 8.2,
-          <i>t</i><sub>d</sub> = 75&nbsp;ns; 10,000
+          <i>t</i><sub>d</sub> = 75&nbsp;ns, 10,000
           realizations.</figcaption>
       </figure>
     </article>
@@ -852,8 +853,8 @@
               <rect class="mars-eff__icon" x="0" y="0" width="40" height="40" rx="4"/>
               <text class="mars-eff__iconlbl" x="20" y="25" text-anchor="middle">S×B</text>
               <text class="mars-eff__noteh" x="54" y="14">Why the table is small: it has no delay axis.</text>
-              <text class="mars-eff__note" x="54" y="35">At fixed S and B, the delay only shifts π. So one table per sensor configuration</text>
-              <text class="mars-eff__note" x="54" y="55">is 105 MB instead of 108 GB, reused for every pixel and depth.</text>
+              <text class="mars-eff__note" x="54" y="35">At fixed S and B, the delay only shifts π.</text>
+              <text class="mars-eff__note" x="54" y="55">So one table per sensor configuration, reused for every pixel and depth, is 105 MB instead of 108 GB.</text>
             </g>
           </svg>
           <!-- STACKED (<= 971 px since v2.2-P; it was <= 600): gold standard,
@@ -926,9 +927,9 @@
                 <text class="mars-eff__noteh" x="54" y="15">Why the table is small:</text>
                 <text class="mars-eff__noteh" x="54" y="34">it has no delay axis.</text>
                 <text class="mars-eff__note" x="0" y="59">At fixed S and B, the delay only shifts π.</text>
-                <text class="mars-eff__note" x="0" y="76">So one table per sensor configuration is</text>
-                <text class="mars-eff__note" x="0" y="93">105 MB instead of 108 GB, reused for</text>
-                <text class="mars-eff__note" x="0" y="110">every pixel and depth.</text>
+                <text class="mars-eff__note" x="0" y="76">So one table per sensor configuration,</text>
+                <text class="mars-eff__note" x="0" y="93">reused for every pixel and depth, is</text>
+                <text class="mars-eff__note" x="0" y="110">105 MB instead of 108 GB.</text>
               </g>
             </g>
           </svg>
@@ -942,7 +943,7 @@
             <li>Shift its PDF by the pixel’s delay.</li>
             <li>Sample all pixels and realizations.</li>
           </ol>
-          <p>Steps 1 to 3 run on every pixel at once. Why the table is small: it has no delay axis. At fixed S and B, the delay only shifts π. So one table per sensor configuration is 105 MB instead of 108 GB, reused for every pixel and depth.</p>
+          <p>Steps 1 to 3 run on every pixel at once. Why the table is small: it has no delay axis. At fixed S and B, the delay only shifts π. So one table per sensor configuration, reused for every pixel and depth, is 105 MB instead of 108 GB.</p>
         </div>
       </figure>
     </article>
@@ -1216,7 +1217,7 @@
          copies exist). It sat under the hero buttons until v2.2-A. -->
     <p class="mars-deeper__originals" id="mars-originals" hidden></p>
     <p class="mars-deeper__limits">Assumes a nonparalyzable detector with
-      negligible afterpulsing; paralyzable detectors, timing jitter and
+      negligible afterpulsing. Paralyzable detectors, timing jitter and
       afterpulsing are future work.</p>
   </div>
 </section>
@@ -1233,12 +1234,11 @@
   <div class="mars-band__inner">
     <h2 class="mars-closing__title">BibTeX</h2>
 
-    <!-- PROVISIONAL CITATION.  Written fresh for this build; the placeholder
-         page's entry was unusable (wrong title, elided authors, empty
-         booktitle).  Page numbers, the volume, and the exact proceedings
-         title are NOT KNOWN until ECCV camera-ready is processed, so none are
-         invented here.  Stage 06 verifies this against the final proceedings
-         citation before launch. -->
+    <!-- CITATION.  Written fresh for this build; the placeholder page's
+         entry was unusable (wrong title, elided authors, empty booktitle).
+         The author confirmed this entry as FINAL on 2026-10-29 (ECCV
+         camera-ready settled), so v2.2-D removed the "Provisional entry"
+         note under it. No page numbers or volume are invented here. -->
     <div class="mars-code">
       <button class="mars-code__copy" type="button"
               data-mars-copy="#bibtex-entry">Copy</button>
@@ -1250,8 +1250,6 @@
   year      = {2026}
 }</pre>
     </div>
-    <p class="mars-closing__note">Provisional entry — pending ECCV camera-ready.</p>
-
     <hr class="mars-closing__rule">
 
     <p class="mars-closing__links">

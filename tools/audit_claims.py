@@ -854,16 +854,22 @@ def check_dead_time_sections(rep: Report) -> None:
 # v2.2-B — THE EFFICIENCY MODULE. Its note is the one place on `/` that states
 # the table's size and the delay shift, so it must carry, in EVERY schematic
 # (one SVG per breakpoint, only one shown), PROJECT_BRIEF 3.4's two LUT sizes,
-# #1's sanctioned phrase and #8's conditioned statement. The note is the stage
-# doc's verbatim copy, which splits #1's phrase around the sizes ("So one
-# table per sensor configuration is 105 MB instead of 108 GB, reused for
-# every pixel and depth."), so #1 is matched as both halves in one sentence.
+# #1's sanctioned phrase and #8's conditioned statement.
+# v2.2-D: #1's phrase must be CONTIGUOUS on `/`. v2.2-B's note split it around
+# the sizes ("So one table per sensor configuration is 105 MB instead of
+# 108 GB, reused for every pixel and depth."), and this check used to accept
+# both halves in one sentence. The note now reads "So one table per sensor
+# configuration, reused for every pixel and depth, is 105 MB instead of
+# 108 GB." (status 2, B's routed item), and the split form fails: in each
+# schematic, in the module's screen-reader text, and anywhere on `/`
+# (check_one_table_contiguous).
 EFFICIENCY_ID = "demo-efficiency"
+ONE_TABLE = r"one\s+table\s+per\s+sensor\s+configuration"
+NN1_PHRASE = ONE_TABLE + r",\s+reused\s+for\s+every\s+pixel\s+and\s+depth"
 EFFICIENCY_REQUIRED = [
     ("105 MB [PROJECT_BRIEF 3.4]", r"\b105\s*MB\b"),
     ("108 GB [PROJECT_BRIEF 3.4]", r"\b108\s*GB\b"),
-    ("#1 sanctioned phrase", r"one\s+table\s+per\s+sensor\s+configuration[^.]{0,60}"
-                             r"reused\s+for\s+every\s+pixel\s+and\s+depth"),
+    ("#1 sanctioned phrase, contiguous", NN1_PHRASE),
     ("#8 conditioned delay statement",
      r"At\s+fixed\s+S\s+and\s+B,\s+the\s+delay\s+only\s+shifts\s+π"),
 ]
@@ -905,6 +911,12 @@ def check_efficiency(rep: Report) -> None:
             if not re.search(rx, text):
                 rep.fail("index.html", f"Efficiency schematic {k + 1}: {label} missing",
                          "the note must carry it in every layout [v2.2-B]")
+    # v2.2-D: the same note, repeated for screen readers outside the SVGs
+    # (role="img" hides their text), must carry #1 contiguous too.
+    rest = visible_text(re.sub(r'<svg\b.*?</svg>', " ", art.group(1), flags=re.S))
+    if not re.search(NN1_PHRASE, rest):
+        rep.fail("index.html", "Efficiency screen-reader note: #1 sanctioned phrase, "
+                 "contiguous, missing", "the text outside the SVGs must carry it too [v2.2-D]")
     rep.info.append(f"Efficiency note: 105 MB, 108 GB, #1 and #8 phrasing present in "
                     f"{len(svgs)} schematic(s)")
 
@@ -954,6 +966,25 @@ def _brief_35() -> dict[str, tuple[str, ...]] | None:
 
 def _num(s: str) -> str:
     return re.sub(r"[^\d.]", "", html.unescape(s))
+
+
+def check_one_table_contiguous(rep: Report) -> None:
+    """v2.2-D: on `/`, every "one table per sensor configuration" is followed
+    at once by ", reused for every pixel and depth" (#1, contiguous). Visible
+    text and the string attributes a reader can meet (alt, aria-label, title,
+    meta content) are both checked."""
+    source = (REPO / "index.html").read_text(encoding="utf-8", errors="replace")
+    attrs = " . ".join(html.unescape(v) for v in re.findall(
+        r'\b(?:alt|aria-label|title|content)="([^"]*)"', COMMENT_RE.sub(" ", source)))
+    n = 0
+    for where, text in (("visible text", visible_text(source)), ("attributes", attrs)):
+        for m in re.finditer(ONE_TABLE, text, re.I):
+            n += 1
+            if not re.match(NN1_PHRASE, text[m.start():], re.I):
+                ctx = re.sub(r"\s+", " ", text[m.start():m.end() + 70])
+                rep.fail("index.html", "#1 phrase not contiguous [#1, v2.2-D]",
+                         f"{where}: ...{ctx}...")
+    rep.info.append(f"#1 phrase on /: {n} occurrence(s), each contiguous unless failed above")
 
 
 def check_downstream(rep: Report) -> None:
@@ -1115,6 +1146,7 @@ def main() -> int:
     check_equation_count(files, rep)
     check_gain_order(rep)
     check_efficiency(rep)
+    check_one_table_contiguous(rep)
     check_downstream(rep)
     check_public_pages(rep)
     check_third_party(files, rep)

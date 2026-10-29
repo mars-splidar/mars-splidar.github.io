@@ -18,13 +18,26 @@ vanilla-JS modules. No build step, no framework, no bundler.
   and stops it silently dropping any path beginning with `_`.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
-Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27):
+Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27;
+demo first since `v2.2`, 2026-10-29):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The lean main page: the paper's Fig. 1 question, the hero teaser, the cube slicer (v2.1), *In short* + four gains, two result demos, the film inline, BibTeX |
+| `index.html` | The lean main page, demo first (v2.2): the compact hero with the teaser, the cube slicer, *In short* with the paper's Fig. 1 top half, then Accuracy, Efficiency (an animated schematic), Downstream (Poisson- vs MaRS-trained) and the count-model ablation, the film inline, Go deeper, BibTeX |
 | `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
 | `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
+
+**v2.2 in one paragraph (live 2026-10-29, tag `v2.2`).** `/` now leads with
+the demos: a compact hero whose teaser and labels fit the first 1280 x 800
+screen, the cube slicer, and a mint *In short* band with the paper's Fig. 1
+top half (its question removed from the vector PDF). Three result modules
+follow: Accuracy (*The first analytic photon-count distribution under dead
+time*, with Demo 2), Efficiency (`js/mars-efficiency.js`: the gold standard's
+per-photon loop beside MaRS's lookup, shift and sample; no clock and no
+runtime number), and Downstream (slider and ground truth at one size, test-set
+chips, *Hold to see ground truth* on phones) with the count-model ablation
+(`js/mars-ablation.js`). The four gains strip is gone. `/` has no em dash,
+en dash or semicolon outside code. Budgets: 598/598 prose words, 8/9 media.
 
 ## Source assets live outside this repo and are never modified
 
@@ -631,9 +644,24 @@ Each build stage appends one line here.
   every pixel and depth, is 105 MB instead of 108 GB.* (`audit_claims.py` now
   requires #1's phrase contiguous on `/`), and the BibTeX note is gone (the
   entry is final). Every "—", "–" and ";" outside code on `/` (title, meta,
-  alt, aria, two captions) became a full stop or comma. Word limit re-pinned
+  alt, aria, the slicer's load-failure text, the Accuracy caption and the
+  limitations line) became a full stop or comma. Word limit re-pinned
   at 598. Removed: the unused `.mars-btn.is-soon` / `.mars-btn__soon` and
   `.mars-closing__note` CSS, `fig1_question*`, v2.2-A's `fig1_context_acq*` and
   `fig1_context_infer*`, `tools/build_fig1_question.py`. The phone acquisition
   crop is re-cut before the arrow (`fig1_context_acq_tight*`). Review pack:
   `build_instructions/review/v22D/`.
+- **Stage v2.2-E — independent review, merge and launch (2026-10-29),
+  `v2.2`.** A session that built none of v2.2 re-measured it: the twelve
+  non-negotiables on `/` with the Accuracy title's "first analytic",
+  Downstream's "fails / works" and the ablation's "closer to the truth"
+  traced to paper lines; a number-provenance table; the slicer readouts
+  recomputed from the shipped data (exact); the Efficiency schematic stepped
+  every 0.5 s under a fake clock in both layouts (no number, no clock, steps
+  in order); all nine gates; Chrome and Firefox at twelve widths on both
+  pages; keyboard, touch and the hold button; cold-load bytes; Lighthouse.
+  Two commits: the page title with a colon (author-approved) and a visible
+  focus ring on the film player (`.mars-video__player:focus-visible`, the
+  frame's `overflow: hidden` had clipped it). Merged into `main` (`--no-ff`)
+  and tagged `v2.2`. Review pack and the author's v2.2 phone checklist:
+  `build_instructions/review/v22E/`.

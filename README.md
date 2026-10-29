@@ -95,6 +95,13 @@ audit says so: both must exist, neither may link to `/demos/`, 85 ns and
 75 ns may not share a band on `/details/`, the gain order is read from the
 gains strip on `/`, and "exactly one `.mars-eq`" counts across both.
 
+Since v2.2-D non-negotiable #1's phrase must be **contiguous** on `/`: every
+"one table per sensor configuration" is followed at once by ", reused for
+every pixel and depth", in visible text and in alt / aria / meta strings, and
+the Efficiency module carries it in both schematics and in its screen-reader
+note. The old split form ("… configuration is 105 MB instead of 108 GB,
+reused for …") fails.
+
 ### The two v2 gates (stage 07)
 
 ```bash
@@ -103,9 +110,10 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.7's limits since v2.2-A — visible words ≤ 600 since v2.2-P, re-pinned at
-the measured total when Demo 2's 12 chart words became schematic text (612
-from v2.2-C, pinned at that stage's measured total by the author; 520 from
+§0.7's limits since v2.2-A — visible words ≤ 598 since v2.2-D, re-pinned at
+the measured total after the author's copy changes (the slicer eyebrow +3, the
+BibTeX "Provisional entry" note removed −5); 600 from v2.2-P, re-pinned when
+Demo 2's 12 chart words became schematic text (612 from v2.2-C, pinned at that stage's measured total by the author; 520 from
 v2.2-A, 420 from v2.1-A, 350 before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
 before), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
@@ -254,7 +262,9 @@ tools/build_web_assets.py
 tools/audit_claims.py   claim hygiene, both public pages
 tools/check_links.py    every reference, both public pages
 tools/page_budget.py    the main page's guide-0.1/0.6 budgets (stage 07, v2.1-A)
-tools/build_fig1_question.py  Fig. 1's top half from the paper PDF (v2.1-A)
+tools/build_fig1_context.py  Fig. 1's top half without the question, + the two
+                        tight phone crops, from the paper PDF; --dry-run compares
+                        by md5 (v2.2-A; build_fig1_question.py retired in v2.2-D)
 tools/measure_edges.py  visible edges vs the column, both pages; not a gate (v2.1-A)
 tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 09)
 tools/build_slicer_data.py  the slicer's data + default readout, --check gate (v2.1-C)
@@ -292,8 +302,9 @@ tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
   third, sanctioned use, and it is deliberate — do not "fix" it.
 - **Exactly one display equation on the whole site**, the CLT count law, in a
   `.mars-eq` container. The audit fails on a second one.
-- **The BibTeX entry is provisional.** Page numbers and the exact proceedings
-  title are unknown until ECCV camera-ready is processed. Do not invent them.
+- **The BibTeX entry is final** (author, 2026-10-29: the ECCV camera-ready is
+  settled), so `/` no longer carries a "Provisional entry" note under it. It
+  has no page numbers or volume. Do not invent them.
 - **The hero title's gold letters are `MaRS`, `Ma`, `R`, and the `S` of
   *Simulator*** — not the `S` of *Single-Photon*. `MaRS` = **Ma**rkov-**R**enewal
   **S**imulator.
@@ -613,3 +624,16 @@ Each build stage appends one line here.
   each val ring drawn above its test dot. No copy changed; desktop pixel-
   identical outside the dumbbell. Page at 390 px 8149 → 7182 px. Review pack:
   `build_instructions/review/v22P/`.
+- **Stage v2.2-D — copy pass and cleanup (2026-10-29).** On branch
+  `v2.2-dev`, not pushed. The author's copy: the Accuracy title loses its full
+  stop, the slicer eyebrow is *Cube slicer · Visualize dead-time effects*, the
+  Efficiency note reads *So one table per sensor configuration, reused for
+  every pixel and depth, is 105 MB instead of 108 GB.* (`audit_claims.py` now
+  requires #1's phrase contiguous on `/`), and the BibTeX note is gone (the
+  entry is final). Every "—", "–" and ";" outside code on `/` (title, meta,
+  alt, aria, two captions) became a full stop or comma. Word limit re-pinned
+  at 598. Removed: the unused `.mars-btn.is-soon` / `.mars-btn__soon` and
+  `.mars-closing__note` CSS, `fig1_question*`, v2.2-A's `fig1_context_acq*` and
+  `fig1_context_infer*`, `tools/build_fig1_question.py`. The phone acquisition
+  crop is re-cut before the arrow (`fig1_context_acq_tight*`). Review pack:
+  `build_instructions/review/v22D/`.

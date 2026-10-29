@@ -165,7 +165,6 @@
 .mars-eq,
 .mars-media__frame,
 .mars-lab__caveat,
-.mars-compare__panel,           /* v2.1-D: Demo 3's side panel */
 #playground-root {
   --aged-fg: var(--aged-text);
 }
@@ -462,6 +461,17 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-eyebrow.is-utility   { color: var(--aged-fg); }
 .mars-eyebrow.is-muted     { color: var(--grey); }
 
+/* v2.2-A (guide 0.7 style rules): on `/` the eyebrows are small SENTENCE-CASE
+   labels, written that way in the HTML — no uppercase transform, no
+   tracking (the approved mock's .8rem / 600). Scoped to <body class=
+   "mars-home"> so /details/ keeps its uppercase eyebrows until stage 11. */
+.mars-home .mars-eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: normal;
+  text-transform: none;
+  margin-bottom: 0.3rem;
+}
+
 /* ICONS — inline SVG, not a webfont (Q10, stage 06).
    The site used the Tabler icons webfont from jsDelivr for nine decorative
    glyphs. Measured on the live site at Slow 3G: ONE request, 801 KB of
@@ -508,8 +518,14 @@ img, video { max-width: 100%; height: auto; display: block; }
    -------------------------------------------------------------------------- */
 
 /* stage 09b: tightened (was clamp(2rem, 4vw, 3.25rem)) so the teaser's label
-   row ends on the first 1280 x 800 screen; .mars-hero__* is used by / only */
-.mars-hero__inner { padding-top: clamp(1.75rem, 3vw, 2.5rem); }
+   row ends on the first 1280 x 800 screen; .mars-hero__* is used by / only.
+   v2.2-A, "Compact" (guide 0.7; the approved mock hero_refinements.html,
+   class v2): 1.4rem on top, and 3rem under the teaser's guiding sentence to
+   the slicer's eyebrow (the slicer band has no top padding of its own). */
+.mars-hero__inner {
+  padding-top: 1.4rem;
+  padding-bottom: clamp(2.25rem, 4vw, 3rem);
+}
 
 .mars-badge {
   display: inline-block;
@@ -521,7 +537,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   letter-spacing: 0.03em;
   padding: 0.3rem 0.8rem;
   border-radius: var(--radius-pill);
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.8rem;          /* v2.2-A Compact: was 1.1rem */
 }
 
 /* The hero title. One line, ONE FONT SIZE throughout; the contrast between
@@ -562,7 +578,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   letter-spacing: -0.02em;
   margin-top: 0;
   margin-right: 0;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.5rem;        /* v2.2-A Compact: was 0.85rem */
   white-space: nowrap;          /* the guide: must never wrap to two lines */
 }
 
@@ -606,7 +622,7 @@ img, video { max-width: 100%; height: auto; display: block; }
     letter-spacing: -0.02em;
     line-height: 1.2;
     color: var(--dark);
-    margin: 0 0 0.85rem;
+    margin: 0 0 0.5rem;           /* v2.2-A Compact: was 0.85rem */
   }
   .mars-hero__line1,
   .mars-hero__line2 { display: block; white-space: nowrap; }
@@ -617,54 +633,80 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-hero__subhead {
   font-family: var(--font-head);
   font-weight: 400;
-  font-size: clamp(1.0625rem, 1.9vw, 1.3125rem);
+  font-size: 1.0625rem;           /* v2.2-A Compact: was clamp(1.0625rem, 1.9vw, 1.3125rem) */
   color: var(--grey);
-  margin: 0 0 1.4rem;
+  margin: 0 0 0.9rem;             /* was 1.4rem */
 }
 
 .mars-hero__authors {
-  font-size: 1.0625rem;
-  margin: 0 0 0.3rem;
+  font-size: 1rem;                /* v2.2-A Compact: was 1.0625rem */
+  margin: 0 0 0.15rem;            /* was 0.3rem */
 }
 .mars-hero__authors a { text-decoration: none; border-bottom: 1px solid #d8cdb5; }
 .mars-hero__authors a:hover { border-bottom-color: var(--aged); }
 
 .mars-hero__affil {
   color: var(--grey);
-  font-size: 0.9375rem;
-  margin: 0 0 1.1rem;            /* 09b: was 1.5rem */
+  font-size: 0.875rem;            /* v2.2-A Compact: was 0.9375rem */
+  margin: 0;                      /* 09b: 1.1rem; the row's own margin-top now */
 }
 
 .mars-hero__buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
-  margin: 0;
+  gap: 0.45rem;                   /* v2.2-A Compact: was 0.6rem */
+  margin: 1rem 0 0;
   padding: 0;
   list-style: none;
 }
-
-/* Stage 10: reserve the button row's space, plus the "Full-resolution
-   originals" note under it, ONLY while the row is still empty. js/mars-nav.js
-   fills both in one synchronous step after first paint on a slow phone, which
-   pushed the teaser down 72 px and put Lighthouse mobile CLS on / at 0.113.
-   :empty stops matching the moment the buttons land, so the built layout is
-   untouched. Heights measured in Chrome (row + 0.5rem + note): one row at
-   about 625 px and up, two below, three at 320 px; the note wraps to two
-   lines below about 370 px. The breakpoints sit INSIDE those wrap points
-   (font metrics move them a little), so each value is at or under the built
-   height: the page can only settle down, never jump up. */
-.mars-hero__buttons:empty { min-height: 72px; }
-/* v2.1-A: the 16 px gutter moved the one-row point from about 625 to 619 px
-   (built 72.9 px at 619, 126.4 below); re-measured at every width 320-639. */
-@media (max-width: 618px) { .mars-hero__buttons:empty { min-height: 126px; } }
-@media (max-width: 359px) { .mars-hero__buttons:empty { min-height: 147px; } }
-
-.mars-hero__note {
-  margin-top: 0.5rem;            /* 09b: was 0.9rem */
-  font-size: 0.8125rem;
+/* v2.2-A: smaller buttons, each with a 16 px stroke icon (js/mars-nav.js).
+   Scoped to the hero row; .mars-btn elsewhere keeps its size. */
+.mars-hero__buttons .mars-btn {
+  font-size: 0.875rem;
+  padding: 0.42rem 0.85rem;
+}
+.mars-btn__ico {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+/* The null rule's text (v2.2-A): "Code coming soon", plain grey, after the
+   buttons. A text node in an <li> — not a link, not a button, not focusable.
+   --grey on PAPER is 6.65:1 (the mock's #8b8b8b would be 3.4:1). */
+.mars-hero__soon {
+  align-self: center;
+  margin-left: 0.3rem;
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 0.875rem;
   color: var(--grey);
 }
+
+/* Stage 10: reserve the button row's space ONLY while the row is still
+   empty (until v2.2-A it also covered the "Full-resolution originals" note
+   under it, which moved to Go deeper). js/mars-nav.js
+   fills the row in one synchronous step after first paint on a slow phone,
+   which pushed the teaser down 72 px and put Lighthouse mobile CLS on / at
+   0.113. :empty stops matching the moment the buttons land, so the built
+   layout is untouched. The breakpoints sit INSIDE the wrap points (font
+   metrics move them a little), so each value is at or under the built
+   height: the page can only settle down, never jump up. The one exception is
+   320 px, a real phone width that sits exactly on a wrap point (320 / 321):
+   it gets its own measured value. */
+.mars-hero__buttons:empty { min-height: 38.1px; }
+/* v2.2-A: re-measured for the Compact row (buttons only, 0.875rem, plus the
+   "Code coming soon" text item), every width 300-1299 in Chrome on Poppins
+   (review/v22A/measurements.txt). Built heights: 38.1 px from 678 px (one
+   row); 68.0 at 532-677 (the Code text wraps under the buttons); 83.4 at
+   382-531 (two rows of buttons); 113.3 at 321-381; 128.7 at 320 and below.
+   Each breakpoint sits a few px inside its wrap point, so the reserved
+   height is never above the built one. (v2.1-A's 72 / 126 / 147 px were for
+   the bigger buttons plus the originals note.) */
+@media (max-width: 672px) { .mars-hero__buttons:empty { min-height: 67.9px; } }
+@media (max-width: 527px) { .mars-hero__buttons:empty { min-height: 83.4px; } }
+@media (max-width: 377px) { .mars-hero__buttons:empty { min-height: 113.2px; } }
+@media (max-width: 320px) { .mars-hero__buttons:empty { min-height: 128.7px; } }
+
 
 /* --------------------------------------------------------------------------
    Buttons
@@ -696,77 +738,13 @@ img, video { max-width: 100%; height: auto; display: block; }
 
 .mars-btn.is-outline:hover { background: var(--gold-soft); color: var(--dark); }
 
-/* A URL that does not exist yet. Non-clickable by construction: rendered as a
-   <span>, not an <a>, so there is nothing to activate and nothing to focus. */
-.mars-btn.is-soon {
-  border-color: #cfcfcf;
-  border-style: dashed;
-  color: #8b8b8b;
-  cursor: default;
-  background: transparent;
-}
-.mars-btn.is-soon:hover { background: transparent; color: #8b8b8b; }
+/* The dashed "· soon" pill (.mars-btn.is-soon, .mars-btn__soon): REMOVED in
+   v2.2-D. Unused since v2.2-A made "Code coming soon" plain grey text
+   (.mars-hero__soon). The rules are in git history (tag v2.1). */
 
-.mars-btn__soon {
-  font-weight: 400;
-  font-size: 0.8125rem;
-  color: #8b8b8b;
-}
-
-/* --------------------------------------------------------------------------
-   Four gains — .mars-stat
-
-   RE-TREATED IN STAGE 1.5. Stage 01 built these as GOLD numerals on MINT,
-   which the guide asked for and which measures 1.73:1 — failing even the 3:1
-   large-text bar. WEBSITE_BUILD_STATUS.md 3.6 resolves it by moving the gold
-   BEHIND the numeral instead of inside it: each numeral now sits on a gold
-   rounded plate with a DARK numeral on top, at 8.64:1.
-
-   The plate is deliberately the poster's "gold rounded header bar per module,
-   mint rounded panel beneath" motif (PROJECT_BRIEF.md 6) — the gold sits on
-   top of the cell and the grey caption sits beneath it, so the band still
-   reads as the page's gold moment.
-
-   Still deliberately NO circle badges (guide 4.3 dropped them), and the
-   order is fixed: 30x -> 1000x -> 40x -> +17dB (non-negotiable #11).
-   -------------------------------------------------------------------------- */
-
-.mars-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: clamp(1rem, 3vw, 2.25rem);
-  margin: 0;
-  padding: 0;
-  list-style: none;      /* it is a <ul> for semantics, not for bullets */
-}
-
-.mars-stat { text-align: center; }
-
-/* The gold PLATE. Gold is the background; the numeral on it is --dark. */
-.mars-stat__num {
-  display: block;
-  background: var(--gold);
-  border-radius: var(--radius);
-  padding: 0.55rem 0.5rem 0.6rem;
-  font-family: var(--font-head);
-  font-weight: 700;
-  font-size: clamp(1.9rem, 4.1vw, 2.75rem);
-  line-height: 1.1;
-  color: var(--dark);            /* DARK on GOLD = 8.64:1 */
-  letter-spacing: -0.02em;
-}
-
-.mars-stat__cap {
-  display: block;
-  margin-top: 0.55rem;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  color: var(--grey);
-}
-
-@media (max-width: 720px) {
-  .mars-stats { grid-template-columns: repeat(2, 1fr); row-gap: 1.75rem; }
-}
+/* Four gains — .mars-stat: REMOVED in v2.2-A with the strip itself (guide
+   0.7; WEBSITE_BUILD_STATUS 3.7, v2.2 amendment). Each number lives in its
+   own module now. The rules are in git history (tag v2.1). */
 
 /* --------------------------------------------------------------------------
    Cards — Contributions (Theory = BLUE, Simulator = GREEN)
@@ -1222,12 +1200,6 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-code__copy:hover { background: var(--gold); color: var(--ink); }
 .mars-code__copy.is-done { background: var(--gold); color: var(--ink); }
 
-.mars-closing__note {
-  margin: 0.7rem 0 0;
-  font-size: 0.8125rem;
-  color: #9aa2a0;
-}
-
 .mars-closing__rule {
   border: 0;
   border-top: 1px solid #2a3236;
@@ -1422,28 +1394,10 @@ img, video { max-width: 100%; height: auto; display: block; }
    poster is NEVER hidden, so a stalled or failed video still has the same
    three cubes underneath it. Not display:none on the video, which some
    browsers treat as a reason never to start playback. */
-.mars-teaser { margin: clamp(1rem, 1.6vw, 1.25rem) 0 0; }   /* 09b: was clamp(1.5rem, 3vw, 2.25rem) */
+.mars-teaser { margin: 1rem 0 0; }   /* v2.2-A: right under the buttons (09b: clamp(1rem, 1.6vw, 1.25rem)) */
 
-/* ---- The question: Fig. 1's top half above the teaser (v2.1-A) -----------
-   Column width; height from each <source>'s own width/height. On phones the
-   second picture (the inference panel and the question) stacks under the
-   first; on a desktop it is hidden and resolves to a data: GIF, so it costs
-   no request. The gap to the teaser is tight on purpose: question and answer
-   read as one unit, and the teaser's label row stays attached to the cubes. */
-.mars-question { margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0; }
-.mars-question picture { display: block; }
-.mars-question img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.mars-question__more { margin-top: 0.75rem; }
-/* The exact complement of the phone sources' (max-width: 600px), not
-   (min-width: 601px): at a zoomed, fractional width between 600 and 601 px
-   neither of those would match, and the page would show the whole image AND
-   the second crop. */
-@media not all and (max-width: 600px) { .mars-question .mars-question__more { display: none; } }
-.mars-question + .mars-teaser { margin-top: clamp(0.5rem, 1.2vw, 0.875rem); }
+/* v2.1-A's "question" (.mars-question, Fig. 1 above the teaser) left the hero
+   in v2.2-A; Fig. 1 is now .mars-context in the In short band. */
 
 /* v2.1-A: the frame is the column's width and takes its HEIGHT FROM THE
    POSTER's own width/height attributes — the poster sits in normal flow at
@@ -1538,8 +1492,51 @@ img, video { max-width: 100%; height: auto; display: block; }
   color: var(--dark);
 }
 
-/* ---- In short (MINT) ---------------------------------------------------- */
-.mars-inshort { margin-bottom: clamp(1.75rem, 3.5vw, 2.5rem); }
+/* ---- In short (MINT), v2.2-A ------------------------------------------- */
+/* Full-bleed mint (.mars-band.is-mint), the content on the column. Tighter
+   than a normal band, as the approved mock (2.6rem). */
+.mars-inshort-band > .mars-band__inner {
+  padding-top: clamp(2rem, 4vw, 2.6rem);
+  padding-bottom: clamp(2rem, 4vw, 2.6rem);
+}
+.mars-inshort { margin: 0; }
+
+/* Fig. 1 top half without the question, in a WHITE CARD. The image fills the
+   card's full width, so its text is exactly as large as v2.1's column-wide
+   export (stage doc A5): the card's edge is a 1 px ring drawn OUTSIDE its
+   box (box-shadow, no layout), and its padding is vertical only. Every
+   image box is reserved by an explicit aspect-ratio per crop, because the
+   <img> holds a 1 x 1 data: GIF until js/mars-main.js promotes the real
+   sources (the attribute-mapped ratio would follow the GIF). */
+.mars-context {
+  margin: 1.4rem 0 0;
+  padding: 14px 0 12px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px #dfe9e2;
+}
+.mars-context__pic { display: block; }
+.mars-context img,
+.mars-context__ns img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.mars-context__main { aspect-ratio: 1920 / 496; }
+.mars-context__infer { aspect-ratio: 1200 / 799; }   /* v2.2-P: the tight crop (was 1200 / 724) */
+.mars-context__more { margin-top: 0.75rem; }
+@media (max-width: 600px) {
+  .mars-context__main { aspect-ratio: 1200 / 483; }   /* v2.2-D: the tight acquisition crop (was 1200 / 477) */
+}
+/* The exact complement of the phone query (v2.1-A's rule): a zoomed 600-601 px
+   viewport must never show both the whole image and the second crop. */
+@media not all and (max-width: 600px) { .mars-context .mars-context__more { display: none; } }
+.mars-context__caption {
+  margin-top: 0.6rem;
+  padding: 0 14px;
+  font-size: 0.875rem;
+  color: var(--grey);            /* on the white card: 6.9:1 */
+}
 
 /* ---- Results: the demo cards -------------------------------------------- */
 .mars-demo + .mars-demo {
@@ -1588,24 +1585,109 @@ img, video { max-width: 100%; height: auto; display: block; }
   background: var(--paper);
   padding: 0.5rem 0 0.25rem;
 }
-.mars-count {
+.mars-count,
+.mars-count-ph {
   display: block;
   width: 100%;
   height: auto;
   overflow: visible;
 }
+/* v2.2-P (T5): the phone chart, its own 340 x 240-unit SVG (>= 200 px tall,
+   13 px text at 375), shown on the site's exact 600/601 query pair. */
+.mars-count-fig__phone { display: none; }
+@media (max-width: 600px) {
+  .mars-count-fig__wide { display: none; }
+  .mars-count-fig__phone { display: block; }
+}
 
-/* ---- Demo 3: the before/after slider (stage 09, js/mars-compare.js) ------
-   Poisson-trained underneath on the left, MaRS-trained on top on the right,
-   clipped at --pos. The <input type="range"> is the real control (keyboard,
-   screen readers); it is visually hidden but focusable, and its focus ring
-   is drawn on the handle. Pointer and touch drags are handled on the stage,
-   with touch-action: pan-y so a vertical swipe still scrolls the page. */
+/* ---- Efficiency: the schematic (stage v2.2-B, js/mars-efficiency.js) -----
+   Two inline SVGs inside one frame, one per breakpoint, on an exact query
+   pair (a zoomed viewport between the two widths shows exactly one): 600/601
+   until v2.2-P, 971/972 since (below). Each
+   has a fixed aspect ratio, so the frame's height is reserved before the
+   script runs. Sizes are in SVG units: the wide viewBox is 940 units across
+   the frame's 938 px at the 960 px column, the phone one 340 units across
+   341 px at 375, so 1 unit is 1 CSS px at those widths and the smallest
+   label (12.5 units) renders at 12.5 px. SVG text is coloured by `fill`, which
+   tools/audit_claims.py's contrast pass does not read, so the figures are
+   here: --dark and --grey on white 16.5:1 and 6.9:1; on the mint card --grey
+   6.2:1, --green 4.9:1, --blue 5.0:1; the green S×B on its tint 4.7:1. */
+.mars-eff__frame {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 16px 9px 14px;        /* 940 px inside at the 960 px column */
+}
+.mars-eff__svg {
+  display: none;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.mars-eff__svg.is-wide { aspect-ratio: 940 / 568; }
+.mars-eff__svg.is-tall { aspect-ratio: 340 / 914; }   /* v2.2-P: was 340 / 1116 */
+/* v2.2-P (T4): the stacked SVG serves every width up to 971 px, where the
+   wide one's smallest label would render under 12 px (7.3 px at 601; 12.0
+   at 955 without a classic scrollbar, at 972 with a 17 px one). The query
+   is the figure's data-eff-stack, which js/mars-efficiency.js reads: keep
+   the two in step. Tablets draw it at most 480 px wide, centred; phones at
+   most 340 px (1 unit = 1 px), so its height stops growing with the phone. */
+@media not all and (max-width: 971px) { .mars-eff__svg.is-wide { display: block; } }
+@media (max-width: 971px) {
+  .mars-eff__svg.is-tall { display: block; max-width: 480px; margin: 0 auto; }
+}
+@media (max-width: 600px) {
+  .mars-eff__svg.is-tall { max-width: 340px; }
+  .mars-eff__frame { padding: 12px 0 10px; }   /* v2.2-P: was 14px 0 12px */
+}
+.mars-eff text { font-family: var(--font-body); fill: var(--dark); }
+.mars-eff .mars-eff__h { font-family: var(--font-head); font-weight: 600; font-size: 17px; }
+.mars-eff .is-mars { fill: var(--green); }
+.mars-eff .mars-eff__code text { font-family: var(--font-mono); font-size: 13.5px; fill: var(--grey); }
+.mars-eff .mars-eff__cap { font-size: 13px; fill: var(--grey); }
+.mars-eff .mars-eff__small { font-size: 12.5px; fill: var(--grey); }
+.mars-eff .mars-eff__label { font-size: 13px; font-weight: 600; }
+.mars-eff .mars-eff__step { font-size: 14.5px; fill: var(--grey); }
+.mars-eff .mars-eff__step.is-on { fill: var(--green); font-weight: 700; }
+.mars-eff .mars-eff__def { font-size: 13.5px; }
+.mars-eff .is-tall .mars-eff__def { font-size: 13px; }
+.mars-eff .mars-eff__sym { font-weight: 600; }
+.mars-eff .mars-eff__taulbl { fill: var(--blue); }
+.mars-eff .mars-eff__noteh { font-size: 14px; font-weight: 600; }
+.mars-eff .mars-eff__note { font-size: 14px; }
+.mars-eff .mars-eff__iconlbl { font-size: 12.5px; font-weight: 600; fill: var(--green); }
+.mars-eff__rule { stroke: var(--rule); stroke-width: 1; }
+.mars-eff__card { fill: var(--mint); stroke: #bcd9c7; }
+.mars-eff__plot { fill: #fff; stroke: #dfe6e1; }
+.mars-eff__ref { stroke: var(--grey); stroke-dasharray: 3 3; }
+.mars-eff__tau { stroke: var(--blue); stroke-dasharray: 3 3; stroke-width: 1.4; }
+.mars-eff__arrow { stroke: #9aa59f; stroke-width: 1.5; fill: none; }
+.mars-eff__head { fill: #9aa59f; }
+.mars-eff__icon { fill: #e6f1ea; stroke: var(--green); }
+.mars-eff__pdfpath { fill: rgba(14, 122, 70, 0.12); stroke: var(--green); stroke-width: 1.8; stroke-linejoin: round; }
+.mars-eff__bar { fill: var(--dark); fill-opacity: 0.55; }
+.mars-eff__cell { fill: #eef6f1; stroke: #d5e7dc; }
+.mars-eff__cell.is-hi { fill: var(--green); stroke: var(--green); }
+.mars-eff__lead { stroke: var(--green); stroke-width: 1.2; fill: none; }
+.mars-eff__axis { stroke: #cfd3cf; stroke-width: 1; }
+.mars-eff__blind { fill: rgba(176, 58, 46, 0.10); }
+.mars-eff__playhead { stroke: var(--dark); stroke-width: 1.5; }
+
+/* ---- Downstream: the before/after slider (stage 09; v2.2-C layout) -------
+   js/mars-compare.js. Poisson-trained underneath on the left, MaRS-trained
+   on top on the right, clipped at --pos. The <input type="range"> is the
+   real control (keyboard, screen readers); it is visually hidden but
+   focusable, and its focus ring is drawn on the handle. Pointer and touch
+   drags are handled on the stage, with touch-action: pan-y so a vertical
+   swipe still scrolls the page.
+   v2.2-C: the slider and the ground truth are two EQUAL squares on the
+   column, 24 px apart (468 px each at the 960 column), the test-set numbers
+   on the image corners as chips. Phones (<= 600 px): the GT square is
+   hidden and the hold button shows the GT inside the slider frame. */
 .mars-compare__toggle {
   display: inline-flex;
-  align-self: flex-start;
   gap: 0;
-  margin: 0;
+  margin: 0 0 0.85rem;
   border: 1px solid var(--aged);
   border-radius: var(--radius-pill);
   overflow: hidden;
@@ -1634,23 +1716,15 @@ img, video { max-width: 100%; height: auto; display: block; }
   box-shadow: inset 0 0 0 5px #ffffff;
 }
 
-/* v2.1-D, interim until the Demo 3 redesign (author, 2026-10-26): the
-   square is at most 400 px (52 % of the column below 770 px) and a framed
-   panel fills the rest of the column at the square's height — the square's
-   left edge and the panel frame's right edge are the column edges. The card
-   (eyebrow to panel bottom) is ~550 px at the 960 column; it was ~895 with
-   v2.1-A's 658 px square. Phones (<= 600 px) stack: slider full width, the
-   panel under it. */
-.mars-compare__body {
+.mars-compare__pair {
   display: grid;
-  grid-template-columns: minmax(0, min(25rem, 52%)) minmax(0, 1fr);
-  gap: clamp(0.75rem, 2vw, 1.25rem);
-  align-items: stretch;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
 }
+.mars-compare__cell { min-width: 0; }
 .mars-compare__stage {
   --pos: 50%;
   position: relative;
-  align-self: start;            /* stays square if the panel is ever taller */
   aspect-ratio: 1 / 1;
   border-radius: var(--radius);
   overflow: hidden;
@@ -1660,6 +1734,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   user-select: none;
   -webkit-user-select: none;
 }
+.mars-compare__stage.is-static { cursor: auto; touch-action: auto; }
 .mars-compare__img {
   position: absolute;
   inset: 0;
@@ -1670,6 +1745,7 @@ img, video { max-width: 100%; height: auto; display: block; }
   -webkit-user-drag: none;
 }
 .mars-compare__img.is-over { clip-path: inset(0 0 0 var(--pos)); }
+.mars-compare__img.is-gt { visibility: hidden; }
 .mars-compare__range {
   position: absolute;
   left: 0;
@@ -1708,81 +1784,141 @@ img, video { max-width: 100%; height: auto; display: block; }
   outline: 3px solid var(--aged);
   outline-offset: 3px;
 }
-/* the panel and its two numbers. Each number names its side of the divider
-   with an arrow drawn in CSS (decorative: "/ ''" gives it no spoken text),
-   so the swap to Depth (innerHTML from data-depth) keeps it. */
-.mars-compare__panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  min-width: 0;
-  padding: clamp(0.85rem, 2vw, 1.25rem);
+/* The chips: the test-set number on its image's top corner. White on INK at
+   82 % reads on black and on the brightest tile: over pure white the chip
+   composites to #3e4243, 10.2:1 (over black, 18:1). tools/audit_claims.py
+   pins .mars-compare__chip to that worst-case #3e4243 in SURFACES. */
+.mars-compare__chip {
+  position: absolute;
+  top: 10px;
+  margin: 0;
+  padding: 5px 9px;
+  max-width: calc(50% - 22px);
+  border-radius: 6px;
+  background: rgba(20, 24, 26, 0.82);
+  color: #ffffff;
+  font-family: var(--font-head);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  pointer-events: none;
+}
+.mars-compare__chip b { display: block; font-weight: 700; font-size: 0.9375rem; white-space: nowrap; }
+.mars-compare__chip.is-left { left: 10px; }
+.mars-compare__chip.is-right { right: 10px; text-align: right; }
+.mars-compare__chip.is-gt { left: 10px; }
+/* holding: only the ground truth and its chip */
+.mars-compare__stage.is-holding .mars-compare__img.is-under,
+.mars-compare__stage.is-holding .mars-compare__img.is-over,
+.mars-compare__stage.is-holding .mars-compare__handle,
+.mars-compare__stage.is-holding .mars-compare__chip.is-left,
+.mars-compare__stage.is-holding .mars-compare__chip.is-right { visibility: hidden; }
+.mars-compare__stage.is-holding .mars-compare__img.is-gt { visibility: visible; }
+.mars-compare__hold { display: none; }
+@media (max-width: 600px) {
+  .mars-compare__pair { grid-template-columns: minmax(0, 1fr); }
+  .mars-compare__gt { display: none; }
+  .mars-compare__hold {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 0.6rem;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--aged);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--aged-fg);
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    touch-action: none;           /* the press is a hold, never a scroll */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;  /* no iOS long-press menu */
+  }
+  .mars-compare__hold[aria-pressed="true"] { background: var(--aged); color: #ffffff; }
+  .mars-compare__hold:focus-visible {
+    outline: 3px solid var(--aged);
+    outline-offset: 2px;
+  }
+}
+.mars-compare__note { margin: 0.6rem 0 0; }
+
+/* ---- The count-model ablation (stage v2.2-C, js/mars-ablation.js) --------
+   One toggle drives the dumbbell chart and the four tiles. The chart's SVG
+   is drawn at its own CSS width (1 unit = 1 px); its height is reserved
+   here from the script's constants: 14 + 3 x 42 + 44 = 184 px, phones
+   14 + 3 x 34 + 44 = 160 px (v2.2-P; was 3 x 40 = 178), so nothing shifts
+   when it draws. Chart text
+   is --grey / --dark / the row colours on white: 6.9:1, 16.5:1, red 6.0:1,
+   blue 5.5:1, green 5.4:1 (SVG fill, which the contrast pass does not read).
+   Tiles: four equal squares, 2 x 2 on phones. */
+.mars-abl__card {
   border: 1px solid var(--rule);
   border-radius: var(--radius);
-  background: var(--mint);
-  container-type: inline-size;
+  background: #ffffff;
+  padding: 16px 16px 12px;
 }
-.mars-compare__nums {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-.mars-compare__label {
-  margin: 0;
-  font-family: var(--font-head);
-  line-height: 1.25;
-}
-.mars-compare__label span {
+.mars-abl__chart {
   display: block;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: var(--dark);
-  white-space: nowrap;
+  width: 100%;
+  height: 184px;
+  overflow: visible;
 }
-.mars-compare__label.is-left span::before { content: "\2190\00a0" / ""; }
-.mars-compare__label.is-right span::after { content: "\00a0\2192" / ""; }
-.mars-compare__label b {
-  display: block;
-  margin-top: 0.15rem;
-  font-weight: 600;
-  font-size: clamp(1.375rem, 3vw, 1.75rem);
-  white-space: nowrap;
-}
-.mars-compare__label.is-left b { color: var(--red); }     /* 5.9:1 on MINT */
-.mars-compare__label.is-right { text-align: right; }
-.mars-compare__label.is-right b { color: var(--green); }  /* 5.1:1 on MINT */
-.mars-compare__note { margin: -0.5rem 0 0; }
-.mars-compare__gt {
-  margin: auto 0 0;               /* sits on the panel's bottom edge */
+.mars-abl__legend {
   display: flex;
-  align-items: flex-end;
-  gap: 0.75rem;
-  min-height: 0;
-}
-.mars-compare__gt img {
-  display: block;
-  width: clamp(72px, 40%, 180px);
-  height: auto;
-  aspect-ratio: 1 / 1;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--paper);
-}
-.mars-compare__gt figcaption {
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin: 0.4rem 0 0;
   font-size: 0.8125rem;
-  color: var(--grey);
+  color: var(--grey);            /* 6.9:1 on the white card */
 }
-
-/* a narrow panel (about 601-700 px viewports): the two numbers stack, and
-   the thumbnail takes its phone size, so nothing collides */
-@container (max-width: 290px) {
-  .mars-compare__nums { grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
-  .mars-compare__gt img { width: 72px; }
+.mars-abl__key { display: inline-flex; align-items: center; gap: 0.4rem; }
+.mars-abl__dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--grey);
+  background: #ffffff;
 }
-
+.mars-abl__dot.is-filled { background: var(--grey); }
+.mars-abl__tiles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.mars-abl__tile { min-width: 0; }
+.mars-abl__im {
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+}
+.mars-abl__im img { display: block; width: 100%; height: 100%; }
+.mars-abl__cap {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-head);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.mars-abl__cap span {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--grey);            /* 6.65:1 on PAPER */
+}
+.mars-abl__cap b { font-weight: 400; white-space: nowrap; }
+.mars-abl__note { margin-top: 0.75rem; }
 @media (max-width: 600px) {
-  .mars-compare__body { grid-template-columns: minmax(0, 1fr); gap: 0.6rem; }
-  .mars-compare__gt img { width: 72px; }
+  .mars-abl__card { padding: 12px 12px 10px; }
+  .mars-abl__chart { height: 160px; }   /* v2.2-P: was 178 */
+  .mars-abl__tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ---- The cube slicer (stage v2.1-C, js/mars-slicer.js) -------------------
@@ -2040,6 +2176,10 @@ img, video { max-width: 100%; height: auto; display: block; }
   height: 100%;
   background: var(--ink);
 }
+/* v2.2-E: the frame clips its overflow (the rounded corners), which hid the
+   global focus ring (offset +2 px) on the player itself: a keyboard user
+   tabbing onto the film saw no focus. Draw it inside, as on the slicer canvas. */
+.mars-video__player:focus-visible { outline-offset: -3px; }
 .mars-video__meta {
   margin-top: 0.6rem;
   font-size: 0.875rem;
@@ -2060,6 +2200,11 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 .mars-deeper a { text-decoration: none; border-bottom: 1px solid #d8cdb5; }
 .mars-deeper a:hover { border-bottom-color: var(--aged); }
+.mars-deeper__originals {      /* v2.2-A: moved here from the hero */
+  margin: 0 0 0.6rem;
+  font-size: 0.875rem;
+  color: var(--grey);
+}
 .mars-deeper__limits {
   font-size: 0.9375rem;
   color: var(--grey);
@@ -2084,6 +2229,108 @@ img, video { max-width: 100%; height: auto; display: block; }
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
+
+/* --------------------------------------------------------------------------
+   THE PHONE PASS (stage v2.2-P) — `/` at <= 600 px only.
+   The approved mock is build_instructions/review/concepts/v22/
+   phone_polish_mock.html ("Polished", author 2026-10-28). Its body.pol rules
+   are the source of the values below; the modules under the mock (Accuracy,
+   Efficiency, Downstream, Ablation, film, Go deeper, BibTeX) take the same
+   scale. Every rule is scoped to body.mars-home, so /details/ (which shares
+   this file) is untouched, and to the site's phone query, so nothing at
+   601 px and up changes. No copy changes here: the teaser descriptors are
+   VISUALLY hidden, still read by screen readers and still counted by
+   tools/page_budget.py.
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  /* Type: leads and the In short paragraph 16 px / 1.55 (were 18 / 1.62);
+     section titles 22 px (the demo titles were already 22 at this width). */
+  .mars-home .mars-demo__sentence,
+  .mars-home .mars-section__lede { font-size: 1rem; line-height: 1.55; }
+  .mars-home .mars-demo__sentence { margin-bottom: 1rem; }
+  .mars-home .mars-section__title,
+  .mars-home .mars-closing__title { font-size: 1.375rem; }
+  .mars-home .mars-eyebrow { line-height: 1.3; }   /* the mock's `normal` (was 1.62) */
+
+  /* Band padding 1.6rem (In short 1.8rem). The hero keeps its 36 px under
+     the teaser's guide (the gap to the slicer, whose band has no top
+     padding); the button row keeps its 1rem to the teaser (the mock's 51 px
+     there comes from its blanket band rule, not from a decision). */
+  .mars-home .mars-hero__inner { padding-top: 1.6rem; }
+  .mars-home .mars-slicer-band > .mars-band__inner,
+  .mars-home #results > .mars-band__inner,
+  .mars-home #video > .mars-band__inner,
+  .mars-home #deeper > .mars-band__inner,
+  .mars-home #bibtex > .mars-band__inner { padding-bottom: 1.6rem; }
+  .mars-home #results > .mars-band__inner,
+  .mars-home #video > .mars-band__inner,
+  .mars-home #deeper > .mars-band__inner,
+  .mars-home #bibtex > .mars-band__inner { padding-top: 1.6rem; }
+  .mars-home .mars-inshort-band > .mars-band__inner { padding-top: 1.8rem; padding-bottom: 1.8rem; }
+  .mars-home .mars-demo + .mars-demo { margin-top: 1.6rem; padding-top: 1.6rem; }
+
+  /* Hero (T1). The title's column-filling size is untouched. */
+  .mars-home .mars-hero__subhead { font-size: 1rem; margin-bottom: 0.8rem; }
+  .mars-home .mars-hero__authors { font-size: 0.9375rem; }
+  .mars-home .mars-hero__affil { font-size: 0.8125rem; }
+  .mars-home .mars-hero__buttons .mars-btn { font-size: 0.8125rem; padding: 0.36rem 0.7rem; }
+  .mars-home .mars-hero__soon { font-size: 0.8125rem; }
+  /* The empty row's reservation (stage 10's CLS rule), re-measured for these
+     buttons at every width 300-600 in Chrome on Poppins (review/v22P/
+     measurements.txt). Built heights: 62.8 px at 493-600 (one row of
+     buttons, "Code coming soon" under it); 76.3 at 356-492; 104.5 at 355
+     and below. Each breakpoint sits 4 px inside its wrap point, so the
+     reservation is never above the built row. 601-672 keeps v2.2-A's 67.9. */
+  .mars-home .mars-hero__buttons:empty { min-height: 62.7px; }
+
+  /* Teaser (T2): name + time only. The descriptors stay in the DOM. */
+  .mars-home .mars-teaser__col dt,
+  .mars-home .mars-teaser__col dd { font-size: 0.8125rem; }
+  .mars-home .mars-teaser__desc {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .mars-home .mars-teaser__workload { font-size: 0.75rem; }   /* the mock's 11 px is under the 12 px floor */
+  .mars-home .mars-teaser__tagline { font-size: 0.9375rem; }
+  .mars-home .mars-teaser__guide { font-size: 0.875rem; line-height: 1.5; }
+
+  /* Fig. 1 card (T3): 10 px inside the card, the inference crop at 68 %
+     of it, centred, 12 px under the acquisition crop; caption 13 px. */
+  .mars-home .mars-context { padding: 10px; }
+  .mars-home .mars-context__caption { padding: 0; font-size: 0.8125rem; }
+  .mars-home .mars-context__more { width: 68%; margin: 12px auto 0; }
+
+  /* Buttons inside the modules take the hero buttons' scale (T6, T7). */
+  .mars-home .mars-slicer__chip,
+  .mars-home .mars-slicer__seg button,
+  .mars-home .mars-compare__mode,
+  .mars-home .mars-compare__hold {
+    min-height: 0;
+    padding: 0.36rem 0.7rem;
+    font-size: 0.8125rem;
+  }
+
+  /* Captions under the figures: 13 px as before, line-height 1.45 (was
+     1.62). Toggles: 0.6rem above the figure (was 0.85). The ablation (T6):
+     a tighter chart card, legend and tile grid, 13 px tile captions. */
+  .mars-home .mars-demo__note { line-height: 1.45; }
+  .mars-home .mars-compare__toggle { margin-bottom: 0.6rem; }
+  .mars-home .mars-abl__card { padding: 10px 12px 8px; }
+  .mars-home .mars-abl__legend { gap: 0.2rem 1.25rem; line-height: 1.4; }
+  .mars-home .mars-abl__tiles { gap: 10px; margin-top: 12px; }
+  .mars-home .mars-abl__cap { margin-top: 0.3rem; font-size: 0.8125rem; line-height: 1.3; }
+  .mars-home .mars-abl__note { margin-top: 0.6rem; }
+
+  /* Demo 2's caption: its subscript d was 10.8 px (the default `smaller`). */
+  .mars-home .mars-demo__note sub { font-size: 0.75rem; }
+}
+@media (max-width: 488px) { .mars-home .mars-hero__buttons:empty { min-height: 76.2px; } }
+@media (max-width: 351px) { .mars-home .mars-hero__buttons:empty { min-height: 104.5px; } }
 
 /* --------------------------------------------------------------------------
    Reduced motion — suppress every autoplay and transition

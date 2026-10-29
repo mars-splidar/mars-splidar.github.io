@@ -65,8 +65,6 @@ MAIN = [
     ("authors", ".mars-hero__authors", "L"),
     ("affiliation", ".mars-hero__affil", "L"),
     ("button row", "#mars-hero-buttons", "L"),
-    ("button note", "#mars-hero-note", "L"),
-    ("Fig. 1 question", ".mars-question", "F"),
     ("teaser cubes", ".mars-teaser__frame", "F"),
     ("teaser labels", ".mars-teaser__cols", "X"),
     ("teaser workload", ".mars-teaser__workload", "C"),
@@ -83,31 +81,54 @@ MAIN = [
     ("slicer chart frame", ".mars-slicer__chartbox", "F"),
     ("slicer controls", ".mars-slicer__controls", "L"),
     ("slicer note", ".mars-slicer__note", "L"),
-    ("In short eyebrow", "#in-short-heading", "L"),
+    # v2.2-A: the In short band (heading, prose, the Fig. 1 card) replaces
+    # v2.1's question above the teaser and the gains strip
+    ("In short heading", "#in-short-heading", "L"),
     ("In short prose", ".mars-inshort", "L"),
-    ("gains strip", ".mars-stats", "F"),
+    # The card is the judged block. Its image spans the card's full width,
+    # but its painted ancestor is the WHITE card, so this script's +/- 8 px
+    # crop reaches the card's ring and the mint beyond it and reports -8/+9:
+    # the image and the caption (inset 14 px inside the card) are reported
+    # only. v2.2-A measures the image box from the DOM instead.
+    ("Fig. 1 card", ".mars-context", "F"),
+    ("Fig. 1 image", ".mars-context__pic", "X"),
+    ("Fig. 1 caption", ".mars-context__caption", "X"),
     ("Demo 2 eyebrow", "#demo-accuracy .mars-eyebrow", "L"),
     ("Demo 2 title", "#demo-accuracy-title", "L"),
     ("Demo 2 sentence", "#demo-accuracy .mars-demo__sentence", "L"),
     ("Demo 2 chart frame", ".mars-count-fig__frame", "F"),
     ("Demo 2 note", "#demo-accuracy .mars-demo__note", "L"),
+    # v2.2-B: the Efficiency module; the schematic's frame fills the column
+    ("Efficiency eyebrow", "#demo-efficiency .mars-eyebrow", "L"),
+    ("Efficiency title", "#demo-efficiency-title", "L"),
+    ("Efficiency sentence", "#demo-efficiency .mars-demo__sentence", "L"),
+    ("Efficiency frame", ".mars-eff__frame", "F"),
     ("Demo 3 eyebrow", "#demo-downstream .mars-eyebrow", "L"),
     ("Demo 3 title", "#demo-downstream-title", "L"),
     ("Demo 3 sentence", "#demo-downstream .mars-demo__sentence", "L"),
-    # v2.1-D: square + framed side panel; the toggle, the numbers and the
-    # note sit inside the panel, so only the block's outer edges are judged
-    ("Demo 3 block", ".mars-compare__body", "F"),
-    ("Demo 3 square", ".mars-compare__stage", "X"),
-    ("Demo 3 panel", ".mars-compare__panel", "X"),
+    # v2.2-C: two equal squares (slider | ground truth) fill the column; on
+    # phones the GT square is hidden and the slider fills it alone
+    ("Demo 3 toggle", "#demo-downstream .mars-compare__toggle", "L"),
+    ("Demo 3 pair", ".mars-compare__pair", "F"),
+    ("Demo 3 slider", "#demo-downstream .mars-compare__cell .mars-compare__stage", "X"),
+    ("Demo 3 note", "#demo-downstream .mars-compare__note", "L"),
+    # v2.2-C: the count-model ablation; chart card and tile grid fill the column
+    ("ablation eyebrow", "#demo-ablation .mars-eyebrow", "L"),
+    ("ablation title", "#demo-ablation-title", "L"),
+    ("ablation sentence", "#demo-ablation .mars-demo__sentence", "L"),
+    ("ablation toggle", "#demo-ablation .mars-compare__toggle", "L"),
+    ("ablation chart card", ".mars-abl__card", "F"),
+    ("ablation tiles", ".mars-abl__tiles", "F"),
+    ("ablation note", ".mars-abl__note", "L"),
     ("film heading", "#video-heading", "L"),
     ("film", ".mars-video__frame", "F"),
     ("film meta", ".mars-video__meta", "L"),
     ("Go deeper eyebrow", "#deeper-heading", "L"),
     ("Go deeper links", ".mars-deeper", "L"),
+    ("originals line", "#mars-originals", "L"),
     ("limitations line", ".mars-deeper__limits", "L"),
     ("BibTeX heading", ".mars-closing__title", "L"),
     ("BibTeX block", ".mars-code", "F"),
-    ("BibTeX note", ".mars-closing__note", "L"),
     ("footer rule", ".mars-closing__rule", "F"),
     ("footer links", ".mars-closing__links", "C"),
     ("footer funding", ".mars-closing__footer", "C"),

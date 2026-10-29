@@ -56,6 +56,24 @@ BY_PATH_MAIN = [
     "assets/img/slicer_ph_mars.webp",
     "assets/img/slicer_ph_chart_960.webp",
     "assets/img/slicer_ph_chart_390.webp",
+    # Fig. 1 without the question, in the In short band (v2.2-A). It ships
+    # as data-srcset / data-src (js/mars-main.js promotes it below the first
+    # screen), and the data-src scan above does not read srcset lists, so
+    # every file is checked here, by path.
+    "assets/img/fig1_context.png",
+    "assets/img/fig1_context.webp",
+    "assets/img/fig1_context_960.webp",
+    # v2.2-D: the tight acquisition crop phones show (v2.2-A's
+    # fig1_context_acq* and the untrimmed fig1_context_infer* are retired)
+    "assets/img/fig1_context_acq_tight.png",
+    "assets/img/fig1_context_acq_tight.webp",
+    "assets/img/fig1_context_acq_tight_600.webp",
+    # v2.2-P: the tight inference crop phones show
+    "assets/img/fig1_context_infer_tight.png",
+    "assets/img/fig1_context_infer_tight.webp",
+    "assets/img/fig1_context_infer_tight_600.webp",
+    # v2.2-P: Demo 2's phone chart, inlined like the desktop one
+    "assets/img/demo_count_phone.svg",
 ]
 
 

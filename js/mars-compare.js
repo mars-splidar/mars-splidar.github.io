@@ -21,6 +21,23 @@
  *
  * LAZY: nothing loads until the figure is within 300 px of the viewport;
  * depth tiles load only when Depth is first chosen.
+ *
+ * v2.2-C: the ground truth sits beside the slider at the same size, and the
+ * test-set numbers ride on the image corners as chips (still data-depth
+ * swaps). On phones (<= 600 px, the site's breakpoint) the GT square is
+ * hidden and "Hold to see ground truth" (.mars-compare__hold) shows the GT
+ * inside the slider frame while it is held:
+ *   - pointer (mouse, pen, touch): pointerdown holds; pointerup,
+ *     pointercancel and pointerleave release;
+ *   - keyboard: Space or Enter keydown holds (auto-repeat ignored), the
+ *     matching keyup releases;
+ *   - a click that no pointer or key started (a screen reader's activation)
+ *     toggles it, so it can be reached without holding anything;
+ *   - blur, a mode change and leaving the phone layout always release.
+ * While held, the two reconstructions, their chips and the divider are
+ * hidden and a "Ground truth" chip is shown, so the GT is never labelled
+ * with a reconstruction's number. aria-pressed mirrors the state, and a
+ * polite live region announces it.
  */
 (function () {
   "use strict";
@@ -54,8 +71,10 @@
       });
     }
 
+    var setRelease = function () {};
     function setMode(m) {
       if (m === mode) return;
+      setRelease();
       mode = m;
       fig.setAttribute("data-mode", m);
       buttons.forEach(function (b) {
@@ -123,6 +142,70 @@
     stage.addEventListener("pointercancel", end);
 
     setPos(+range.value || 50);
+
+    /* ---- hold to see ground truth (v2.2-C, phones) ---- */
+    var hold = fig.querySelector(".mars-compare__hold");
+    var status = fig.querySelector(".mars-compare__status");
+    var gtChip = fig.querySelector(".mars-compare__chip.is-gt");
+    var held = false;
+    function setHeld(on) {
+      on = !!on;
+      if (on === held) return;
+      held = on;
+      stage.classList.toggle("is-holding", on);
+      if (gtChip) gtChip.hidden = !on;
+      if (hold) hold.setAttribute("aria-pressed", on ? "true" : "false");
+      if (status) status.textContent = on
+        ? "Showing the ground truth."
+        : "Showing the Poisson-trained and MaRS-trained reconstructions.";
+    }
+    setRelease = function () { setHeld(false); };
+    if (hold) {
+      /* A press that a pointer or key started is a hold; the click the
+         browser fires after it is ignored. Any other click (assistive tech)
+         toggles. */
+      var pressing = false, quietUntil = 0, holdKey = null;
+      var press = function () { pressing = true; setHeld(true); };
+      var release = function () {
+        if (pressing) quietUntil = Date.now() + 600;
+        pressing = false;
+        setHeld(false);
+      };
+      hold.addEventListener("pointerdown", function (e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        try { hold.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+        if (e.pointerType !== "mouse") e.preventDefault();  /* no long-press menu, no selection */
+        press();
+      });
+      ["pointerup", "pointercancel", "pointerleave", "lostpointercapture"].forEach(function (t) {
+        hold.addEventListener(t, function () { if (pressing && holdKey === null) release(); });
+      });
+      hold.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      hold.addEventListener("keydown", function (e) {
+        if (e.key !== " " && e.key !== "Enter" && e.key !== "Spacebar") return;
+        e.preventDefault();
+        if (e.repeat || holdKey !== null) return;
+        holdKey = e.key;
+        press();
+      });
+      hold.addEventListener("keyup", function (e) {
+        if (holdKey === null || e.key !== holdKey) return;
+        e.preventDefault();
+        holdKey = null;
+        release();
+      });
+      hold.addEventListener("click", function () {
+        if (pressing || Date.now() < quietUntil) return;
+        setHeld(!held);          /* assistive tech: a click toggles */
+      });
+      hold.addEventListener("blur", function () { holdKey = null; pressing = false; setHeld(false); });
+      if (window.matchMedia) {
+        var phone = window.matchMedia("(max-width: 600px)");
+        var onPhone = function () { if (!phone.matches) setHeld(false); };
+        if (phone.addEventListener) phone.addEventListener("change", onPhone);
+        else if (phone.addListener) phone.addListener(onPhone);
+      }
+    }
 
     function reveal() { loaded = true; loadImages(); }
     if (!("IntersectionObserver" in window)) { reveal(); return; }

@@ -18,13 +18,26 @@ vanilla-JS modules. No build step, no framework, no bundler.
   and stops it silently dropping any path beginning with `_`.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
-Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27):
+Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27;
+demo first since `v2.2`, 2026-10-29):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The lean main page: the paper's Fig. 1 question, the hero teaser, the cube slicer (v2.1), *In short* + four gains, two result demos, the film inline, BibTeX |
+| `index.html` | The lean main page, demo first (v2.2): the compact hero with the teaser, the cube slicer, *In short* with the paper's Fig. 1 top half, then Accuracy, Efficiency (an animated schematic), Downstream (Poisson- vs MaRS-trained) and the count-model ablation, the film inline, Go deeper, BibTeX |
 | `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
 | `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
+
+**v2.2 in one paragraph (live 2026-10-29, tag `v2.2`).** `/` now leads with
+the demos: a compact hero whose teaser and labels fit the first 1280 x 800
+screen, the cube slicer, and a mint *In short* band with the paper's Fig. 1
+top half (its question removed from the vector PDF). Three result modules
+follow: Accuracy (*The first analytic photon-count distribution under dead
+time*, with Demo 2), Efficiency (`js/mars-efficiency.js`: the gold standard's
+per-photon loop beside MaRS's lookup, shift and sample; no clock and no
+runtime number), and Downstream (slider and ground truth at one size, test-set
+chips, *Hold to see ground truth* on phones) with the count-model ablation
+(`js/mars-ablation.js`). The four gains strip is gone. `/` has no em dash,
+en dash or semicolon outside code. Budgets: 598/598 prose words, 8/9 media.
 
 ## Source assets live outside this repo and are never modified
 
@@ -95,22 +108,39 @@ audit says so: both must exist, neither may link to `/demos/`, 85 ns and
 75 ns may not share a band on `/details/`, the gain order is read from the
 gains strip on `/`, and "exactly one `.mars-eq`" counts across both.
 
+Since v2.2-D non-negotiable #1's phrase must be **contiguous** on `/`: every
+"one table per sensor configuration" is followed at once by ", reused for
+every pixel and depth", in visible text and in alt / aria / meta strings, and
+the Efficiency module carries it in both schematics and in its screen-reader
+note. The old split form ("… configuration is 105 MB instead of 108 GB,
+reused for …") fails.
+
 ### The two v2 gates (stage 07)
 
 ```bash
-python tools/page_budget.py          # the main page's budgets, guide 0.1 / 0.6
+python tools/page_budget.py          # the main page's budgets, guide 0.1 / 0.6 / 0.7
 python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.6 item 6's limits since v2.1-A — visible words ≤ 420 (was 350), at most six
-media slots above BibTeX (was exactly four), zero switch bars, zero
+§0.7's limits since v2.2-A — visible words ≤ 598 since v2.2-D, re-pinned at
+the measured total after the author's copy changes (the slicer eyebrow +3, the
+BibTeX "Provisional entry" note removed −5); 600 from v2.2-P, re-pinned when
+Demo 2's 12 chart words became schematic text (612 from v2.2-C, pinned at that stage's measured total by the author; 520 from
+v2.2-A, 420 from v2.1-A, 350 before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
+before), zero switch bars, zero
 display equations, and each demo's title and single sentence — and exits
 non-zero on a breach. Its docstring defines exactly what counts as a word and
 as a media item. Since v2.1-C it counts PROSE only: text inside a `.mars-ui`
 element (control labels, legends, axis text) is reported
 separately as "UI words" and is not held against the 420; it also checks the
-cube slicer's title, guiding text and media slot. `details_move_diff.py` extracts each of the seven bands,
+cube slicer's title, guiding text and media slot. Since v2.2-B text inside a
+`.mars-schematic` element (the Efficiency diagram's SVG labels) is reported
+the same way, once per SVG, and `#demo-efficiency` may hold its three-sentence,
+38-word lead (the limit is pinned at that approved length). Since v2.2-C
+`#demo-downstream` may hold three sentences and `#demo-ablation` two (the
+stage doc's verbatim leads). Since v2.2-P Demo 2's two charts sit in
+`.mars-schematic` wrappers too, so their words are reported, not counted. `details_move_diff.py` extracts each of the seven bands,
 banner comment included, from `git show v1.0-launch:index.html` and from
 `details/index.html`, undoes the `../` path prefix and diffs them; the only
 allowed difference is the Simulator card's demo-lab link.
@@ -130,6 +160,10 @@ It prints the operating point, the realization count and every model's
 stored vs plotted mean and variance, asserts that no `<text>` node or the
 `aria-label` carries a digit, and exits non-zero on any mismatch or, with
 `--check`, on drift between the script, the file and the inline copy.
+Since v2.2-P it also draws the phone chart (`assets/img/demo_count_phone.svg`,
+340 x 240 units, spliced between the `demo_count_phone:` markers, shown at
+≤ 600 px) from the same arrays and runs the same text checks on it; the
+desktop SVG is unchanged, byte for byte.
 
 ### The cube slicer (stage v2.1-C)
 
@@ -225,8 +259,11 @@ js/site.config.js       EVERY external URL, in one object (resolved against
 js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
 js/mars-main.js         main page only: teaser, video poster, BibTeX copy
-js/mars-compare.js      main page only: Demo 3 before/after slider (stage 09)
+js/mars-compare.js      main page only: Downstream before/after slider (stage 09),
+                        hold to see ground truth on phones (v2.2-C)
+js/mars-ablation.js     main page only: the count-model ablation's chart and tiles (v2.2-C)
 js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
+js/mars-efficiency.js   main page only: the Efficiency schematic's animation (v2.2-B)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
 js/mars-switchbar.js    the switch-bar (tab) pattern (/details/)
 js/mars-media.js        scroll-triggered animation slots (/details/)
@@ -238,7 +275,9 @@ tools/build_web_assets.py
 tools/audit_claims.py   claim hygiene, both public pages
 tools/check_links.py    every reference, both public pages
 tools/page_budget.py    the main page's guide-0.1/0.6 budgets (stage 07, v2.1-A)
-tools/build_fig1_question.py  Fig. 1's top half from the paper PDF (v2.1-A)
+tools/build_fig1_context.py  Fig. 1's top half without the question, + the two
+                        tight phone crops, from the paper PDF; --dry-run compares
+                        by md5 (v2.2-A; build_fig1_question.py retired in v2.2-D)
 tools/measure_edges.py  visible edges vs the column, both pages; not a gate (v2.1-A)
 tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 09)
 tools/build_slicer_data.py  the slicer's data + default readout, --check gate (v2.1-C)
@@ -250,8 +289,12 @@ tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ## Editing rules that are not obvious from the code
 
 - **`js/site.config.js` is the only place a URL belongs.** A `null` URL renders
-  a non-clickable `· soon` pill. Never `href="#"`, never a link to a missing
-  file — the audit greps for it.
+  nothing clickable: since v2.2-A, plain grey text "<Label> coming soon" after
+  the hero buttons (it was a `· soon` pill). Never `href="#"`, never a link to
+  a missing file — the audit greps for it.
+- **Eyebrows on `/` are sentence case** (v2.2-A): `body.mars-home` drops the
+  uppercase transform and the tracking, so write the label as it should read.
+  `/details/` keeps its uppercase eyebrows until stage 11.
 - **`--gold` (#CFB991) is ONLY EVER A FILL** — background, pill, bar,
   underline, border. Never a text colour, at any size; the "display numeral ≥
   2rem" exemption was removed in stage 1.5 because gold on mint measures
@@ -272,8 +315,9 @@ tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
   third, sanctioned use, and it is deliberate — do not "fix" it.
 - **Exactly one display equation on the whole site**, the CLT count law, in a
   `.mars-eq` container. The audit fails on a second one.
-- **The BibTeX entry is provisional.** Page numbers and the exact proceedings
-  title are unknown until ECCV camera-ready is processed. Do not invent them.
+- **The BibTeX entry is final** (author, 2026-10-29: the ECCV camera-ready is
+  settled), so `/` no longer carries a "Provisional entry" note under it. It
+  has no page numbers or volume. Do not invent them.
 - **The hero title's gold letters are `MaRS`, `Ma`, `R`, and the `S` of
   *Simulator*** — not the `S` of *Single-Photon*. `MaRS` = **Ma**rkov-**R**enewal
   **S**imulator.
@@ -548,3 +592,76 @@ Each build stage appends one line here.
   violation and no defect needing a fix. `v2.1` was merged into `main`
   (`--no-ff`) and tagged `v2.1`. Review pack and the author's v2.1 phone
   checklist: `build_instructions/review/v21E/`.
+- **Stage v2.2-A — compact hero, demo-first order, the In short band
+  (2026-10-28).** On branch `v2.2-dev`, not pushed. The hero is the approved
+  "Compact" mock (smaller buttons with icons, "Code coming soon" as plain
+  text), so the teaser's label row ends at 653 px at 1280 x 800. Order: hero,
+  teaser, slicer, then a mint In short band holding the 63-word paragraph and
+  the paper's Fig. 1 top half without its question (removed from the vector
+  PDF by `tools/build_fig1_context.py`: 0 px changed outside that region),
+  lazy by script. The four gains strip is gone (`audit_claims.py` retires its
+  order check for `/`). New copy from guide §0.7. Prose 458/520, media 6/9.
+  Review pack: `build_instructions/review/v22A/`.
+- **Stage v2.2-B — the Efficiency module (2026-10-28).** On branch
+  `v2.2-dev`, not pushed. `article#demo-efficiency` sits between Accuracy and
+  Downstream: the approved concept as two inline SVGs (wide, and a stacked
+  phone layout at ≤ 600 px), animated by `js/mars-efficiency.js` only while on
+  screen and the tab is visible; reduced motion draws the end state once. Its
+  note carries 105 MB / 108 GB, the "one table per sensor configuration"
+  phrase and "At fixed S and B", all checked by `audit_claims.py`. Smallest
+  text 12.5 px at the 960 px column, 12.5 px at 375. CLS 0. Prose 502/520,
+  media 7/9. Review pack: `build_instructions/review/v22B/`.
+- **Stage v2.2-C — Downstream and the count-model ablation (2026-10-28).**
+  On branch `v2.2-dev`, not pushed. `#demo-downstream` is now *Ignoring dead
+  time biases downstream networks*: the Poisson-trained vs MaRS-trained slider
+  and the ground truth as two equal squares, the test-set numbers as chips on
+  the image corners, and on phones a *Hold to see ground truth* button
+  (pointer, touch, Space / Enter; a screen reader's click toggles it). New
+  `#demo-ablation`, *Why an accurate count model matters*: a dumbbell chart
+  (val vs test for the Renewal, Zhang et al. and MaRS count models, drawn by
+  `js/mars-ablation.js` from a visually hidden table) and four tiles, with
+  the footnote that there is no separate Renewal or Zhang et al. simulator.
+  `audit_claims.py` checks the table, captions and chips against
+  PROJECT_BRIEF §3.5 and requires the footnote. Prose 612/612 (limit pinned
+  by the author), media 8/9. CLS 0. Review pack:
+  `build_instructions/review/v22C/`.
+- **Stage v2.2-P — the phone pass (2026-10-28).** On branch `v2.2-dev`, not
+  pushed. `/` at ≤ 600 px takes the approved phone mock's scale: leads and In
+  short 16 px, smaller hero and module buttons, 1.6rem bands, teaser labels as
+  name + time (descriptors visually hidden, still read and counted), the Fig. 1
+  inference crop re-cut tight (`fig1_context_infer_tight*`, no arrow, no blank
+  band) at 68 % of the card. Efficiency: the stacked SVG up to 971 px (the wide
+  one's text reaches 12 px only from there), 914 units tall (was 1116), 30
+  drawn frames/s. Demo 2: a phone chart (`demo_count_phone.svg`, ≥ 200 px) and
+  its words now schematic, so the word limit is re-pinned at 600. Ablation:
+  each val ring drawn above its test dot. No copy changed; desktop pixel-
+  identical outside the dumbbell. Page at 390 px 8149 → 7182 px. Review pack:
+  `build_instructions/review/v22P/`.
+- **Stage v2.2-D — copy pass and cleanup (2026-10-29).** On branch
+  `v2.2-dev`, not pushed. The author's copy: the Accuracy title loses its full
+  stop, the slicer eyebrow is *Cube slicer · Visualize dead-time effects*, the
+  Efficiency note reads *So one table per sensor configuration, reused for
+  every pixel and depth, is 105 MB instead of 108 GB.* (`audit_claims.py` now
+  requires #1's phrase contiguous on `/`), and the BibTeX note is gone (the
+  entry is final). Every "—", "–" and ";" outside code on `/` (title, meta,
+  alt, aria, the slicer's load-failure text, the Accuracy caption and the
+  limitations line) became a full stop or comma. Word limit re-pinned
+  at 598. Removed: the unused `.mars-btn.is-soon` / `.mars-btn__soon` and
+  `.mars-closing__note` CSS, `fig1_question*`, v2.2-A's `fig1_context_acq*` and
+  `fig1_context_infer*`, `tools/build_fig1_question.py`. The phone acquisition
+  crop is re-cut before the arrow (`fig1_context_acq_tight*`). Review pack:
+  `build_instructions/review/v22D/`.
+- **Stage v2.2-E — independent review, merge and launch (2026-10-29),
+  `v2.2`.** A session that built none of v2.2 re-measured it: the twelve
+  non-negotiables on `/` with the Accuracy title's "first analytic",
+  Downstream's "fails / works" and the ablation's "closer to the truth"
+  traced to paper lines; a number-provenance table; the slicer readouts
+  recomputed from the shipped data (exact); the Efficiency schematic stepped
+  every 0.5 s under a fake clock in both layouts (no number, no clock, steps
+  in order); all nine gates; Chrome and Firefox at twelve widths on both
+  pages; keyboard, touch and the hold button; cold-load bytes; Lighthouse.
+  Two commits: the page title with a colon (author-approved) and a visible
+  focus ring on the film player (`.mars-video__player:focus-visible`, the
+  frame's `overflow: hidden` had clipped it). Merged into `main` (`--no-ff`)
+  and tagged `v2.2`. Review pack and the author's v2.2 phone checklist:
+  `build_instructions/review/v22E/`.

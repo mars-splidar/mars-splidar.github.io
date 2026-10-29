@@ -217,6 +217,10 @@ SANCTIONED_ROUNDINGS = {
 # from SANCTIONED_ROUNDINGS on purpose: these are not re-written canonical
 # numbers, and listing them there would misdescribe them. (Stage 09.)
 NON_CLAIM_NUMBERS = {
+    "64": "the Efficiency schematic's grid size, '3 realizations × 64 pixels' "
+          "(8 x 8 cells, stage v2.2-B). A count of drawn cells, not a "
+          "measurement; within 2% of the Zhang et al. variance difference "
+          "64.558 only by coincidence",
     "8.2": "Demo 2's operating point, S = B = 8.2 (grid index 8 of the stored "
            "count-distribution results; video/data.py::count_distributions). "
            "A coordinate, not a measurement; 1.9% from the gold standard's "
@@ -315,6 +319,10 @@ SURFACES: list[tuple[str, str, str]] = [
     (r"\.is-mint",                   "--mint",  "mint band"),
     # --- gold-wash hover states, which repaint the ground under the label ---
     (r"\.mars-(btn|switch__pill)[^,]*:hover", "--gold-soft", "gold-wash hover"),
+    # --- v2.2-C: the Downstream chips sit on the IMAGES, as INK at 82 %
+    # (rgba(20, 24, 26, .82)). The worst case is a white image pixel under
+    # the chip, which composites to #3e4243; text is checked against that.
+    (r"\.mars-compare__chip",        "#3e4243", "image chip (INK 82 % over white)"),
     # --- the skip link paints itself AGED but only in the :focus rule ---
     (r"\.mars-skip",                 "--aged",  "skip link"),
 ]
@@ -329,17 +337,14 @@ MINT_SURFACE_HEXES = {"#ecf6ef", "#e2eee6"}
 # Rules WCAG genuinely exempts, or that are not text. Each needs a reason.
 # Keyed by the exact selector text as it appears in css/mars.css.
 CONTRAST_EXEMPT = {
-    ".mars-btn.is-soon":
-        "WCAG 1.4.3 exempts inactive UI components. These are the `· soon` "
-        "pills for URLs that do not exist yet — rendered as <span>, "
-        "aria-disabled, not focusable, nothing to activate.",
-    ".mars-btn.is-soon:hover": "same element as .mars-btn.is-soon",
-    ".mars-btn__soon":
-        "the `· soon` suffix inside an inactive UI component; same exemption",
+    # v2.2-D: the `.mars-btn.is-soon` pill, its :hover and `.mars-btn__soon`
+    # were removed from css/mars.css (unused since v2.2-A), and so were their
+    # three exemptions here.
     ".mars-lab__status.is-soon":
-        "the `soon` badge on the unbuilt demo panels — all FOUR of them as of "
-        "stage 06, since stage 03 is deferred and the dead-time playground "
-        "ships unbuilt too; same exemption",
+        "WCAG 1.4.3 exempts inactive UI components. This is the `soon` badge "
+        "on the unbuilt demo panels — all FOUR of them as of stage 06, since "
+        "stage 03 is deferred and the dead-time playground ships unbuilt too: "
+        "rendered as <span>, not focusable, nothing to activate.",
 }
 
 
@@ -843,8 +848,222 @@ def check_dead_time_sections(rep: Report) -> None:
                     f"{where['75 ns'] or 'nowhere'} (must never share a band)")
 
 
+# v2.2-B — THE EFFICIENCY MODULE. Its note is the one place on `/` that states
+# the table's size and the delay shift, so it must carry, in EVERY schematic
+# (one SVG per breakpoint, only one shown), PROJECT_BRIEF 3.4's two LUT sizes,
+# #1's sanctioned phrase and #8's conditioned statement.
+# v2.2-D: #1's phrase must be CONTIGUOUS on `/`. v2.2-B's note split it around
+# the sizes ("So one table per sensor configuration is 105 MB instead of
+# 108 GB, reused for every pixel and depth."), and this check used to accept
+# both halves in one sentence. The note now reads "So one table per sensor
+# configuration, reused for every pixel and depth, is 105 MB instead of
+# 108 GB." (status 2, B's routed item), and the split form fails: in each
+# schematic, in the module's screen-reader text, and anywhere on `/`
+# (check_one_table_contiguous).
+EFFICIENCY_ID = "demo-efficiency"
+ONE_TABLE = r"one\s+table\s+per\s+sensor\s+configuration"
+NN1_PHRASE = ONE_TABLE + r",\s+reused\s+for\s+every\s+pixel\s+and\s+depth"
+EFFICIENCY_REQUIRED = [
+    ("105 MB [PROJECT_BRIEF 3.4]", r"\b105\s*MB\b"),
+    ("108 GB [PROJECT_BRIEF 3.4]", r"\b108\s*GB\b"),
+    ("#1 sanctioned phrase, contiguous", NN1_PHRASE),
+    ("#8 conditioned delay statement",
+     r"At\s+fixed\s+S\s+and\s+B,\s+the\s+delay\s+only\s+shifts\s+π"),
+]
+# #8, the unconditioned form, anywhere on any page: "the delay / depth (change)
+# only shifts ..." with no fixed (S, B) / signal and background in the 80
+# characters before it. /details/ conditions it in the sentence before
+# ("with those held, moving the delay ... only shifts"), which this pattern
+# does not match.
+DELAY_SHIFT = re.compile(r"\b(delay|depth|τ)(\s+change)?\s+only\s+shifts?\b", re.I)
+DELAY_COND = re.compile(r"fixed\s+(S\s+and\s+B|\(\s*S\s*,\s*B\s*\)|signal\s+and\s+background)",
+                        re.I)
+
+
+def check_delay_condition(text: str, rel: str, rep: Report) -> None:
+    for m in DELAY_SHIFT.finditer(text):
+        before = text[max(0, m.start() - 80):m.start()]
+        if not DELAY_COND.search(before):
+            ctx = re.sub(r"\s+", " ", text[max(0, m.start() - 60):m.end() + 30])
+            rep.fail(rel, "delay invariance stated without fixed (S, B) [#8]",
+                     f"...{ctx}...")
+
+
+def check_efficiency(rep: Report) -> None:
+    source = (REPO / "index.html").read_text(encoding="utf-8", errors="replace")
+    source = COMMENT_RE.sub(" ", source)
+    art = re.search(r'<article\b[^>]*\bid="%s"(.*?)</article>' % EFFICIENCY_ID,
+                    source, re.S)
+    if not art:
+        rep.fail("index.html", "Efficiency module missing [v2.2-B]",
+                 f"no article#{EFFICIENCY_ID}")
+        return
+    svgs = re.findall(r'<svg\b[^>]*\bmars-schematic\b[^>]*>.*?</svg>', art.group(1), re.S)
+    if len(svgs) != 2:
+        rep.fail("index.html", "Efficiency schematics [v2.2-B]",
+                 f"expected 2 .mars-schematic SVGs (wide, phone), found {len(svgs)}")
+    for k, svg in enumerate(svgs):
+        text = visible_text(svg)
+        for label, rx in EFFICIENCY_REQUIRED:
+            if not re.search(rx, text):
+                rep.fail("index.html", f"Efficiency schematic {k + 1}: {label} missing",
+                         "the note must carry it in every layout [v2.2-B]")
+    # v2.2-D: the same note, repeated for screen readers outside the SVGs
+    # (role="img" hides their text), must carry #1 contiguous too.
+    rest = visible_text(re.sub(r'<svg\b.*?</svg>', " ", art.group(1), flags=re.S))
+    if not re.search(NN1_PHRASE, rest):
+        rep.fail("index.html", "Efficiency screen-reader note: #1 sanctioned phrase, "
+                 "contiguous, missing", "the text outside the SVGs must carry it too [v2.2-D]")
+    rep.info.append(f"Efficiency note: 105 MB, 108 GB, #1 and #8 phrasing present in "
+                    f"{len(svgs)} schematic(s)")
+
+
+# v2.2-C — THE DOWNSTREAM MODULE AND THE COUNT-MODEL ABLATION. Every number
+# they show is PROJECT_BRIEF 3.5's (SBR 0.6), which rounds the paper's
+# tab:reconstruction_results (paper/sec/6_experiments.tex l. 195-234; the four
+# decimals are in the comments below). TRANSFER_35 is that table, by row:
+# reflectivity PSNR val, test (dB), depth RMSE val, test (m). "val" is tested
+# on the row's own simulator / count model, "test" on gold-standard data.
+TRANSFER_35 = {
+    "poisson": ("36.49", "7.02", "0.072", "1.654"),   # 36.4946 7.0237 0.0722 1.6537
+    "renewal": ("29.72", "12.12", "0.054", "0.096"),  # 29.7230 12.1210 0.0543 0.0959
+    "zhang":   ("22.74", "22.54", "0.053", "0.082"),  # 22.7444 22.5421 0.0526 0.0820
+    "mars":    ("24.03", "24.25", "0.053", "0.074"),  # 24.0321 24.2488 0.0532 0.0739
+}
+TRANSFER_NAMES = {"poisson": "Poisson", "renewal": "Renewal",
+                  "zhang": "Zhang et al.", "mars": "MaRS"}
+BRIEF = REPO.parent.parent / "PROJECT_BRIEF.md"   # absent in a bare site clone
+# The ablation's framing is the point (stage doc 0): the three rows share the
+# prior-work temporal PDF and our pipeline; only the count model changes.
+ABLATION_REQUIRED = [
+    ("'no separate Renewal or Zhang et al. simulator'",
+     r"There\s+is\s+no\s+separate\s+Renewal\s+or\s+Zhang\s+et\s+al\.\s+simulator\."),
+    ("'They differ only in the count mean and variance'",
+     r"They\s+differ\s+only\s+in\s+the\s+count\s+mean\s+and\s+variance\."),
+    ("'same accurate temporal PDF from prior work'",
+     r"same\s+accurate\s+temporal\s+PDF\s+from\s+prior\s+work"),
+]
+
+
+def _brief_35() -> dict[str, tuple[str, ...]] | None:
+    """PROJECT_BRIEF 3.5's table, parsed, when the brief is beside the repo."""
+    if not BRIEF.exists():
+        return None
+    md = BRIEF.read_text(encoding="utf-8")
+    sec = md[md.index("### 3.5"):]
+    sec = sec[:sec.index("### 3.6")]
+    out = {}
+    for name, key in (("Poisson", "poisson"), ("Renewal", "renewal"),
+                      ("Zhang et al.", "zhang"), ("MaRS", "mars")):
+        row = re.search(r"^\|\s*\**" + re.escape(name) + r"\**\s*\|(.*)$", sec, re.M)
+        if row:
+            out[key] = tuple(re.findall(r"\d+\.\d+", row.group(1)))
+    return out
+
+
+def _num(s: str) -> str:
+    return re.sub(r"[^\d.]", "", html.unescape(s))
+
+
+def check_one_table_contiguous(rep: Report) -> None:
+    """v2.2-D: on `/`, every "one table per sensor configuration" is followed
+    at once by ", reused for every pixel and depth" (#1, contiguous). Visible
+    text and the string attributes a reader can meet (alt, aria-label, title,
+    meta content) are both checked."""
+    source = (REPO / "index.html").read_text(encoding="utf-8", errors="replace")
+    attrs = " . ".join(html.unescape(v) for v in re.findall(
+        r'\b(?:alt|aria-label|title|content)="([^"]*)"', COMMENT_RE.sub(" ", source)))
+    n = 0
+    for where, text in (("visible text", visible_text(source)), ("attributes", attrs)):
+        for m in re.finditer(ONE_TABLE, text, re.I):
+            n += 1
+            if not re.match(NN1_PHRASE, text[m.start():], re.I):
+                ctx = re.sub(r"\s+", " ", text[m.start():m.end() + 70])
+                rep.fail("index.html", "#1 phrase not contiguous [#1, v2.2-D]",
+                         f"{where}: ...{ctx}...")
+    rep.info.append(f"#1 phrase on /: {n} occurrence(s), each contiguous unless failed above")
+
+
+def check_downstream(rep: Report) -> None:
+    source = COMMENT_RE.sub(" ", (REPO / "index.html").read_text(
+        encoding="utf-8", errors="replace"))
+    brief = _brief_35()
+    if brief is None:
+        rep.info.append("v2.2-C: PROJECT_BRIEF.md not beside the repo; "
+                        "TRANSFER_35 used as written")
+    elif brief != TRANSFER_35:
+        rep.fail("tools/audit_claims.py", "TRANSFER_35 differs from PROJECT_BRIEF 3.5 [v2.2-C]",
+                 f"brief {brief} vs {TRANSFER_35}")
+
+    # Part 1: the two chips, Reflectivity as shipped and Depth in data-depth
+    art = re.search(r'<article\b[^>]*\bid="demo-downstream"(.*?)</article>', source, re.S)
+    if not art:
+        rep.fail("index.html", "Downstream module missing [v2.2-C]", "no article#demo-downstream")
+    else:
+        for side, key in (("is-left", "poisson"), ("is-right", "mars")):
+            m = re.search(r'<p class="mars-compare__chip %s"\s+data-depth="([^"]*)">(.*?)</p>'
+                          % side, art.group(1), re.S)
+            if not m:
+                rep.fail("index.html", f"Downstream chip {side} missing [v2.2-C]", "")
+                continue
+            depth = re.search(r"<b>(.*?)</b>", html.unescape(m.group(1)))
+            refl = re.search(r"<b>(.*?)</b>", m.group(2))
+            got = (_num(refl.group(1)) if refl else None, _num(depth.group(1)) if depth else None)
+            want = (TRANSFER_35[key][1], TRANSFER_35[key][3])
+            if got != want:
+                rep.fail("index.html", f"Downstream chip {key} != PROJECT_BRIEF 3.5 [v2.2-C]",
+                         f"shows {got}, 3.5 test values {want}")
+
+    # Part 2: the table is the one source; it must equal 3.5, and the
+    # captions shipped in the HTML must equal the table.
+    art = re.search(r'<article\b[^>]*\bid="demo-ablation"(.*?)</article>', source, re.S)
+    if not art:
+        rep.fail("index.html", "Ablation module missing [v2.2-C]", "no article#demo-ablation")
+        return
+    body = art.group(1)
+    rows = dict(re.findall(r'<tr data-k="(\w+)">(.*?)</tr>', body, re.S))
+    if sorted(rows) != ["mars", "renewal", "zhang"]:
+        rep.fail("index.html", "Ablation table rows [v2.2-C]",
+                 f"expected renewal, zhang, mars (no Poisson), found {sorted(rows)}")
+    for key, row in rows.items():
+        cells = tuple(c.strip() for c in re.findall(r"<td>(.*?)</td>", row))
+        if key not in TRANSFER_35 or cells != TRANSFER_35[key]:
+            rep.fail("index.html", f"Ablation table row {key} != PROJECT_BRIEF 3.5 [v2.2-C]",
+                     f"{cells} vs {TRANSFER_35.get(key)}")
+        name = re.search(r"<th[^>]*>(.*?)</th>", row).group(1)
+        if name != TRANSFER_NAMES.get(key, "?") + " count":
+            rep.fail("index.html", f"Ablation table row {key} named {name!r} [v2.2-C]", "")
+    caps = re.findall(r'<b data-k="(\w+)">(.*?)</b>', body)
+    if sorted(k for k, _ in caps) != ["mars", "renewal", "zhang"]:
+        rep.fail("index.html", "Ablation tile captions [v2.2-C]", f"found {caps}")
+    for key, val in caps:
+        cells = re.findall(r"<td>(.*?)</td>", rows.get(key, ""))
+        if len(cells) < 2 or _num(val) != cells[1].strip() or "dB" not in val:
+            rep.fail("index.html", f"Ablation caption {key} != its table value [v2.2-C]",
+                     f"caption {val!r}, table test PSNR {cells[1] if len(cells) > 1 else None}")
+    text = visible_text(body)
+    for label, rx in ABLATION_REQUIRED:
+        if not re.search(rx, text):
+            rep.fail("index.html", f"Ablation footnote: {label} missing [v2.2-C]",
+                     "the framing must be unmistakable (stage doc 0)")
+    rep.info.append("Downstream + ablation: chips, table and captions = PROJECT_BRIEF 3.5"
+                    + (" (parsed from the brief)" if brief else "")
+                    + "; the 'no separate simulator' footnote present")
+
+
 def check_gain_order(rep: Report) -> None:
-    """#11 — accuracy -> table size -> speed -> downstream, in that order."""
+    """#11 — accuracy -> table size -> speed -> downstream, in that order.
+
+    RETIRED FOR `/` IN STAGE v2.2-A, deliberately and not silently: the four
+    gains strip is gone from the main page (MARS_WEBSITE_BUILD_GUIDE.md 0.7;
+    WEBSITE_BUILD_STATUS.md 3.7, "v2.2 amendments": "Non-negotiable #11 no
+    longer applies to `/`: the strip is gone. The auditor's check is retired
+    for `/` with a comment saying why"). Each number now lives in its own
+    module (30x Accuracy, 40x / 1000x Efficiency, +17 dB Downstream), and
+    every one of them is still traced by pass 2 and by its own copy rule.
+    The function stays so the rule comes back by itself if a `ul.mars-stats`
+    strip ever returns to the page: then it must be in the settled order.
+    """
     index = REPO / "index.html"
     if not index.exists():
         rep.fail("index.html", "missing [#11]", "cannot check gain order")
@@ -856,6 +1075,11 @@ def check_gain_order(rep: Report) -> None:
     # search reported a false 40x -> 30x -> 1000x order. #11 is about the four
     # gain blocks, so read the order out of the one `ul.mars-stats` list.
     strips = re.findall(r'<ul class="mars-stats">(.*?)</ul>', source, re.S)
+    if not strips:
+        rep.info.append(
+            "four gains order [#11]: retired for / (v2.2-A, guide 0.7 / status "
+            "3.7 v2.2 amendment) — no ul.mars-stats strip on the page")
+        return
     if len(strips) != 1:
         rep.fail("index.html", "gains strip [#11]",
                  f"expected exactly one <ul class=\"mars-stats\">, found "
@@ -914,9 +1138,13 @@ def main() -> int:
         check_forbidden(source, text, rel, rep)
         check_conflation(text, rel, rep)
         check_numbers(text, rel, rep, found)
+        check_delay_condition(text, rel, rep)
 
     check_equation_count(files, rep)
     check_gain_order(rep)
+    check_efficiency(rep)
+    check_one_table_contiguous(rep)
+    check_downstream(rep)
     check_public_pages(rep)
     check_third_party(files, rep)
     check_dead_time_sections(rep)

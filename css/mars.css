@@ -2176,6 +2176,10 @@ img, video { max-width: 100%; height: auto; display: block; }
   height: 100%;
   background: var(--ink);
 }
+/* v2.2-E: the frame clips its overflow (the rounded corners), which hid the
+   global focus ring (offset +2 px) on the player itself: a keyboard user
+   tabbing onto the film saw no focus. Draw it inside, as on the slicer canvas. */
+.mars-video__player:focus-visible { outline-offset: -3px; }
 .mars-video__meta {
   margin-top: 0.6rem;
   font-size: 0.875rem;

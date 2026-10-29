@@ -538,6 +538,10 @@
          incoming arrow on its left edge, no blank band), shown at 68 % of the
          card, centred, 12 px under the acquisition crop, in a card with
          10 px padding (the approved phone mock).
+         v2.2-D (T3): the phone acquisition crop is the TIGHT one too
+         (fig1_context_acq_tight*, same script): it ends 8 pt right of the
+         cube, before the arrow to the inference panel, so no arrow stub
+         remains at its right edge.
 
          LAZY, BY SCRIPT. It is below the first screen now, and Chrome's
          native loading="lazy" fetches anything within ~1250-2500 px of the
@@ -552,12 +556,12 @@
     <figure class="mars-context" id="mars-context" data-media-slot="context">
       <picture class="mars-context__pic">
         <source media="(max-width: 600px)" type="image/webp"
-                data-srcset="assets/img/fig1_context_acq_600.webp 600w,
-                             assets/img/fig1_context_acq.webp 1200w"
-                sizes="calc(100vw - 32px)" width="1200" height="477">
+                data-srcset="assets/img/fig1_context_acq_tight_600.webp 600w,
+                             assets/img/fig1_context_acq_tight.webp 1200w"
+                sizes="calc(100vw - 32px)" width="1200" height="483">
         <source media="(max-width: 600px)"
-                data-srcset="assets/img/fig1_context_acq.png"
-                width="1200" height="477">
+                data-srcset="assets/img/fig1_context_acq_tight.png"
+                width="1200" height="483">
         <source type="image/webp"
                 data-srcset="assets/img/fig1_context_960.webp 960w,
                              assets/img/fig1_context.webp 1920w"
@@ -583,8 +587,8 @@
       <noscript>
         <style>.mars-context__pic { display: none !important; }</style>
         <picture class="mars-context__ns">
-          <source media="(max-width: 600px)" srcset="assets/img/fig1_context_acq.png"
-                  width="1200" height="477">
+          <source media="(max-width: 600px)" srcset="assets/img/fig1_context_acq_tight.png"
+                  width="1200" height="483">
           <img src="assets/img/fig1_context.png" width="1920" height="496"
                alt="From the paper's Figure 1, single-photon LiDAR data acquisition and use: a SPAD detector records a 3-D photon timestamp histogram cube, which data-driven inference turns into reflectivity and depth.">
         </picture>

@@ -63,14 +63,12 @@ BY_PATH_MAIN = [
     "assets/img/fig1_context.png",
     "assets/img/fig1_context.webp",
     "assets/img/fig1_context_960.webp",
-    "assets/img/fig1_context_acq.png",
-    "assets/img/fig1_context_acq.webp",
-    "assets/img/fig1_context_acq_600.webp",
-    "assets/img/fig1_context_infer.png",
-    "assets/img/fig1_context_infer.webp",
-    "assets/img/fig1_context_infer_600.webp",
-    # v2.2-P: the tight inference crop phones show (the three above stay in
-    # the repo, unreferenced, until v2.2-D retires them)
+    # v2.2-D: the tight acquisition crop phones show (v2.2-A's
+    # fig1_context_acq* and the untrimmed fig1_context_infer* are retired)
+    "assets/img/fig1_context_acq_tight.png",
+    "assets/img/fig1_context_acq_tight.webp",
+    "assets/img/fig1_context_acq_tight_600.webp",
+    # v2.2-P: the tight inference crop phones show
     "assets/img/fig1_context_infer_tight.png",
     "assets/img/fig1_context_infer_tight.webp",
     "assets/img/fig1_context_infer_tight_600.webp",

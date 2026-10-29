@@ -337,17 +337,14 @@ MINT_SURFACE_HEXES = {"#ecf6ef", "#e2eee6"}
 # Rules WCAG genuinely exempts, or that are not text. Each needs a reason.
 # Keyed by the exact selector text as it appears in css/mars.css.
 CONTRAST_EXEMPT = {
-    ".mars-btn.is-soon":
-        "WCAG 1.4.3 exempts inactive UI components. These are the `· soon` "
-        "pills for URLs that do not exist yet — rendered as <span>, "
-        "aria-disabled, not focusable, nothing to activate.",
-    ".mars-btn.is-soon:hover": "same element as .mars-btn.is-soon",
-    ".mars-btn__soon":
-        "the `· soon` suffix inside an inactive UI component; same exemption",
+    # v2.2-D: the `.mars-btn.is-soon` pill, its :hover and `.mars-btn__soon`
+    # were removed from css/mars.css (unused since v2.2-A), and so were their
+    # three exemptions here.
     ".mars-lab__status.is-soon":
-        "the `soon` badge on the unbuilt demo panels — all FOUR of them as of "
-        "stage 06, since stage 03 is deferred and the dead-time playground "
-        "ships unbuilt too; same exemption",
+        "WCAG 1.4.3 exempts inactive UI components. This is the `soon` badge "
+        "on the unbuilt demo panels — all FOUR of them as of stage 06, since "
+        "stage 03 is deferred and the dead-time playground ships unbuilt too: "
+        "rendered as <span>, not focusable, nothing to activate.",
 }
 
 

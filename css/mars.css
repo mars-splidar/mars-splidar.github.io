@@ -738,22 +738,9 @@ img, video { max-width: 100%; height: auto; display: block; }
 
 .mars-btn.is-outline:hover { background: var(--gold-soft); color: var(--dark); }
 
-/* A URL that does not exist yet. Non-clickable by construction: rendered as a
-   <span>, not an <a>, so there is nothing to activate and nothing to focus. */
-.mars-btn.is-soon {
-  border-color: #cfcfcf;
-  border-style: dashed;
-  color: #8b8b8b;
-  cursor: default;
-  background: transparent;
-}
-.mars-btn.is-soon:hover { background: transparent; color: #8b8b8b; }
-
-.mars-btn__soon {
-  font-weight: 400;
-  font-size: 0.8125rem;
-  color: #8b8b8b;
-}
+/* The dashed "· soon" pill (.mars-btn.is-soon, .mars-btn__soon): REMOVED in
+   v2.2-D. Unused since v2.2-A made "Code coming soon" plain grey text
+   (.mars-hero__soon). The rules are in git history (tag v2.1). */
 
 /* Four gains — .mars-stat: REMOVED in v2.2-A with the strip itself (guide
    0.7; WEBSITE_BUILD_STATUS 3.7, v2.2 amendment). Each number lives in its
@@ -1213,12 +1200,6 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-code__copy:hover { background: var(--gold); color: var(--ink); }
 .mars-code__copy.is-done { background: var(--gold); color: var(--ink); }
 
-.mars-closing__note {
-  margin: 0.7rem 0 0;
-  font-size: 0.8125rem;
-  color: #9aa2a0;
-}
-
 .mars-closing__rule {
   border: 0;
   border-top: 1px solid #2a3236;
@@ -1545,7 +1526,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-context__infer { aspect-ratio: 1200 / 799; }   /* v2.2-P: the tight crop (was 1200 / 724) */
 .mars-context__more { margin-top: 0.75rem; }
 @media (max-width: 600px) {
-  .mars-context__main { aspect-ratio: 1200 / 477; }
+  .mars-context__main { aspect-ratio: 1200 / 483; }   /* v2.2-D: the tight acquisition crop (was 1200 / 477) */
 }
 /* The exact complement of the phone query (v2.1-A's rule): a zoomed 600-601 px
    viewport must never show both the whole image and the second crop. */

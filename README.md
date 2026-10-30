@@ -123,9 +123,11 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.7's limits since v2.2-A — visible words ≤ 598 since v2.2-D, re-pinned at
-the measured total after the author's copy changes (the slicer eyebrow +3, the
-BibTeX "Provisional entry" note removed −5); 600 from v2.2-P, re-pinned when
+§0.7's limits since v2.2-A — visible words ≤ 604 since v2.3-A, re-pinned at
+the measured total after guide §0.8's copy (the teaser tagline removed −8, the
+new Fig. 1 caption +14); 598 from v2.2-D, re-pinned after the author's copy
+changes (the slicer eyebrow +3, the BibTeX "Provisional entry" note removed
+−5); 600 from v2.2-P, re-pinned when
 Demo 2's 12 chart words became schematic text (612 from v2.2-C, pinned at that stage's measured total by the author; 520 from
 v2.2-A, 420 from v2.1-A, 350 before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
 before), zero switch bars, zero
@@ -180,6 +182,13 @@ python3 tools/build_slicer_placeholder.py     # Playwright + Chrome; the four st
 It fails if the bright preset does not show gold and MaRS 2-3 ns earlier than
 Poisson, and splices the default readout into `index.html`
 (`slicer_readout` markers); `--check` fails on any drift, including that text.
+Since v2.3-A it also holds the four preset notes (guide §0.8; `NOTES`, the only
+place they are written): it writes them to `meta.json` for `js/mars-slicer.js`,
+splices the default (bright) note and four aria-hidden height-reserving copies
+into `index.html` (`slicer_note` markers), and turns every claim in a note into
+a rule on the data (photons over 3 × 3 pixels × 3 bins around the preset):
+`--check` fails if a rule no longer holds at 3 × 3, or if the shipped block
+drifts. The same rules are reported, not gated, at 1 × 1 and 5 × 5.
 `build_slicer_placeholder.py` re-captures the placeholder stills
 (`assets/img/slicer_ph_*.webp`) from the live module; re-run it after any
 change to the module's drawing, the data or the fonts. Never edit either output
@@ -665,3 +674,14 @@ Each build stage appends one line here.
   frame's `overflow: hidden` had clipped it). Merged into `main` (`--no-ff`)
   and tagged `v2.2`. Review pack and the author's v2.2 phone checklist:
   `build_instructions/review/v22E/`.
+- **Stage v2.3-A — teaser caption, slicer preset hints and notes, In short
+  reordered (2026-10-30).** On branch `v2.3-dev`, not pushed. Guide §0.8's
+  copy: the teaser tagline is gone and its guide is the whole caption (two
+  lines at ≥ 900 px, one sentence each); the slicer presets read *Try a pixel*
+  [Bright surface] [Dim surface] *or a moment* [Just after the peak] [Before
+  the peak], with one aria-live note under them that follows the selected
+  preset and empties, keeping its height, on a manual pick
+  (`build_slicer_data.py` holds the four sentences and checks each claim on
+  the data); *In short* is heading → Fig. 1 card with its new three-sentence
+  caption → the paragraph. Word limit re-pinned at 604 (tagline −8, caption
+  +14). Review pack: `build_instructions/review/v23A/`.

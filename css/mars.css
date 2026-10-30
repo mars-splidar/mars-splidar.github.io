@@ -1689,7 +1689,8 @@ img, video { max-width: 100%; height: auto; display: block; }
    slider, Poisson-trained on the left and MaRS-trained on the right, each a
    label line over a value line when the slider is at least 200 px wide,
    one line each, stacked, below that (a container query on the cell, so
-   the caption follows the square, not the viewport). Phones: the GT
+   the caption follows the square, not the viewport); on phones always
+   stacked, at 12 px under a 155 px slider so each stays one line. Phones: the GT
    squares are hidden, the two sliders sit side by side, and one hold
    button shows both ground truths; while held each caption reads "Ground
    truth" in the box its numbers keep. */
@@ -1849,6 +1850,18 @@ img, video { max-width: 100%; height: auto; display: block; }
   .mars-compare__group { grid-template-columns: minmax(0, 1fr); }
   .mars-compare__gt { display: none; }
   .mars-compare__handle::after { width: 30px; height: 30px; background-size: 17px; }
+  /* Phones: the captions always stack, one line per side (guide 0.8), even
+     where the slider is 200 px or wider (431-600 px viewports). */
+  .mars-compare__vals { flex-direction: column; gap: 0; }
+  .mars-compare__val b { display: inline; }
+  .mars-compare__val.is-right { text-align: left; }
+  /* Phones: each caption line ("Poisson-trained 0.785 m") is up to 151.5 px
+     at 13 px; below a 155 px slider (viewports under ~370 px) it is set at
+     the 12 px floor, tracked -0.02em (139.8 -> ~134 px), so each side stays
+     one line down to 320 px (slider 138 px). */
+  @container (max-width: 155px) {
+    .mars-compare__cap { font-size: 0.75rem; letter-spacing: -0.02em; }
+  }
   .mars-compare__hold {
     display: inline-flex;
     align-items: center;

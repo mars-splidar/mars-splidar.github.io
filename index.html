@@ -311,13 +311,15 @@
         <p class="mars-teaser__workload">Seconds per 128&times;128&times;256-bin cube, 100 laser cycles (paper Fig. 1).</p>
       </div>
 
-      <!-- Tagline and guiding sentence, verbatim from guide 0.7 (v2.2-A). The
-           teaser's one message is HOW MANY photons; the slicer below carries
-           WHEN. "Their dimmer cubes match", never "the same photons": the
-           cubes are independent realizations (3.7 honesty rule 2). Inside the
-           figcaption so the figure keeps one caption; regular weight. -->
-      <figcaption class="mars-teaser__tagline">MaRS: an accurate and fast single-photon LiDAR simulator.
-        <span class="mars-teaser__guide">Poisson ignores dead time and keeps every photon, so its cube looks brighter. The gold standard and MaRS both account for the photons lost to dead time, and their dimmer cubes match.</span></figcaption>
+      <!-- The guiding sentences, verbatim from guide 0.7, are the whole
+           caption since v2.3-A (guide 0.8): the tagline "MaRS: an accurate
+           and fast single-photon LiDAR simulator." is removed. The teaser's
+           one message is HOW MANY photons; the slicer below carries WHEN.
+           "Their dimmer cubes match", never "the same photons": the cubes are
+           independent realizations (3.7 honesty rule 2). Body type, dark,
+           centred; at >= 900 px each sentence is its own line (css/mars.css),
+           below that the two wrap naturally. -->
+      <figcaption class="mars-teaser__guide"><span class="mars-teaser__s">Poisson ignores dead time and keeps every photon, so its cube looks brighter.</span> <span class="mars-teaser__s">The gold standard and MaRS both account for the photons lost to dead time, and their dimmer cubes match.</span></figcaption>
     </figure>
   </div>
 </section>
@@ -366,15 +368,38 @@
 
     <figure class="mars-slicer" id="mars-slicer" data-media-slot="slicer"
             data-slicer-state="idle" data-slicer-base="assets/data/slicer/">
+      <!-- PRESETS (v2.3-A, guide 0.8): a plain-text hint before each pair
+           (grey, the chips' font, not focusable; on phones each hint starts
+           its own line), then one note under the chips that follows the
+           selected preset. The note is the live <p>; it is EMPTY after a
+           manual pixel or time pick and keeps its height, because four
+           aria-hidden copies of the notes share its grid cell, so the box is
+           as tall as the tallest note at every width. The four sentences
+           live only in tools/build_slicer_data.py (NOTES), which writes them
+           to meta.json for js/mars-slicer.js and splices this block (the
+           default, bright) between the markers; its --check fails if the
+           block drifts or if a note's claims no longer hold in the data.
+           Hints and note are UI text (.mars-ui): reported, not counted. -->
       <div class="mars-ui mars-slicer__presets" role="group" aria-label="Presets">
+        <span class="mars-slicer__hint">Try a pixel</span>
         <button type="button" class="mars-slicer__chip" data-preset="bright"
                 aria-pressed="true">Bright surface</button>
         <button type="button" class="mars-slicer__chip" data-preset="dim"
                 aria-pressed="false">Dim surface</button>
+        <span class="mars-slicer__hint is-second">or a moment</span>
         <button type="button" class="mars-slicer__chip" data-preset="shadow"
                 aria-pressed="false">Just after the peak</button>
         <button type="button" class="mars-slicer__chip" data-preset="before"
                 aria-pressed="false">Before the peak</button>
+      </div>
+      <div class="mars-ui mars-slicer__pnote">
+        <!-- slicer_note:start -->
+        <p class="mars-slicer__pnote-live" aria-live="polite">A bright pixel near its return. Dead time is strongest here, so the gold standard and MaRS peak earlier than Poisson.</p>
+        <span class="mars-slicer__pnote-size" aria-hidden="true">A bright pixel near its return. Dead time is strongest here, so the gold standard and MaRS peak earlier than Poisson.</span>
+        <span class="mars-slicer__pnote-size" aria-hidden="true">A dim pixel. Fewer photons arrive, so the shift is smaller.</span>
+        <span class="mars-slicer__pnote-size" aria-hidden="true">Just after the return. The detector is still blind, so the gold standard and MaRS register almost nothing here. Poisson still does.</span>
+        <span class="mars-slicer__pnote-size" aria-hidden="true">Before the return. Only background light reaches this pixel, and all three agree.</span>
+        <!-- slicer_note:end -->
       </div>
 
       <div class="mars-slicer__stage">
@@ -507,12 +532,12 @@
      workload, 128x128x1024, in the same sentence. The four gains strip that
      sat here until v2.1 is GONE (guide 0.7; WEBSITE_BUILD_STATUS 3.7, v2.2
      amendment): each number now lives in its own module.
+     v2.3-A (guide 0.8): the order inside the band is heading, the Fig. 1
+     card with its new three-sentence caption, then this paragraph.
      ====================================================================== -->
 <section class="mars-band is-mint mars-inshort-band" id="in-short" aria-labelledby="in-short-heading">
   <div class="mars-band__inner">
     <h2 class="mars-demo__title" id="in-short-heading">In short</h2>
-    <p class="mars-section__lede mars-inshort">A single-photon detector goes blind for a short dead time after every detection, and that breaks the statistics simulators rely on. Fast Poisson models ignore it. The sequential gold standard handles it correctly but is too slow to generate training data. MaRS derives the first analytic photon-count law under dead time, matching the gold standard&rsquo;s statistics about 40&times; faster on a 128&times;128&times;1024 cube.</p>
-
     <!-- ==================================================================
          FIG. 1 TOP HALF, WITHOUT THE QUESTION (v2.2-A; guide 0.7). The
          paper's acquisition process, the 3-D photon timestamp histogram and
@@ -593,8 +618,11 @@
                alt="From the paper's Figure 1, single-photon LiDAR data acquisition and use: a SPAD detector records a 3-D photon timestamp histogram cube, which data-driven inference turns into reflectivity and depth.">
         </picture>
       </noscript>
-      <figcaption class="mars-context__caption">Single-photon LiDAR: a laser and a SPAD detector record a 3-D histogram cube of photon arrival times, and networks trained on such cubes recover reflectivity and depth. Training them needs large amounts of simulated cubes.</figcaption>
+      <figcaption class="mars-context__caption">Single-photon LiDAR: a laser and a SPAD detector record a 3-D histogram cube of photon arrival times. Networks that recover reflectivity and depth from such cubes are trained on simulated data. The simulator must be statistically faithful to the physical photon process and fast enough for large-scale data generation.</figcaption>
     </figure>
+
+    <!-- v2.3-A (guide 0.8): the paragraph follows the figure, unchanged. -->
+    <p class="mars-section__lede mars-inshort">A single-photon detector goes blind for a short dead time after every detection, and that breaks the statistics simulators rely on. Fast Poisson models ignore it. The sequential gold standard handles it correctly but is too slow to generate training data. MaRS derives the first analytic photon-count law under dead time, matching the gold standard&rsquo;s statistics about 40&times; faster on a 128&times;128&times;1024 cube.</p>
   </div>
 </section>
 

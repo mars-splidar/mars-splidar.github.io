@@ -45,6 +45,32 @@ so it is right before the module loads; this script splices it into
 index.html between the `slicer_readout:start` / `:end` markers, and --check
 fails if the shipped text differs from what the data gives.
 
+PRESET NOTES (stage v2.3-A, guide 0.8). Each preset carries one sentence,
+verbatim from guide 0.8, shown under the chips while that preset is selected
+(js/mars-slicer.js reads it from meta.json; NOTES below is the only place the
+sentences are written). The default (bright) note ships as static HTML,
+spliced between the `slicer_note:start` / `:end` markers together with four
+aria-hidden copies that reserve the tallest note's height, and --check fails
+if the shipped block differs from what this script would write.
+Every factual claim in a note is a rule in claims(), evaluated on the data
+over 3 x 3 pixels x 3 bins (the preset's bin and one either side) at the
+default pooling; --check fails if any rule does not hold. The same rules are
+evaluated at 1 x 1 and 5 x 5 and reported, not gated (a preset keeps the
+reader's pooling, so the note can be read at either):
+  bright  near its return (|t - tau| <= 1.5 sigma_t); gold and MaRS return
+          centres earlier than Poisson's; "dead time is strongest here": the
+          gold standard keeps a smaller share of Poisson's photons than at
+          the dim preset.
+  dim     a dimmer pixel (S below the bright pixel's) where fewer photons
+          arrive (Poisson's window count below the bright preset's); the
+          shift, Poisson's return centre minus gold's (and minus MaRS's), is
+          positive and smaller than at the bright preset.
+  shadow  just after the return (0 < t - tau < t_d); gold and MaRS each at
+          most 2 % of Poisson's count; Poisson still registers (>= 5).
+  before  before the return, where only background reaches the pixel
+          (t - tau <= -5 sigma_t); all three counts within 2 photons
+          (max - min <= 2).
+
 OneDrive rule (WEBSITE_BUILD_STATUS 3.7, v2.1): everything is built in a temp
 dir outside OneDrive, each final file is copied in once, and its md5 is
 verified after the copy.
@@ -64,7 +90,7 @@ from pathlib import Path
 
 import numpy as np
 
-VERSION = "1"
+VERSION = "2"
 REPO = Path(__file__).resolve().parent.parent
 NPZ = REPO.parent.parent / "video" / "web" / "hero" / "out" / "cubes.npz"
 NPZ_SHA256 = "cb30c2030fb25e93f52a4b99a9e3f37fdfc631546cc6a6a7b51998a9faebb81e"
@@ -85,6 +111,23 @@ PRESET_RULE = [              # id, label, which pixel, t relative to its delay
     ("before", "Before the peak", "bright", -25.0),
 ]
 MARKS = ("<!-- slicer_readout:start -->", "<!-- slicer_readout:end -->")
+NOTE_MARKS = ("<!-- slicer_note:start -->", "<!-- slicer_note:end -->")
+SIGMA_T = 2.0                # ns, pulse width (provenance workload)
+T_D = 75.0                   # ns, dead time (provenance workload)
+POOLS = (0, 1, 2)            # radii: 1 x 1, 3 x 3, 5 x 5 (the page's three)
+# The four preset notes, verbatim from guide 0.8 (stage v2.3-A). The ONLY
+# place they are written: meta.json carries them to js/mars-slicer.js, and the
+# default one is spliced into index.html. Each claim is a rule in claims().
+NOTES = {
+    "bright": "A bright pixel near its return. Dead time is strongest here, "
+              "so the gold standard and MaRS peak earlier than Poisson.",
+    "dim": "A dim pixel. Fewer photons arrive, so the shift is smaller.",
+    "shadow": "Just after the return. The detector is still blind, so the "
+              "gold standard and MaRS register almost nothing here. Poisson "
+              "still does.",
+    "before": "Before the return. Only background light reaches this pixel, "
+              "and all three agree.",
+}
 
 
 def sha(b: bytes) -> str:
@@ -122,6 +165,79 @@ def return_centre(h, tau):
     m = np.abs(rel) < READ_HALF
     n = h[m].sum()
     return float((h[m] * rel[m]).sum() / n) if n else 0.0
+
+
+def window(cube, i, j, r, b):
+    """Photons in the pooled patch over bins b - 1, b, b + 1 (3 bins)."""
+    h = pooled(cube, i, j, r)
+    return int(round(h[(b - 1) % NB] + h[b] + h[(b + 1) % NB]))
+
+
+def claims(cubes, tau, S, presets, r):
+    """Every factual claim of NOTES as a rule on the data, at pool radius r.
+    Pure: arrays and presets in, [(preset id, rule, ok, detail)] out, so a
+    test can hand it mutated data (review/v23A/harness/mutate_notes.py)."""
+    P = {p["id"]: p for p in presets}
+    w, rc = {}, {}
+    for pid, p in P.items():
+        i, j = p["px"]
+        w[pid] = {k: window(cubes[k], i, j, r, p["bin"]) for k in KEYS}
+        rc[pid] = {k: return_centre(pooled(cubes[k], i, j, r), float(tau[i, j]))
+                   for k in KEYS}
+    out = []
+
+    def rule(pid, name, ok, detail):
+        out.append((pid, name, bool(ok), detail))
+
+    b, d, a, f = P["bright"], P["dim"], P["shadow"], P["before"]
+    wb, wd, wa, wf = w["bright"], w["dim"], w["shadow"], w["before"]
+    rb, rd = rc["bright"], rc["dim"]
+    # bright
+    rule("bright", "near its return: |t - tau| <= 1.5 sigma_t",
+         abs(b["t_rel_ns"]) <= 1.5 * SIGMA_T, f"t - tau = {b['t_rel_ns']:+.1f} ns")
+    rule("bright", "gold and MaRS peak earlier than Poisson (return centre)",
+         rb["gold"] < rb["poisson"] and rb["mars"] < rb["poisson"],
+         f"Poisson {rb['poisson']:+.3f}, gold {rb['gold']:+.3f}, MaRS {rb['mars']:+.3f} ns")
+    fb, fd = wb["gold"] / max(wb["poisson"], 1), wd["gold"] / max(wd["poisson"], 1)
+    rule("bright", "dead time strongest: gold keeps a smaller share of Poisson than at dim",
+         fb < fd, f"gold/Poisson {wb['gold']}/{wb['poisson']} = {fb:.3f} vs dim {fd:.3f}")
+    # dim
+    rule("dim", "a dimmer pixel: S below the bright pixel's",
+         d["S"] < b["S"], f"S {d['S']:.3f} vs {b['S']:.3f}")
+    rule("dim", "fewer photons arrive: Poisson window below the bright preset's",
+         wd["poisson"] < wb["poisson"], f"Poisson {wd['poisson']} vs {wb['poisson']}")
+    sb = {k: rb["poisson"] - rb[k] for k in ("gold", "mars")}
+    sd = {k: rd["poisson"] - rd[k] for k in ("gold", "mars")}
+    rule("dim", "the shift is smaller: 0 < (Poisson - gold, Poisson - MaRS) < bright's",
+         all(0 < sd[k] < sb[k] for k in sd),
+         f"gold {sd['gold']:.3f} vs {sb['gold']:.3f}, MaRS {sd['mars']:.3f} vs {sb['mars']:.3f} ns")
+    # just after the peak
+    rule("shadow", "just after the return: 0 < t - tau < t_d",
+         0 < a["t_rel_ns"] < T_D, f"t - tau = {a['t_rel_ns']:+.1f} ns")
+    rule("shadow", "gold and MaRS register almost nothing: each <= 2 % of Poisson",
+         wa["gold"] <= 0.02 * wa["poisson"] and wa["mars"] <= 0.02 * wa["poisson"],
+         f"{wa['poisson']} / {wa['gold']} / {wa['mars']}")
+    rule("shadow", "Poisson still does: >= 5 photons",
+         wa["poisson"] >= 5, f"Poisson {wa['poisson']}")
+    # before the peak
+    rule("before", "only background: t - tau <= -5 sigma_t",
+         f["t_rel_ns"] <= -5 * SIGMA_T, f"t - tau = {f['t_rel_ns']:+.1f} ns")
+    rule("before", "all three agree: max - min <= 2 photons",
+         max(wf.values()) - min(wf.values()) <= 2,
+         f"{wf['poisson']} / {wf['gold']} / {wf['mars']}")
+    return out, w
+
+
+def note_html(meta) -> str:
+    """The static note block: the live <p> holding the default preset's note,
+    then one aria-hidden copy of each note in the same grid cell, so the box
+    is as tall as the tallest note at every width (css/mars.css)."""
+    dflt = meta["default"]["preset"]
+    by = {p["id"]: p["note"] for p in meta["presets"]}
+    lines = [f'<p class="mars-slicer__pnote-live" aria-live="polite">{by[dflt]}</p>']
+    lines += [f'<span class="mars-slicer__pnote-size" aria-hidden="true">{by[p["id"]]}</span>'
+              for p in meta["presets"]]
+    return lines
 
 
 def fmt(v: float) -> str:
@@ -188,11 +304,19 @@ def build(tmp: Path) -> dict:
             "S": round(float(S[i, j]), 4), "tau_ns": round(float(tau[i, j]), 4),
             "t_rel_ns": trel, "t_ns": round(t_abs, 4), "bin": b,
             "readout_3x3_ns": {kk: round(v, 4) for kk, v in off.items()},
+            "note": NOTES[pid],
         })
+    notes = {}
+    for r in POOLS:
+        res, w = claims(cubes, tau, S, presets, r)
+        n = f"{2 * r + 1}x{2 * r + 1}"
+        notes[n] = {"window_3bins": w,
+                    "rules": [{"preset": pid, "rule": name, "ok": ok, "detail": det}
+                              for pid, name, ok, det in res]}
 
     meta = {
         "generator": {"script": "tools/build_slicer_data.py", "version": VERSION,
-                      "stage": "v2.1-C"},
+                      "stage": "v2.3-A"},
         "shape": [128, 128, NB], "order": "C: row i, column j, bin",
         "t_r_ns": TR, "bin_ns": DT,
         "bin_time": "bin b is timed at its centre, (b + 0.5) * bin_ns",
@@ -209,6 +333,12 @@ def build(tmp: Path) -> dict:
                             "delay, over the pooled patch"},
         "default": {"preset": "bright", "pool": 3, "range": "peak"},
         "presets": presets,
+        "notes_check": {
+            "what": "each note's claims as rules on the data (tools/build_slicer_data.py "
+                    "claims()), photons over n x n pixels x 3 bins around the preset; "
+                    "gated at 3x3 (the default), reported at 1x1 and 5x5",
+            "gated_pool": "3x3",
+            "pools": notes},
         "provenance": {
             "source": "video/web/hero/out/cubes.npz (project folder, read only)",
             "source_sha256": NPZ_SHA256,
@@ -243,10 +373,23 @@ def report(meta) -> bool:
     b = next(p for p in meta["presets"] if p["id"] == "bright")["readout_3x3_ns"]
     lead_g, lead_m = b["poisson"] - b["gold"], b["poisson"] - b["mars"]
     ok = 2.0 <= lead_g <= 3.0 and 2.0 <= lead_m <= 3.0 and abs(b["gold"] - b["mars"]) <= 0.3
+    print("\npreset notes, claims on the data (n x n pixels x 3 bins; gated at 3x3):")
+    gate_ok = True
+    for n, blk in meta["notes_check"]["pools"].items():
+        gated = n == meta["notes_check"]["gated_pool"]
+        ws = blk["window_3bins"]
+        print(f"  {n}{' (gated)' if gated else ' (reported)'}  windows P/G/M: " +
+              "  ".join(f"{pid} {v['poisson']}/{v['gold']}/{v['mars']}" for pid, v in ws.items()))
+        for x in blk["rules"]:
+            tag = "ok  " if x["ok"] else ("FAIL" if gated else "warn")
+            print(f"    {tag} {x['preset']:<7} {x['rule']}  [{x['detail']}]")
+            if gated and not x["ok"]:
+                gate_ok = False
+    print(f"  notes -> {'PASS' if gate_ok else 'FAIL — a note claims something the data does not show'}")
     print(f"\nC2 bright: gold {lead_g:.3f} ns and MaRS {lead_m:.3f} ns earlier than "
           f"Poisson; |gold - MaRS| = {abs(b['gold'] - b['mars']):.3f} ns  "
           f"-> {'PASS' if ok else 'FAIL — stop and report, do not re-pick'}")
-    return ok
+    return ok and gate_ok
 
 
 def shipped_readout() -> str | None:
@@ -259,6 +402,24 @@ def shipped_readout() -> str | None:
 def expected_readout(meta) -> str:
     p = next(p for p in meta["presets"] if p["id"] == meta["default"]["preset"])
     return readout_html(p["readout_3x3_ns"])
+
+
+def shipped_note() -> list[str] | None:
+    s = INDEX.read_text(encoding="utf-8")
+    if NOTE_MARKS[0] not in s:
+        return None
+    body = s.split(NOTE_MARKS[0], 1)[1].split(NOTE_MARKS[1], 1)[0]
+    return [ln.strip() for ln in body.strip().splitlines()]
+
+
+def splice(s: str, marks, lines) -> str:
+    """Replace what sits between the two markers, one line each, keeping the
+    indentation of the line the end marker sits on."""
+    head, rest = s.split(marks[0], 1)
+    _, tail = rest.split(marks[1], 1)
+    indent = head[head.rfind("\n") + 1:]
+    body = "".join(f"\n{indent}{ln}" for ln in lines)
+    return f"{head}{marks[0]}{body}\n{indent}{marks[1]}{tail}"
 
 
 def md5(p: Path) -> str:
@@ -304,6 +465,13 @@ def main() -> int:
                 bad += 1
             else:
                 print("  ok  index.html default readout matches the data")
+            got_n = shipped_note()
+            if got_n != note_html(meta):
+                print("  ** index.html preset note block differs from the data:\n"
+                      f"     shipped:  {got_n}\n     expected: {note_html(meta)}")
+                bad += 1
+            else:
+                print("  ok  index.html default preset note and its sizers match the data")
             print(f"\n{'FAIL' if bad or not ok else 'PASS'} — build_slicer_data --check")
             return 1 if bad or not ok else 0
 
@@ -321,18 +489,16 @@ def main() -> int:
                 sys.exit(f"FAIL: md5 mismatch after copying {n} (OneDrive?)")
             print(f"  wrote     {dst.relative_to(REPO)}  md5 {md5(dst)}")
 
-        s = INDEX.read_text(encoding="utf-8")
-        if MARKS[0] in s:
-            head, rest = s.split(MARKS[0], 1)
-            _, tail = rest.split(MARKS[1], 1)
-            # keep the indentation of the line the end marker sits on
-            indent = head[head.rfind("\n") + 1:]
-            new = f"{head}{MARKS[0]}\n{indent}{exp_ro}\n{indent}{MARKS[1]}{tail}"
-            if new != s:
-                INDEX.write_text(new, encoding="utf-8")
-                print("  spliced the default readout into index.html")
-        else:
-            print("  (index.html has no slicer_readout markers yet; nothing spliced)")
+        s = new = INDEX.read_text(encoding="utf-8")
+        for marks, lines, what in ((MARKS, [exp_ro], "default readout"),
+                                   (NOTE_MARKS, note_html(meta), "preset note block")):
+            if marks[0] in new:
+                new = splice(new, marks, lines)
+            else:
+                print(f"  (index.html has no {marks[0]} marker; {what} not spliced)")
+        if new != s:
+            INDEX.write_text(new, encoding="utf-8")
+            print("  spliced the default readout and preset note into index.html")
     return 0
 
 

@@ -1469,27 +1469,23 @@ img, video { max-width: 100%; height: auto; display: block; }
   color: var(--grey);
 }
 
-/* The tagline — the approved headline (PROJECT_BRIEF 4.1). Set like v1's hook
-   caption, which it replaces: larger and darker than a figure caption. */
-.mars-teaser__tagline {
-  margin-top: 0.9rem;
-  text-align: center;
-  font-family: var(--font-head);
-  font-weight: 500;
-  font-size: clamp(1rem, 2.2vw, 1.25rem);
-  line-height: 1.45;
-  color: var(--dark);            /* DARK on PAPER = 15.89:1 */
-}
-/* v2.1-D: the teaser's guiding sentence, under the tagline in regular weight
-   and body type, so the headline stays the louder line. */
+/* The teaser's caption: the guiding sentences (v2.1-D), the whole
+   figcaption since v2.3-A removed the tagline (guide 0.8). Body type, regular
+   weight, dark, centred; the tagline's 0.9rem gap under the label row. At
+   >= 900 px each sentence is its own block, so the caption is exactly two
+   lines; below that the sentences run on and wrap naturally. */
 .mars-teaser__guide {
   display: block;
-  margin-top: 0.3rem;
+  margin-top: 0.9rem;
+  text-align: center;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: clamp(0.9375rem, 1.8vw, 1.0625rem);   /* 15 px on phones, under the 16 px tagline */
+  font-size: clamp(0.9375rem, 1.8vw, 1.0625rem);   /* 15 px on phones */
   line-height: 1.5;
-  color: var(--dark);
+  color: var(--dark);            /* DARK on PAPER = 15.89:1 */
+}
+@media (min-width: 900px) {
+  .mars-teaser__s { display: block; }
 }
 
 /* ---- In short (MINT), v2.2-A ------------------------------------------- */
@@ -1508,8 +1504,10 @@ img, video { max-width: 100%; height: auto; display: block; }
    image box is reserved by an explicit aspect-ratio per crop, because the
    <img> holds a 1 x 1 data: GIF until js/mars-main.js promotes the real
    sources (the attribute-mapped ratio would follow the GIF). */
+/* v2.3-A (guide 0.8): the card comes first, under the heading, and the
+   paragraph follows 1.4rem below it (it was 1.4rem above the card). */
 .mars-context {
-  margin: 1.4rem 0 0;
+  margin: 0 0 1.4rem;
   padding: 14px 0 12px;
   background: #fff;
   border-radius: 10px;
@@ -1960,6 +1958,29 @@ img, video { max-width: 100%; height: auto; display: block; }
   line-height: 1.2;
   cursor: pointer;
 }
+/* v2.3-A (guide 0.8): a plain-text hint before each pair of chips. The
+   chips' font, grey (5A5A5A on PAPER = 6.9:1), not a control. */
+.mars-slicer__presets { align-items: center; }
+.mars-slicer__hint {
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  color: var(--grey);
+}
+.mars-slicer__hint.is-second { margin-left: 0.6rem; }
+/* The note under the chips. Its live <p> and four aria-hidden copies of the
+   notes share one grid cell, so the box is always as tall as the tallest
+   note: switching presets, or a manual pick emptying it, shifts nothing. */
+.mars-slicer__pnote {
+  display: grid;
+  margin: -0.35rem 0 1rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--grey);
+}
+.mars-slicer__pnote > * { grid-area: 1 / 1; margin: 0; }
+.mars-slicer__pnote-size { visibility: hidden; }
 .mars-slicer__chip:hover { background: var(--gold-soft); }
 .mars-slicer__chip[aria-pressed="true"] {
   background: var(--gold);       /* FILL; dark text on gold = 8.6:1 */
@@ -2148,6 +2169,9 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-slicer__note { margin-top: 0.7rem; }
 
 @media (max-width: 600px) {
+  .mars-slicer__hint { flex-basis: 100%; font-size: 0.8125rem; }
+  .mars-slicer__hint.is-second { margin: 0.2rem 0 0; }
+  .mars-slicer__pnote { font-size: 0.8125rem; }
   .mars-slicer__chip { min-height: 40px; padding: 0.4rem 0.8rem; font-size: 0.8125rem; }
   .mars-slicer__name { font-size: 0.8125rem; }
   .mars-slicer__readout { font-size: 0.875rem; }
@@ -2296,7 +2320,6 @@ img, video { max-width: 100%; height: auto; display: block; }
     border: 0;
   }
   .mars-home .mars-teaser__workload { font-size: 0.75rem; }   /* the mock's 11 px is under the 12 px floor */
-  .mars-home .mars-teaser__tagline { font-size: 0.9375rem; }
   .mars-home .mars-teaser__guide { font-size: 0.875rem; line-height: 1.5; }
 
   /* Fig. 1 card (T3): 10 px inside the card, the inference crop at 68 %

@@ -14,7 +14,7 @@ Budgets (guide 0.1; since stage v2.1-A the limits of guide 0.6 item 6 —
 420 words, at most 6 media items; since stage v2.2-A those of guide 0.7 —
 520 words, at most 9 media items), and exactly how each is measured:
 
-  1. VISIBLE WORDS <= 600, re-pinned by v2.2-P at the measured total once Demo 2's 12 chart
+  1. VISIBLE WORDS <= 604 (v2.3-A's measured total; 598 at v2.2-D), re-pinned by v2.2-P at 600 once Demo 2's 12 chart
      words became schematic text (612 at v2.2-C's pin; 350 until v2.1-A, 420 until
      v2.2-A, 520 until v2.2-C; 580 was the planned v2.2-C limit), excluding the nav, the BibTeX
      code block and the funding line. "Visible" means what a sighted reader sees on the built
@@ -131,7 +131,13 @@ REPO = Path(__file__).resolve().parent.parent
 # entry" note removed (the entry is final, author 2026-10-29) -5; the Accuracy
 # title's full stop, the Efficiency note's word order and the dash and
 # semicolon sweep change no word count. The 2 freed words are not room.
-WORD_LIMIT = 598        # v2.2-D re-pin; 600 v2.2-P, 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
+# v2.3-A: RE-PINNED at 604, the measured total after the approved v2.3 copy
+# (guide 0.8): the teaser tagline "MaRS: an accurate and fast single-photon
+# LiDAR simulator." removed -8 (a hyphenated compound is one word), the new
+# three-sentence Fig. 1 caption +14 (51 words, was 37). The slicer's preset
+# hints and note are .mars-ui (reported as UI words, 55 -> 82: hints +6, the
+# bright note +21); their four aria-hidden sizer copies count nowhere.
+WORD_LIMIT = 604        # v2.3-A re-pin; 598 v2.2-D, 600 v2.2-P, 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
 MEDIA_ITEMS = 9         # guide 0.7 (v2.2-A): at most 9; 6 from v2.1-A, exactly 4 before
 SWITCH_MAX = 0
 EQ_MAX = 0

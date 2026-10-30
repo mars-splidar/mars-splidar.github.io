@@ -453,7 +453,20 @@ def check() -> int:
     files, pixels, _ = build(verbose=True)
     out = REPO / OUT_REL
     bad = 0
-    print("\n--check: rebuilt in memory, compared with the committed files")
+    with tempfile.TemporaryDirectory(prefix="mars_tiles_check_") as tmp:
+        tmp = Path(tmp)
+        for name, b in files.items():
+            (tmp / name).write_bytes(b)
+        print(f"\n--check: rebuilt into a temp dir ({len(files)} files), compared with the committed files")
+        bad = _compare(tmp, out, pixels)
+    old_tile_report(pixels)
+    print(f"\n{'FAIL' if bad else 'PASS'}: {bad} problem(s), {len(files)} file(s)")
+    return 1 if bad else 0
+
+
+def _compare(tmp: Path, out: Path, pixels: dict[str, np.ndarray]) -> int:
+    bad = 0
+    files = {p.name: p.read_bytes() for p in sorted(tmp.iterdir())}
     for name, b in sorted(files.items()):
         live = out / name
         if not live.exists():
@@ -477,9 +490,7 @@ def check() -> int:
     for name in extra:
         print(f"  EXTRA    {OUT_REL}/{name} (not built by this script)")
         bad += 1
-    old_tile_report(pixels)
-    print(f"\n{'FAIL' if bad else 'PASS'}: {bad} problem(s), {len(files)} file(s)")
-    return 1 if bad else 0
+    return bad
 
 
 def main() -> int:

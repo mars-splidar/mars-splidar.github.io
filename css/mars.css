@@ -1681,7 +1681,18 @@ img, video { max-width: 100%; height: auto; display: block; }
    v2.2-C: the slider and the ground truth are two EQUAL squares on the
    column, 24 px apart (468 px each at the 960 column), the test-set numbers
    on the image corners as chips. Phones (<= 600 px): the GT square is
-   hidden and the hold button shows the GT inside the slider frame. */
+   hidden and the hold button shows the GT inside the slider frame.
+   v2.3-B (guide 0.8): TWO GROUPS, SBR 0.6 and SBR 1.0, 28 px apart; each a
+   header with a dark rule, then a ground-truth square and a slider square,
+   10 px apart (four equal squares in a row from 601 px up; 228 px at the
+   960 column). The chips are gone: the numbers are a caption under each
+   slider, Poisson-trained on the left and MaRS-trained on the right, each a
+   label line over a value line when the slider is at least 200 px wide,
+   one line each, stacked, below that (a container query on the cell, so
+   the caption follows the square, not the viewport). Phones: the GT
+   squares are hidden, the two sliders sit side by side, and one hold
+   button shows both ground truths; while held each caption reads "Ground
+   truth" in the box its numbers keep. */
 .mars-compare__toggle {
   display: inline-flex;
   gap: 0;
@@ -1714,12 +1725,33 @@ img, video { max-width: 100%; height: auto; display: block; }
   box-shadow: inset 0 0 0 5px #ffffff;
 }
 
-.mars-compare__pair {
+.mars-compare__groups {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+  gap: 28px;
 }
+.mars-compare__group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+.mars-compare__head {
+  grid-column: 1 / -1;
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid var(--dark);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--dark);
+  text-align: center;
+}
+.mars-compare__gt,
 .mars-compare__cell { min-width: 0; }
+.mars-compare__cell { container-type: inline-size; }
 .mars-compare__stage {
   --pos: 50%;
   position: relative;
@@ -1782,40 +1814,41 @@ img, video { max-width: 100%; height: auto; display: block; }
   outline: 3px solid var(--aged);
   outline-offset: 3px;
 }
-/* The chips: the test-set number on its image's top corner. White on INK at
-   82 % reads on black and on the brightest tile: over pure white the chip
-   composites to #3e4243, 10.2:1 (over black, 18:1). tools/audit_claims.py
-   pins .mars-compare__chip to that worst-case #3e4243 in SURFACES. */
-.mars-compare__chip {
-  position: absolute;
-  top: 10px;
-  margin: 0;
-  padding: 5px 9px;
-  max-width: calc(50% - 22px);
-  border-radius: 6px;
-  background: rgba(20, 24, 26, 0.82);
-  color: #ffffff;
-  font-family: var(--font-head);
+/* Captions: 13 px, --grey labels (6.9:1 on PAPER) and --dark values. */
+.mars-compare__cap {
+  margin: 0.4rem 0 0;
   font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.3;
-  pointer-events: none;
+  line-height: 1.35;
+  color: var(--grey);
 }
-.mars-compare__chip b { display: block; font-weight: 700; font-size: 0.9375rem; white-space: nowrap; }
-.mars-compare__chip.is-left { left: 10px; }
-.mars-compare__chip.is-right { right: 10px; text-align: right; }
-.mars-compare__chip.is-gt { left: 10px; }
-/* holding: only the ground truth and its chip */
-.mars-compare__stage.is-holding .mars-compare__img.is-under,
-.mars-compare__stage.is-holding .mars-compare__img.is-over,
-.mars-compare__stage.is-holding .mars-compare__handle,
-.mars-compare__stage.is-holding .mars-compare__chip.is-left,
-.mars-compare__stage.is-holding .mars-compare__chip.is-right { visibility: hidden; }
-.mars-compare__stage.is-holding .mars-compare__img.is-gt { visibility: visible; }
+.mars-compare__cap b {
+  font-family: var(--font-head);
+  font-weight: 600;
+  color: var(--dark);
+}
+.mars-compare__cap.is-pair { display: grid; }
+.mars-compare__vals,
+.mars-compare__capgt { grid-area: 1 / 1; min-width: 0; }
+.mars-compare__vals { display: flex; flex-direction: column; }
+.mars-compare__val b { font-family: var(--font-body); font-weight: 700; white-space: nowrap; }
+@container (min-width: 200px) {
+  .mars-compare__vals { flex-direction: row; justify-content: space-between; gap: 0.5rem; }
+  .mars-compare__val b { display: block; }
+  .mars-compare__val.is-right { text-align: right; }
+}
+/* holding: every slider frame shows its ground truth, and each caption
+   reads "Ground truth" in the box its numbers keep */
+.mars-compare.is-holding .mars-compare__img.is-under,
+.mars-compare.is-holding .mars-compare__img.is-over,
+.mars-compare.is-holding .mars-compare__handle,
+.mars-compare.is-holding .mars-compare__vals { visibility: hidden; }
+.mars-compare.is-holding .mars-compare__img.is-gt { visibility: visible; }
 .mars-compare__hold { display: none; }
 @media (max-width: 600px) {
-  .mars-compare__pair { grid-template-columns: minmax(0, 1fr); }
+  .mars-compare__groups { gap: 12px; }
+  .mars-compare__group { grid-template-columns: minmax(0, 1fr); }
   .mars-compare__gt { display: none; }
+  .mars-compare__handle::after { width: 30px; height: 30px; background-size: 17px; }
   .mars-compare__hold {
     display: inline-flex;
     align-items: center;
@@ -1841,7 +1874,6 @@ img, video { max-width: 100%; height: auto; display: block; }
     outline-offset: 2px;
   }
 }
-.mars-compare__note { margin: 0.6rem 0 0; }
 
 /* ---- The count-model ablation (stage v2.2-C, js/mars-ablation.js) --------
    One toggle drives the dumbbell chart and the four tiles. The chart's SVG

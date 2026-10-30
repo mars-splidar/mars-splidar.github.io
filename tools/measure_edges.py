@@ -107,12 +107,16 @@ MAIN = [
     ("Demo 3 eyebrow", "#demo-downstream .mars-eyebrow", "L"),
     ("Demo 3 title", "#demo-downstream-title", "L"),
     ("Demo 3 sentence", "#demo-downstream .mars-demo__sentence", "L"),
-    # v2.2-C: two equal squares (slider | ground truth) fill the column; on
-    # phones the GT square is hidden and the slider fills it alone
+    # v2.3-B: two scene groups (SBR 0.6 | SBR 1.0) fill the column, each a
+    # header rule over a GT square and a slider square; on phones the GT
+    # squares are hidden and the two sliders sit side by side. The note is
+    # gone (guide 0.8). The left group starts on the column's left edge, the
+    # right group ends on its right edge.
     ("Demo 3 toggle", "#demo-downstream .mars-compare__toggle", "L"),
-    ("Demo 3 pair", ".mars-compare__pair", "F"),
-    ("Demo 3 slider", "#demo-downstream .mars-compare__cell .mars-compare__stage", "X"),
-    ("Demo 3 note", "#demo-downstream .mars-compare__note", "L"),
+    ("Demo 3 groups", "#demo-downstream .mars-compare__groups", "F"),
+    ("Demo 3 SBR 0.6 rule", "#demo-downstream [data-sbr=sbr06] .mars-compare__head", "L"),
+    ("Demo 3 SBR 1.0 rule", "#demo-downstream [data-sbr=sbr10] .mars-compare__head", "Rnav"),
+    ("Demo 3 slider", "#demo-downstream [data-sbr=sbr10] .mars-compare__cell .mars-compare__stage", "Rnav"),
     # v2.2-C: the count-model ablation; chart card and tile grid fill the column
     ("ablation eyebrow", "#demo-ablation .mars-eyebrow", "L"),
     ("ablation title", "#demo-ablation-title", "L"),

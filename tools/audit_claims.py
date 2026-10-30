@@ -319,10 +319,10 @@ SURFACES: list[tuple[str, str, str]] = [
     (r"\.is-mint",                   "--mint",  "mint band"),
     # --- gold-wash hover states, which repaint the ground under the label ---
     (r"\.mars-(btn|switch__pill)[^,]*:hover", "--gold-soft", "gold-wash hover"),
-    # --- v2.2-C: the Downstream chips sit on the IMAGES, as INK at 82 %
-    # (rgba(20, 24, 26, .82)). The worst case is a white image pixel under
-    # the chip, which composites to #3e4243; text is checked against that.
-    (r"\.mars-compare__chip",        "#3e4243", "image chip (INK 82 % over white)"),
+    # --- v2.2-C's Downstream chips (INK at 82 % over the images, checked
+    # against #3e4243) were RETIRED in v2.3-B: guide 0.8 moved the numbers
+    # into captions under the sliders, on PAPER (the default surface), and
+    # css/mars.css no longer has a .mars-compare__chip rule.
     # --- the skip link paints itself AGED but only in the :focus rule ---
     (r"\.mars-skip",                 "--aged",  "skip link"),
 ]
@@ -919,17 +919,31 @@ def check_efficiency(rep: Report) -> None:
 
 
 # v2.2-C — THE DOWNSTREAM MODULE AND THE COUNT-MODEL ABLATION. Every number
-# they show is PROJECT_BRIEF 3.5's (SBR 0.6), which rounds the paper's
-# tab:reconstruction_results (paper/sec/6_experiments.tex l. 195-234; the four
+# they show is PROJECT_BRIEF 3.5's, which rounds the paper's
+# tab:reconstruction_results (paper/sec/6_experiments.tex l. 195-236; the four
 # decimals are in the comments below). TRANSFER_35 is that table, by row:
 # reflectivity PSNR val, test (dB), depth RMSE val, test (m). "val" is tested
 # on the row's own simulator / count model, "test" on gold-standard data.
+# v2.3-B: 3.5 now holds TWO tables, SBR 0.6 and SBR 1.0 (guide 0.8), so
+# TRANSFER_35 is keyed by the site's scene keys. Downstream shows the test
+# column of both, in both modes; the ablation still shows SBR 0.6 (v2.3-C
+# adds SBR 1.0). Each paper row's val line holds SBR 0.6 then SBR 1.0, and so
+# does its test line.
 TRANSFER_35 = {
-    "poisson": ("36.49", "7.02", "0.072", "1.654"),   # 36.4946 7.0237 0.0722 1.6537
-    "renewal": ("29.72", "12.12", "0.054", "0.096"),  # 29.7230 12.1210 0.0543 0.0959
-    "zhang":   ("22.74", "22.54", "0.053", "0.082"),  # 22.7444 22.5421 0.0526 0.0820
-    "mars":    ("24.03", "24.25", "0.053", "0.074"),  # 24.0321 24.2488 0.0532 0.0739
+    "sbr06": {   # val l. 196-197 / 207-208 / 218-219 / 229-230; test l. 200-201 / 211-212 / 222-223 / 233-234
+        "poisson": ("36.49", "7.02", "0.072", "1.654"),   # 36.4946 7.0237 0.0722 1.6537
+        "renewal": ("29.72", "12.12", "0.054", "0.096"),  # 29.7230 12.1210 0.0543 0.0959
+        "zhang":   ("22.74", "22.54", "0.053", "0.082"),  # 22.7444 22.5421 0.0526 0.0820
+        "mars":    ("24.03", "24.25", "0.053", "0.074"),  # 24.0321 24.2488 0.0532 0.0739
+    },
+    "sbr10": {   # val l. 198-199 / 209-210 / 220-221 / 231-232; test l. 202-203 / 213-214 / 224-225 / 235-236
+        "poisson": ("33.68", "7.25", "0.061", "0.785"),   # 33.6827 7.2490 0.0606 0.7853
+        "renewal": ("30.97", "11.70", "0.051", "0.097"),  # 30.9704 11.6988 0.0514 0.0967
+        "zhang":   ("21.95", "22.21", "0.051", "0.119"),  # 21.9506 22.2137 0.0506 0.1193
+        "mars":    ("24.28", "23.58", "0.055", "0.095"),  # 24.2821 23.5776 0.0553 0.0949
+    },
 }
+SBR_LABEL = {"sbr06": "SBR 0.6", "sbr10": "SBR 1.0"}
 TRANSFER_NAMES = {"poisson": "Poisson", "renewal": "Renewal",
                   "zhang": "Zhang et al.", "mars": "MaRS"}
 BRIEF = REPO.parent.parent / "PROJECT_BRIEF.md"   # absent in a bare site clone
@@ -945,20 +959,51 @@ ABLATION_REQUIRED = [
 ]
 
 
-def _brief_35() -> dict[str, tuple[str, ...]] | None:
-    """PROJECT_BRIEF 3.5's table, parsed, when the brief is beside the repo."""
+def _brief_35() -> dict[str, dict[str, tuple[str, ...]]] | None:
+    """PROJECT_BRIEF 3.5's two tables, parsed, when the brief is beside the
+    repo. v2.3-B: the section is SPLIT at its "**SBR = 0.6**" and
+    "**SBR = 1.0**" markers first, and each table is read only from the
+    pipe rows that directly follow its marker, so a row name can never be
+    matched in the wrong table (a plain first-match search would silently
+    return SBR 0.6 for both)."""
     if not BRIEF.exists():
         return None
     md = BRIEF.read_text(encoding="utf-8")
     sec = md[md.index("### 3.5"):]
     sec = sec[:sec.index("### 3.6")]
-    out = {}
-    for name, key in (("Poisson", "poisson"), ("Renewal", "renewal"),
-                      ("Zhang et al.", "zhang"), ("MaRS", "mars")):
-        row = re.search(r"^\|\s*\**" + re.escape(name) + r"\**\s*\|(.*)$", sec, re.M)
-        if row:
-            out[key] = tuple(re.findall(r"\d+\.\d+", row.group(1)))
+    marks = [("sbr06", "**SBR = 0.6**"), ("sbr10", "**SBR = 1.0**")]
+    out: dict[str, dict[str, tuple[str, ...]]] = {}
+    for i, (key, mark) in enumerate(marks):
+        if mark not in sec:
+            continue
+        part = sec[sec.index(mark) + len(mark):]
+        nxt = [part.index(m) for _, m in marks[i + 1:] if m in part]
+        part = part[:min(nxt)] if nxt else part
+        lines = part.splitlines()
+        first = next((j for j, l in enumerate(lines) if l.startswith("|")), None)
+        if first is None:
+            continue
+        table = []
+        for l in lines[first:]:
+            if not l.startswith("|"):
+                break
+            table.append(l)
+        rows = {}
+        for name, k in (("Poisson", "poisson"), ("Renewal", "renewal"),
+                        ("Zhang et al.", "zhang"), ("MaRS", "mars")):
+            row = next((re.match(r"^\|\s*\**" + re.escape(name) + r"\**\s*\|(.*)$", l)
+                        for l in table
+                        if re.match(r"^\|\s*\**" + re.escape(name) + r"\**\s*\|", l)), None)
+            if row:
+                rows[k] = tuple(re.findall(r"\d+\.\d+", row.group(1)))
+        out[key] = rows
     return out
+
+
+def transfer_table() -> dict[str, dict[str, tuple[str, ...]]]:
+    """The brief's tables when the brief is beside the repo, else TRANSFER_35
+    (check_downstream fails if the two differ)."""
+    return _brief_35() or TRANSFER_35
 
 
 def _num(s: str) -> str:
@@ -992,27 +1037,74 @@ def check_downstream(rep: Report) -> None:
         rep.info.append("v2.2-C: PROJECT_BRIEF.md not beside the repo; "
                         "TRANSFER_35 used as written")
     elif brief != TRANSFER_35:
-        rep.fail("tools/audit_claims.py", "TRANSFER_35 differs from PROJECT_BRIEF 3.5 [v2.2-C]",
+        rep.fail("tools/audit_claims.py", "TRANSFER_35 differs from PROJECT_BRIEF 3.5 [v2.2-C, v2.3-B]",
                  f"brief {brief} vs {TRANSFER_35}")
 
-    # Part 1: the two chips, Reflectivity as shipped and Depth in data-depth
+    # Part 1 (v2.3-B, guide 0.8): two scene groups, SBR 0.6 then SBR 1.0.
+    # In each, the header names the scene, every tile path is that scene's,
+    # and the two captions under the slider carry the scene's test-set value
+    # at print precision: Reflectivity as shipped (dB), Depth in data-depth
+    # (m). So 2 SBR x 2 modes x 2 sides = 8 values, all from 3.5.
     art = re.search(r'<article\b[^>]*\bid="demo-downstream"(.*?)</article>', source, re.S)
     if not art:
         rep.fail("index.html", "Downstream module missing [v2.2-C]", "no article#demo-downstream")
     else:
-        for side, key in (("is-left", "poisson"), ("is-right", "mars")):
-            m = re.search(r'<p class="mars-compare__chip %s"\s+data-depth="([^"]*)">(.*?)</p>'
-                          % side, art.group(1), re.S)
-            if not m:
-                rep.fail("index.html", f"Downstream chip {side} missing [v2.2-C]", "")
+        body = art.group(1)
+        if "mars-compare__chip" in body:
+            rep.fail("index.html", "Downstream still carries image chips [v2.3-B]",
+                     "guide 0.8 replaced them with captions under the sliders")
+        parts = re.split(r'(?=<div class="mars-compare__group" data-sbr=")', body)
+        groups = [(re.match(r'<div class="mars-compare__group" data-sbr="(\w+)"', g).group(1), g)
+                  for g in parts[1:]]
+        if [k for k, _ in groups] != ["sbr06", "sbr10"]:
+            rep.fail("index.html", "Downstream scene groups [v2.3-B]",
+                     f"expected sbr06 then sbr10, found {[k for k, _ in groups]}")
+        n_ok = 0
+        tables = transfer_table()
+        for sbr, g in groups:
+            table = tables.get(sbr)
+            if not table:
+                rep.fail("PROJECT_BRIEF.md", f"no 3.5 table for {SBR_LABEL.get(sbr, sbr)} [v2.3-B]",
+                         "Downstream shows this scene, so its numbers must be in the brief")
                 continue
-            depth = re.search(r"<b>(.*?)</b>", html.unescape(m.group(1)))
-            refl = re.search(r"<b>(.*?)</b>", m.group(2))
-            got = (_num(refl.group(1)) if refl else None, _num(depth.group(1)) if depth else None)
-            want = (TRANSFER_35[key][1], TRANSFER_35[key][3])
-            if got != want:
-                rep.fail("index.html", f"Downstream chip {key} != PROJECT_BRIEF 3.5 [v2.2-C]",
-                         f"shows {got}, 3.5 test values {want}")
+            head = re.search(r'<p class="mars-compare__head">(.*?)</p>', g, re.S)
+            if not head or head.group(1).strip() != SBR_LABEL[sbr]:
+                rep.fail("index.html", f"Downstream {sbr} header [v2.3-B]",
+                         f"shows {head.group(1) if head else None!r}, expected {SBR_LABEL[sbr]!r}")
+            for path in re.findall(r'data-src-(?:refl|depth)="([^"]*)"', g):
+                if not re.fullmatch(r"assets/img/res/(refl|depth)_%s_(gt|poisson|mars)\.webp" % sbr, path):
+                    rep.fail("index.html", f"Downstream {sbr} tile path [v2.3-B]",
+                             f"{path} is not one of this scene's tiles")
+            for m in re.finditer(r'data-src-(refl|depth)="assets/img/res/(\w+?)_', g):
+                if m.group(1) != m.group(2):
+                    rep.fail("index.html", f"Downstream {sbr}: a {m.group(1)} slot loads a "
+                             f"{m.group(2)} tile [v2.3-B]", "")
+            for key, name in (("poisson", "Poisson"), ("mars", "MaRS")):
+                m = re.search(r'<span class="mars-compare__val[^"]*" data-k="%s"\s+'
+                              r'data-depth="([^"]*)">(.*?)</span>' % key, g, re.S)
+                if not m:
+                    rep.fail("index.html", f"Downstream {sbr} caption {key} missing [v2.3-B]", "")
+                    continue
+                depth_html, refl_html = html.unescape(m.group(1)), m.group(2)
+                got, want = [], (table[key][1], table[key][3])
+                for label, h, unit in (("refl", refl_html, "dB"), ("depth", depth_html, "m")):
+                    vb = re.search(r"<b>(.*?)</b>", h)
+                    txt = re.sub(r"<[^>]+>", "", html.unescape(h)).replace("\xa0", " ").strip()
+                    got.append(_num(vb.group(1)) if vb else None)
+                    if not (vb and re.fullmatch(r"[\d.]+\s%s" % unit,
+                                                html.unescape(vb.group(1)).replace("\xa0", " "))):
+                        rep.fail("index.html", f"Downstream {sbr} {label} caption {key}: unit [v2.3-B]",
+                                 f"{h!r} should end in '{unit}'")
+                    if not txt.startswith(f"{name}-trained "):
+                        rep.fail("index.html", f"Downstream {sbr} {label} caption {key}: label [v2.3-B]",
+                                 f"{txt!r} should read '{name}-trained <value>'")
+                if tuple(got) != want:
+                    rep.fail("index.html", f"Downstream {sbr} caption {key} != PROJECT_BRIEF 3.5 [v2.3-B]",
+                             f"shows {tuple(got)}, 3.5 test values {want}")
+                else:
+                    n_ok += 2
+        rep.info.append(f"Downstream: {n_ok}/8 caption values (2 SBR x 2 modes x 2 sides) "
+                        "= PROJECT_BRIEF 3.5 test column")
 
     # Part 2: the table is the one source; it must equal 3.5, and the
     # captions shipped in the HTML must equal the table.
@@ -1027,9 +1119,9 @@ def check_downstream(rep: Report) -> None:
                  f"expected renewal, zhang, mars (no Poisson), found {sorted(rows)}")
     for key, row in rows.items():
         cells = tuple(c.strip() for c in re.findall(r"<td>(.*?)</td>", row))
-        if key not in TRANSFER_35 or cells != TRANSFER_35[key]:
+        if key not in TRANSFER_35["sbr06"] or cells != TRANSFER_35["sbr06"][key]:
             rep.fail("index.html", f"Ablation table row {key} != PROJECT_BRIEF 3.5 [v2.2-C]",
-                     f"{cells} vs {TRANSFER_35.get(key)}")
+                     f"{cells} vs {TRANSFER_35['sbr06'].get(key)}")
         name = re.search(r"<th[^>]*>(.*?)</th>", row).group(1)
         if name != TRANSFER_NAMES.get(key, "?") + " count":
             rep.fail("index.html", f"Ablation table row {key} named {name!r} [v2.2-C]", "")
@@ -1046,7 +1138,7 @@ def check_downstream(rep: Report) -> None:
         if not re.search(rx, text):
             rep.fail("index.html", f"Ablation footnote: {label} missing [v2.2-C]",
                      "the framing must be unmistakable (stage doc 0)")
-    rep.info.append("Downstream + ablation: chips, table and captions = PROJECT_BRIEF 3.5"
+    rep.info.append("Downstream + ablation: captions, table and tile captions = PROJECT_BRIEF 3.5"
                     + (" (parsed from the brief)" if brief else "")
                     + "; the 'no separate simulator' footnote present")
 
@@ -1127,6 +1219,14 @@ def main() -> int:
 
     rep = Report()
     found: dict[str, list[str]] = {}
+    # v2.3-B: the SBR 1.0 transfer values join the canonical list FROM THE
+    # BRIEF (parsed; TRANSFER_35 only when the brief is absent, and
+    # check_downstream fails if the two differ), so they are covered and
+    # protected from near-misses like every other 3.5 number.
+    for row in transfer_table().get("sbr10", {}).values():
+        for v in row:
+            if v not in CANONICAL:
+                CANONICAL.append(v)
 
     print(f"MaRS claim audit — {len(files)} HTML file(s) under {REPO}")
     print("  " + ", ".join(str(f.relative_to(REPO)) for f in files)

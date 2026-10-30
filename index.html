@@ -1014,73 +1014,132 @@
         <div class="mars-ui mars-compare__toggle" role="group"
              aria-label="Reconstruction shown">
           <button type="button" class="mars-compare__mode" data-mode="refl"
-                  aria-pressed="true">Reflectivity</button>
+                  aria-pressed="true">Reflectivity PSNR</button>
           <button type="button" class="mars-compare__mode" data-mode="depth"
-                  aria-pressed="false">Depth</button>
+                  aria-pressed="false">Depth RMSE</button>
         </div>
-        <div class="mars-compare__pair">
-          <div class="mars-compare__cell">
-            <div class="mars-compare__stage">
-              <img class="mars-compare__img is-under" width="720" height="720"
-                   alt="" decoding="async"
-                   data-src-refl="assets/img/res_refl_poisson.webp"
-                   data-src-depth="assets/img/res_depth_poisson.webp"
-                   data-alt-refl="Reflectivity recovered by the Poisson-trained network on a gold-standard test scene: almost entirely black, with no recoverable scene."
-                   data-alt-depth="Depth recovered by the Poisson-trained network on a gold-standard test scene: the shapes survive, but the whole scene is placed far too close and its depth range is flattened.">
-              <img class="mars-compare__img is-over" width="720" height="720"
-                   alt="" decoding="async"
-                   data-src-refl="assets/img/res_refl_mars.webp"
-                   data-src-depth="assets/img/res_depth_mars.webp"
-                   data-alt-refl="Reflectivity recovered by the MaRS-trained network on the same scene: the bookshelf, chair and table close to ground truth in brightness and detail."
-                   data-alt-depth="Depth recovered by the MaRS-trained network on the same scene: the chair, table and back wall at depths close to ground truth.">
-              <!-- the ground truth inside the slider frame, shown only while
-                   "Hold to see ground truth" is held (phones). Decorative
-                   here (alt ""): the live region below announces it. -->
-              <img class="mars-compare__img is-gt" width="720" height="720"
-                   alt="" decoding="async"
-                   data-src-refl="assets/img/res_refl_gt.webp"
-                   data-src-depth="assets/img/res_depth_gt.webp">
-              <input class="mars-compare__range" type="range" min="0" max="100"
-                     value="50" step="1"
-                     aria-label="Divider: Poisson-trained left, MaRS-trained right"
-                     aria-valuetext="50% Poisson-trained, 50% MaRS-trained">
-              <span class="mars-compare__handle" aria-hidden="true"></span>
-              <p class="mars-compare__chip is-left"
-                 data-depth="Poisson-trained &lt;b&gt;1.654&amp;nbsp;m&lt;/b&gt;">Poisson-trained <b>7.02&nbsp;dB</b></p>
-              <p class="mars-compare__chip is-right"
-                 data-depth="MaRS-trained &lt;b&gt;0.074&amp;nbsp;m&lt;/b&gt;">MaRS-trained <b>24.25&nbsp;dB</b></p>
-              <p class="mars-compare__chip is-gt" hidden>Ground truth</p>
+        <!-- v2.3-B (guide 0.8): two test scenes, SBR 0.6 (library) and SBR 1.0
+             (kitchen), each a ground-truth square and a Poisson | MaRS
+             slider. The two sliders are linked (js/mars-compare.js). Tiles:
+             assets/img/res/, built by tools/build_result_tiles.py. The
+             numbers are PROJECT_BRIEF 3.5's test column, both tables
+             (tools/audit_claims.py checks them). -->
+        <div class="mars-compare__groups">
+          <div class="mars-compare__group" data-sbr="sbr06">
+            <p class="mars-compare__head">SBR 0.6</p>
+            <div class="mars-compare__gt">
+              <div class="mars-compare__stage is-static">
+                <img class="mars-compare__img" width="200" height="200"
+                     alt="" decoding="async"
+                     data-src-refl="assets/img/res/refl_sbr06_gt.webp"
+                     data-src-depth="assets/img/res/depth_sbr06_gt.webp"
+                     data-alt-refl="Ground-truth reflectivity of the test scene: a bookshelf, a chair and a table."
+                     data-alt-depth="Ground-truth depth of the test scene.">
+              </div>
+              <p class="mars-compare__cap"><b>Ground truth</b></p>
             </div>
-            <button type="button" class="mars-ui mars-compare__hold"
-                    aria-pressed="false">Hold to see ground truth</button>
-            <p class="mars-visually-hidden mars-compare__status"
-               aria-live="polite"></p>
+            <div class="mars-compare__cell">
+              <div class="mars-compare__stage" data-sbr-label="SBR 0.6">
+                <img class="mars-compare__img is-under" width="200" height="200"
+                     alt="" decoding="async"
+                     data-src-refl="assets/img/res/refl_sbr06_poisson.webp"
+                     data-src-depth="assets/img/res/depth_sbr06_poisson.webp"
+                     data-alt-refl="Reflectivity recovered by the Poisson-trained network on a gold-standard test scene: almost entirely black, with no recoverable scene."
+                     data-alt-depth="Depth recovered by the Poisson-trained network on a gold-standard test scene: the shapes survive, but the whole scene is placed far too close and its depth range is flattened.">
+                <img class="mars-compare__img is-over" width="200" height="200"
+                     alt="" decoding="async"
+                     data-src-refl="assets/img/res/refl_sbr06_mars.webp"
+                     data-src-depth="assets/img/res/depth_sbr06_mars.webp"
+                     data-alt-refl="Reflectivity recovered by the MaRS-trained network on the same scene: the bookshelf, chair and table close to ground truth in brightness and detail."
+                     data-alt-depth="Depth recovered by the MaRS-trained network on the same scene: the chair, table and back wall at depths close to ground truth.">
+                <!-- the ground truth inside the slider frame, shown only while
+                     "Hold to see ground truth" is held (phones). Decorative
+                     here (alt ""): the live region announces it. -->
+                <img class="mars-compare__img is-gt" width="200" height="200"
+                     alt="" decoding="async"
+                     data-src-refl="assets/img/res/refl_sbr06_gt.webp"
+                     data-src-depth="assets/img/res/depth_sbr06_gt.webp">
+                <input class="mars-compare__range" type="range" min="0" max="100"
+                       value="50" step="1"
+                       aria-label="Divider at SBR 0.6: Poisson-trained left, MaRS-trained right"
+                       aria-valuetext="SBR 0.6: 50% Poisson-trained, 50% MaRS-trained">
+                <span class="mars-compare__handle" aria-hidden="true"></span>
+              </div>
+              <p class="mars-compare__cap is-pair">
+              <span class="mars-compare__vals">
+                <span class="mars-compare__val" data-k="poisson"
+                    data-depth="Poisson-trained &lt;b&gt;1.654&amp;nbsp;m&lt;/b&gt;">Poisson-trained <b>7.02&nbsp;dB</b></span>
+                <span class="mars-compare__val is-right" data-k="mars"
+                    data-depth="MaRS-trained &lt;b&gt;0.074&amp;nbsp;m&lt;/b&gt;">MaRS-trained <b>24.25&nbsp;dB</b></span>
+              </span>
+              <span class="mars-compare__capgt" hidden><b>Ground truth</b></span></p>
+            </div>
           </div>
-          <div class="mars-compare__gt">
-            <div class="mars-compare__stage is-static">
-              <img class="mars-compare__img" width="720" height="720"
-                   alt="" decoding="async"
-                   data-src-refl="assets/img/res_refl_gt.webp"
-                   data-src-depth="assets/img/res_depth_gt.webp"
-                   data-alt-refl="Ground-truth reflectivity of the test scene: a bookshelf, a chair and a table."
-                   data-alt-depth="Ground-truth depth of the test scene.">
-              <p class="mars-compare__chip is-left">Ground truth</p>
+          <div class="mars-compare__group" data-sbr="sbr10">
+            <p class="mars-compare__head">SBR 1.0</p>
+            <div class="mars-compare__gt">
+              <div class="mars-compare__stage is-static">
+                <img class="mars-compare__img" width="200" height="200"
+                     alt="" decoding="async"
+                     data-src-refl="assets/img/res/refl_sbr10_gt.webp"
+                     data-src-depth="assets/img/res/depth_sbr10_gt.webp"
+                     data-alt-refl="Ground-truth reflectivity of the second test scene, a kitchen: a counter with open shelves and a bowl of fruit, a stove behind it."
+                     data-alt-depth="Ground-truth depth of the kitchen test scene.">
+              </div>
+              <p class="mars-compare__cap"><b>Ground truth</b></p>
+            </div>
+            <div class="mars-compare__cell">
+              <div class="mars-compare__stage" data-sbr-label="SBR 1.0">
+                <img class="mars-compare__img is-under" width="200" height="200"
+                     alt="" decoding="async"
+                     data-src-refl="assets/img/res/refl_sbr10_poisson.webp"
+                     data-src-depth="assets/img/res/depth_sbr10_poisson.webp"
+                     data-alt-refl="Reflectivity recovered by the Poisson-trained network on the kitchen test scene: almost entirely black, with no recoverable scene."
+                     data-alt-depth="Depth recovered by the Poisson-trained network on the kitchen test scene: the counter's outline survives, but the far side of the room is placed too close and the depth range is flattened.">
+                <img class="mars-compare__img is-over" width="200" height="200"
+                     alt="" decoding="async"
+                     data-src-refl="assets/img/res/refl_sbr10_mars.webp"
+                     data-src-depth="assets/img/res/depth_sbr10_mars.webp"
+                     data-alt-refl="Reflectivity recovered by the MaRS-trained network on the same kitchen scene: the counter, shelves, fruit bowl and stove close to ground truth in brightness and detail."
+                     data-alt-depth="Depth recovered by the MaRS-trained network on the same kitchen scene: the counter, shelves and back wall at depths close to ground truth.">
+                <!-- the ground truth inside the slider frame, shown only while
+                     "Hold to see ground truth" is held (phones). Decorative
+                     here (alt ""): the live region announces it. -->
+                <img class="mars-compare__img is-gt" width="200" height="200"
+                     alt="" decoding="async"
+                     data-src-refl="assets/img/res/refl_sbr10_gt.webp"
+                     data-src-depth="assets/img/res/depth_sbr10_gt.webp">
+                <input class="mars-compare__range" type="range" min="0" max="100"
+                       value="50" step="1"
+                       aria-label="Divider at SBR 1.0: Poisson-trained left, MaRS-trained right"
+                       aria-valuetext="SBR 1.0: 50% Poisson-trained, 50% MaRS-trained">
+                <span class="mars-compare__handle" aria-hidden="true"></span>
+              </div>
+              <p class="mars-compare__cap is-pair">
+              <span class="mars-compare__vals">
+                <span class="mars-compare__val" data-k="poisson"
+                    data-depth="Poisson-trained &lt;b&gt;0.785&amp;nbsp;m&lt;/b&gt;">Poisson-trained <b>7.25&nbsp;dB</b></span>
+                <span class="mars-compare__val is-right" data-k="mars"
+                    data-depth="MaRS-trained &lt;b&gt;0.095&amp;nbsp;m&lt;/b&gt;">MaRS-trained <b>23.58&nbsp;dB</b></span>
+              </span>
+              <span class="mars-compare__capgt" hidden><b>Ground truth</b></span></p>
             </div>
           </div>
         </div>
-        <!-- stage doc 1 allows a minimal rephrase of the note "only to remove
-             the parenthesis-with-full-stop awkwardness ... keeping every
-             fact". Its two parenthetical facts are one per mode, so each
-             mode shows its own, as in the approved concept: the same words
-             and the same count (17) in both. -->
-        <p class="mars-demo__note mars-compare__note"
-           data-depth="Numbers are test-set results (depth RMSE, lower is better), SBR 0.6. The images show one test scene.">Numbers are test-set results (reflectivity PSNR, higher is better), SBR 0.6. The images show one test scene.</p>
+        <button type="button" class="mars-ui mars-compare__hold"
+                aria-pressed="false">Hold to see ground truth</button>
+        <p class="mars-visually-hidden mars-compare__status"
+           aria-live="polite"></p>
         <noscript>
           <div class="mars-demo__pair">
-            <img src="assets/img/res_refl_poisson.png" width="720" height="720" loading="lazy"
-                 alt="Reflectivity recovered by the Poisson-trained network: almost entirely black.">
-            <img src="assets/img/res_refl_mars.png" width="720" height="720" loading="lazy"
-                 alt="Reflectivity recovered by the MaRS-trained network: close to ground truth.">
+            <img src="assets/img/res/refl_sbr06_poisson.webp" width="200" height="200" loading="lazy"
+                 alt="SBR 0.6: reflectivity recovered by the Poisson-trained network, almost entirely black.">
+            <img src="assets/img/res/refl_sbr06_mars.webp" width="200" height="200" loading="lazy"
+                 alt="SBR 0.6: reflectivity recovered by the MaRS-trained network, close to ground truth.">
+            <img src="assets/img/res/refl_sbr10_poisson.webp" width="200" height="200" loading="lazy"
+                 alt="SBR 1.0: reflectivity recovered by the Poisson-trained network, almost entirely black.">
+            <img src="assets/img/res/refl_sbr10_mars.webp" width="200" height="200" loading="lazy"
+                 alt="SBR 1.0: reflectivity recovered by the MaRS-trained network, close to ground truth.">
           </div>
         </noscript>
       </figure>

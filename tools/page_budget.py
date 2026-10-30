@@ -134,7 +134,7 @@ REPO = Path(__file__).resolve().parent.parent
 # v2.3-A: RE-PINNED at 604, the measured total after the approved v2.3 copy
 # (guide 0.8): the teaser tagline "MaRS: an accurate and fast single-photon
 # LiDAR simulator." removed -8 (a hyphenated compound is one word), the new
-# three-sentence Fig. 1 caption +14 (51 words, was 37). The slicer's preset
+# three-sentence Fig. 1 caption +14 (49 words, was 35). The slicer's preset
 # hints and note are .mars-ui (reported as UI words, 55 -> 82: hints +6, the
 # bright note +21); their four aria-hidden sizer copies count nowhere.
 WORD_LIMIT = 604        # v2.3-A re-pin; 598 v2.2-D, 600 v2.2-P, 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before

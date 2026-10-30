@@ -55,8 +55,10 @@ if the shipped block differs from what this script would write.
 Every factual claim in a note is a rule in claims(), evaluated on the data
 over 3 x 3 pixels x 3 bins (the preset's bin and one either side) at the
 default pooling; --check fails if any rule does not hold. The same rules are
-evaluated at 1 x 1 and 5 x 5 and reported, not gated (a preset keeps the
-reader's pooling, so the note can be read at either):
+evaluated at 1 x 1 and 5 x 5 and reported, not gated. The notes are claims
+about the 3 x 3 PRESET VIEW only: since v2.3-B a preset also sets Pool to
+3 x 3, and changing Pool empties the note (js/mars-slicer.js), so a note is
+never shown at another pooling:
   bright  near its return (|t - tau| <= 1.5 sigma_t); gold and MaRS return
           centres earlier than Poisson's; "dead time is strongest here": the
           gold standard keeps a smaller share of Poisson's photons than at

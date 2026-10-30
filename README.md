@@ -123,7 +123,10 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.7's limits since v2.2-A — visible words ≤ 604 since v2.3-A, re-pinned at
+§0.7's limits since v2.2-A — visible words ≤ 599 since v2.3-B, re-pinned at
+the measured total after guide §0.8's two-scene Downstream (the note under the
+module −17, the old image chips −8, the two SBR headers, two "Ground truth"
+captions and four slider captions +20); 604 from v2.3-A, re-pinned at
 the measured total after guide §0.8's copy (the teaser tagline removed −8, the
 new Fig. 1 caption +14); 598 from v2.2-D, re-pinned after the author's copy
 changes (the slicer eyebrow +3, the BibTeX "Provisional entry" note removed
@@ -194,6 +197,28 @@ drifts. The same rules are reported, not gated, at 1 × 1 and 5 × 5.
 change to the module's drawing, the data or the fonts. Never edit either output
 by hand. `js/mars-slicer.js` is fetched by `js/mars-main.js` only when the
 reader scrolls near the block (never on a cold load).
+
+### The result tiles (stage v2.3-B)
+
+```bash
+python3 tools/build_result_tiles.py            # numpy + Pillow; writes assets/img/res/
+python3 tools/build_result_tiles.py --check    # writes nothing; the gate form
+```
+
+Builds every Downstream tile, both test scenes (SBR 0.6, library 00357; SBR
+1.0, kitchen 00767) and both maps, into `assets/img/res/`:
+`{refl,depth}_{sbr06,sbr10}_{gt,poisson,renewal,zhang,mars}.webp` (20 files,
+200 × 200, lossless) and `provenance.json`. Sources are read only, outside the
+repo, in `~/OneDrive/MaRS/Figs/main/`: depth from the networks' native 200 × 200
+`.npz` maps (one viridis mapping per scene, the GT's min to max, the same for
+every method), reflectivity cropped at native size from
+`mars_cvpr2026-Page-1.drawio.png`, the lossless image the paper's Fig. 7
+embeds (tile boxes found by script from the alpha channel and printed; never
+`Fig6_*`). No resampling and no sharpening; `--check` rebuilds everything,
+compares bytes and `provenance.json`, and decodes every tile against its
+source pixels. Byte equality needs the same encoder: run it with the base
+`python3` (Pillow 10.4.0, libwebp 1.3.2, both recorded in the provenance).
+The old `assets/img/res_*` tiles stay for the ablation (v2.3-C) and `/details/`.
 
 ### The hero teaser (stages 08, 09b)
 
@@ -269,7 +294,8 @@ js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
 js/mars-main.js         main page only: teaser, video poster, BibTeX copy
 js/mars-compare.js      main page only: Downstream before/after slider (stage 09),
-                        hold to see ground truth on phones (v2.2-C)
+                        hold to see ground truth on phones (v2.2-C), several
+                        linked sliders in one figure (v2.3-B)
 js/mars-ablation.js     main page only: the count-model ablation's chart and tiles (v2.2-C)
 js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
 js/mars-efficiency.js   main page only: the Efficiency schematic's animation (v2.2-B)
@@ -292,6 +318,8 @@ tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 
 tools/build_slicer_data.py  the slicer's data + default readout, --check gate (v2.1-C)
 tools/build_slicer_placeholder.py  the slicer's placeholder stills (v2.1-C)
 assets/data/slicer/     the slicer's cubes, delay map and meta.json (v2.1-C)
+tools/build_result_tiles.py  the 20 Downstream tiles + provenance, --check gate (v2.3-B)
+assets/img/res/         the result tiles, both SBRs, both maps (v2.3-B)
 tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
 
@@ -685,3 +713,16 @@ Each build stage appends one line here.
   the data); *In short* is heading → Fig. 1 card with its new three-sentence
   caption → the paragraph. Word limit re-pinned at 604 (tagline −8, caption
   +14). Review pack: `build_instructions/review/v23A/`.
+- **Stage v2.3-B — result tiles pipeline, Downstream with SBR 1.0, the slicer
+  pool fix (2026-10-30).** On branch `v2.3-dev`, not pushed. A slicer preset
+  now also sets Pool to 3 × 3 (the view its note was checked at), and a real
+  pool change empties the note. `tools/build_result_tiles.py` builds all 20
+  result tiles (both SBRs, both maps) from the paper's own sources into
+  `assets/img/res/` with a provenance file; its `--check` is the tenth gate.
+  Downstream shows SBR 0.6 and SBR 1.0 side by side (guide §0.8): each a
+  header with a dark rule, a ground-truth square and a Poisson | MaRS slider
+  with its test-set numbers as captions; the two sliders are linked; phones
+  show the two sliders side by side with one *Hold to see ground truth*. The
+  note under the module and the image chips are gone. `audit_claims.py` parses
+  both PROJECT_BRIEF §3.5 tables and checks all eight caption values. Word
+  limit re-pinned at 599. Review pack: `build_instructions/review/v23B/`.

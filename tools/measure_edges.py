@@ -68,7 +68,7 @@ MAIN = [
     ("teaser cubes", ".mars-teaser__frame", "F"),
     ("teaser labels", ".mars-teaser__cols", "X"),
     ("teaser workload", ".mars-teaser__workload", "C"),
-    ("tagline", ".mars-teaser__tagline", "C"),
+    # v2.3-A: the tagline is gone; the guide is the whole caption
     ("teaser guide", ".mars-teaser__guide", "C"),
     # the cube slicer (v2.1-C): presets and readout are ragged rows, the
     # three images and the chart frame fill the column
@@ -76,6 +76,7 @@ MAIN = [
     ("slicer title", "#slicer-title", "L"),
     ("slicer guide", ".mars-slicer__guide", "L"),
     ("slicer presets", ".mars-slicer__presets", "L"),
+    ("slicer preset note", ".mars-slicer__pnote", "L"),   # v2.3-A
     ("slicer images", ".mars-slicer__trio", "F"),
     ("slicer readout", ".mars-slicer__readout", "L"),
     ("slicer chart frame", ".mars-slicer__chartbox", "F"),

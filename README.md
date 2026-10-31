@@ -20,11 +20,12 @@ vanilla-JS modules. No build step, no framework, no bundler.
 
 Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27;
 demo first since `v2.2`, 2026-10-29; the results at SBR 0.6 and SBR 1.0
-since `v2.3`, 2026-10-30):
+since `v2.3`, 2026-10-30; independent sliders and the Ablation's originals and
+zoom rows since `v2.4`, 2026-10-31):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The lean main page, demo first (v2.2, v2.3): the compact hero with the teaser, the cube slicer with preset notes, *In short* with the paper's Fig. 1 top half and its caption, then Accuracy, Efficiency (an animated schematic), Downstream (Poisson- vs MaRS-trained, SBR 0.6 and SBR 1.0) and the count-model ablation (two-panel chart and zoom rows), the film inline, Go deeper, BibTeX |
+| `index.html` | The lean main page, demo first (v2.2, v2.3, v2.4): the compact hero with the teaser, the cube slicer with preset notes, *In short* with the paper's Fig. 1 top half and its caption, then Accuracy, Efficiency (an animated schematic), Downstream (Poisson- vs MaRS-trained, SBR 0.6 and SBR 1.0, two independent sliders) and the count-model ablation (two-panel chart, then per SBR a row of originals and a row of 2× zooms), the film inline, Go deeper, BibTeX |
 | `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
 | `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
 
@@ -46,8 +47,8 @@ checks on all four test numbers, a two-panel chart and InvProp-style zoom
 rows (a draggable window on the ground truth, three panes at 2×). Budgets:
 609/609 prose words, 8/9 media.
 
-**v2.4-A (2026-10-31, branch `v2.4-dev`, not yet live).** Guide §0.9, the
-author's final changes. The two Downstream sliders move independently, and
+**v2.4 in one paragraph (2026-10-31, tag `v2.4`; built by v2.4-A, reviewed
+and merged by v2.4-B).** Guide §0.9, the author's final changes. The two Downstream sliders move independently, and
 the note *Values are test-set averages.* sits under the module. The
 Ablation's image captions are names only (the chart keeps the values), and
 its footnote ends with the same sentence. Each SBR block of the Ablation is a
@@ -805,3 +806,18 @@ Each build stage appends one line here.
   columns; phones pair each original with its zoom (CSS grid `order`). The
   README's SBR wording now names SBR 0.6 and SBR 1.0. Word limit re-pinned at
   605. Review pack: `build_instructions/review/v24A/`.
+- **Stage v2.4-B — independent review, merge and launch (2026-10-31),
+  `v2.4`.** A session that built none of v2.4 re-measured it: the twelve
+  non-negotiables on `/`, with both *Values are test-set averages.* notes
+  traced to the paper (the supplement's 14-scene test set; 7 of the 8 pictured
+  depth maps' own RMSEs differ from the values shown) and the unchanged Ablation lead
+  re-checked on the four test numbers; no digit under any Ablation image, both
+  modes; the rendered text of `/` diffed against `v2.3` (only the §0.9
+  changes); the zoom panes pixel-sampled with independent code (10 window
+  positions per block, 1280 and 390, every pane closest to its own method's
+  window region); sliders, hold, window, swipes, phone pairs and toggle by
+  mouse, touch and keyboard; the accessibility tree after `display: contents`
+  (the originals stay a list of four); one request per tile, 0 on a cold
+  load; all ten gates; Chrome and Firefox at thirteen widths on both pages;
+  Lighthouse. Merged into `main` (`--no-ff`) and tagged `v2.4`. Review pack
+  and the author's v2.4 phone checklist: `build_instructions/review/v24B/`.

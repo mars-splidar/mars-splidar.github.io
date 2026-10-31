@@ -123,8 +123,12 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.7's limits since v2.2-A — visible words ≤ 599 since v2.3-B, re-pinned at
-the measured total after guide §0.8's two-scene Downstream (the note under the
+§0.7's limits since v2.2-A — visible words ≤ 609 since v2.3-C, re-pinned at
+the measured total after guide §0.8's Ablation with SBR 1.0 and the zoom rows
+(the footnote's last sentence −9, the old tile captions −23, two zoom-row
+headers +4, two "Ground truth drag the box" captions +10 and six count-model
+captions +28; the lead swapped one 15-word sentence for another); 599 from
+v2.3-B, re-pinned at the measured total after guide §0.8's two-scene Downstream (the note under the
 module −17, the old image chips −8, the two SBR headers, two "Ground truth"
 captions and four slider captions +20); 604 from v2.3-A, re-pinned at
 the measured total after guide §0.8's copy (the teaser tagline removed −8, the
@@ -205,7 +209,7 @@ python3 tools/build_result_tiles.py            # numpy + Pillow; writes assets/i
 python3 tools/build_result_tiles.py --check    # writes nothing; the gate form
 ```
 
-Builds every Downstream tile, both test scenes (SBR 0.6, library 00357; SBR
+Builds every Downstream and Ablation tile, both test scenes (SBR 0.6, library 00357; SBR
 1.0, kitchen 00767) and both maps, into `assets/img/res/`:
 `{refl,depth}_{sbr06,sbr10}_{gt,poisson,renewal,zhang,mars}.webp` (20 files,
 200 × 200, lossless) and `provenance.json`. Sources are read only, outside the
@@ -218,7 +222,8 @@ embeds (tile boxes found by script from the alpha channel and printed; never
 compares bytes and `provenance.json`, and decodes every tile against its
 source pixels. Byte equality needs the same encoder: run it with the base
 `python3` (Pillow 10.4.0, libwebp 1.3.2, both recorded in the provenance).
-The old `assets/img/res_*` tiles stay for the ablation (v2.3-C) and `/details/`.
+The old `assets/img/res_*` tiles stay for `/details/` only (the main page no
+longer uses them since v2.3-C; stage 11 decides).
 
 ### The hero teaser (stages 08, 09b)
 
@@ -296,7 +301,8 @@ js/mars-main.js         main page only: teaser, video poster, BibTeX copy
 js/mars-compare.js      main page only: Downstream before/after slider (stage 09),
                         hold to see ground truth on phones (v2.2-C), several
                         linked sliders in one figure (v2.3-B)
-js/mars-ablation.js     main page only: the count-model ablation's chart and tiles (v2.2-C)
+js/mars-ablation.js     main page only: the count-model ablation (v2.2-C): the
+                        two-panel chart and the zoom rows (v2.3-C)
 js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
 js/mars-efficiency.js   main page only: the Efficiency schematic's animation (v2.2-B)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
@@ -318,7 +324,7 @@ tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 
 tools/build_slicer_data.py  the slicer's data + default readout, --check gate (v2.1-C)
 tools/build_slicer_placeholder.py  the slicer's placeholder stills (v2.1-C)
 assets/data/slicer/     the slicer's cubes, delay map and meta.json (v2.1-C)
-tools/build_result_tiles.py  the 20 Downstream tiles + provenance, --check gate (v2.3-B)
+tools/build_result_tiles.py  the 20 result tiles (Downstream, Ablation) + provenance, --check gate (v2.3-B)
 assets/img/res/         the result tiles, both SBRs, both maps (v2.3-B)
 tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
@@ -726,3 +732,16 @@ Each build stage appends one line here.
   note under the module and the image chips are gone. `audit_claims.py` parses
   both PROJECT_BRIEF §3.5 tables and checks all eight caption values. Word
   limit re-pinned at 599. Review pack: `build_instructions/review/v23B/`.
+- **Stage v2.3-C — the Ablation with SBR 1.0 and the zoom rows (2026-10-30).**
+  On branch `v2.3-dev`, not pushed. Guide §0.8: the new lead (*The MaRS count
+  model gives the best results on gold-standard data at both SBR levels.*),
+  which `audit_claims.py` checks as a rule on all four test numbers; a
+  two-panel dumbbell (SBR 0.6 | SBR 1.0, stacked on phones) drawn from two
+  visually hidden tables; one zoom row per SBR in the style of InvProp's
+  "Baseline Comparisons": the ground truth holds a draggable window of ¼ of
+  its area (mouse, touch and keyboard) and the Renewal, Zhang et al. and MaRS
+  count panes show that window at 2× from `assets/img/res/`, with their test
+  values. Phones show one zoom row at a time behind an SBR toggle, 2 × 2. The
+  footnote loses its last sentence; the old tiles and their CSS are gone from
+  `/`. Word limit re-pinned at 609. Review pack:
+  `build_instructions/review/v23C/`.

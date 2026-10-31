@@ -117,6 +117,8 @@ MAIN = [
     ("Demo 3 SBR 0.6 rule", "#demo-downstream [data-sbr=sbr06] .mars-compare__head", "L"),
     ("Demo 3 SBR 1.0 rule", "#demo-downstream [data-sbr=sbr10] .mars-compare__head", "Rnav"),
     ("Demo 3 slider", "#demo-downstream [data-sbr=sbr10] .mars-compare__cell .mars-compare__stage", "Rnav"),
+    # v2.4-A: the note "Values are test-set averages." is back under the module
+    ("Demo 3 note", "#demo-downstream .mars-compare__note", "L"),
     # v2.2-C: the count-model ablation; chart card and tile grid fill the column.
     # v2.3-C: the tile grid became one zoom row per SBR (guide 0.8), each a
     # header rule over four squares, both filling the column; phones show one
@@ -129,7 +131,14 @@ MAIN = [
     ("ablation chart card", ".mars-abl__card", "F"),
     ("ablation SBR toggle", "#demo-ablation .mars-abl__sbrs", "L"),
     ("ablation zoom rule", "#demo-ablation .mars-abl__zhead", "Fall"),
-    ("ablation zoom row", "#demo-ablation .mars-abl__zgrid", "Fall"),
+    # v2.4-A (guide 0.9): each SBR block is an originals row, the label and a
+    # zoom row, each filling the column. On phones the two rows become
+    # display: contents of the block body's 2-column grid (zero boxes,
+    # skipped), so the body is measured too.
+    ("ablation block body", "#demo-ablation .mars-abl__zbody", "Fall"),
+    ("ablation originals row", "#demo-ablation .mars-abl__orig", "Fall"),
+    ("ablation zoom label", "#demo-ablation .mars-abl__zlab", "Lall"),
+    ("ablation zoom row", "#demo-ablation .mars-abl__zoom", "Fall"),
     ("ablation note", ".mars-abl__note", "L"),
     ("film heading", "#video-heading", "L"),
     ("film", ".mars-video__frame", "F"),

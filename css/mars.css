@@ -1898,15 +1898,20 @@ img, video { max-width: 100%; height: auto; display: block; }
    nothing shifts when it draws. Chart text is --grey / --dark / the row
    colours on white: 6.9:1, 16.5:1, red 6.0:1, blue 5.5:1, green 5.4:1 (SVG
    fill, which the contrast pass does not read).
-   ZOOM ROWS, one per SBR: four equal squares (2 x 2 on phones), the ground
-   truth with its window, then three panes. The row's --u and --v (0..1, the
+   SBR BLOCKS (v2.4-A, guide 0.9), one per SBR: a row of four equal
+   ORIGINALS (the full tiles; the ground truth holds the window), the label
+   "2x zoom of the box", then a row of four ZOOM panes in the same columns
+   (GT, Renewal, Zhang et al., MaRS). The block's --u and --v (0..1, the
    window's position as fractions of its travel; set inline, moved by the
    script) place the window at (u, v) x 50 % of the square, 50 % x 50 % in
    size, and translate each pane's <img>, which is 200 % of the pane, by
    -(u, v) x 50 % of itself: so each pane shows exactly the window's region
    of its own tile at 2x. The <img> stays an <img> (not a background), so
    the lazy loader controls it. Smooth scaling (no image-rendering hint), no
-   filter. Only the GT square takes touch-action: none. */
+   filter. Only the GT square takes touch-action: none. Phones (<= 600 px):
+   one block at a time behind the SBR toggle, and inside it one row per
+   method, original | zoom, the name under the original: the two grids
+   become display: contents of one 2-column grid, and order pairs them. */
 .mars-abl__card {
   border: 1px solid var(--rule);
   border-radius: var(--radius);
@@ -1960,6 +1965,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 }
 .mars-abl__zitem { min-width: 0; }
 .mars-abl__gt,
+.mars-abl__full,
 .mars-abl__pane {
   position: relative;
   aspect-ratio: 1 / 1;
@@ -1974,7 +1980,9 @@ img, video { max-width: 100%; height: auto; display: block; }
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
-.mars-abl__gt img {
+.mars-abl__gt img,
+.mars-abl__full img {
+  display: block;
   width: 100%;
   height: 100%;
   border-radius: 6px;
@@ -2021,6 +2029,13 @@ img, video { max-width: 100%; height: auto; display: block; }
   color: var(--dark);
 }
 .mars-abl__zcap span { white-space: nowrap; }
+.mars-abl__zlab {
+  margin: 0.6rem 0 0.4rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--grey);            /* 6.65:1 on PAPER */
+  text-align: left;
+}
 .mars-abl__note { margin-top: 0.75rem; }
 @media (min-width: 601px) and (max-width: 767px) {
   .mars-abl__chart { height: 206px; }
@@ -2043,7 +2058,24 @@ img, video { max-width: 100%; height: auto; display: block; }
     white-space: nowrap;
     border: 0;
   }
-  .mars-abl__zgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; column-gap: 10px; }
+  /* one row per method: original | zoom (the concept's grid order) */
+  .mars-abl__zbody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 12px;
+    column-gap: 10px;
+    align-items: start;
+  }
+  .mars-abl__zbody > .mars-abl__zgrid { display: contents; }
+  .mars-abl__zlab { grid-column: 1 / -1; order: 0; margin: 0; }
+  .mars-abl__orig > :nth-child(1) { order: 1; }
+  .mars-abl__zoom > :nth-child(1) { order: 2; }
+  .mars-abl__orig > :nth-child(2) { order: 3; }
+  .mars-abl__zoom > :nth-child(2) { order: 4; }
+  .mars-abl__orig > :nth-child(3) { order: 5; }
+  .mars-abl__zoom > :nth-child(3) { order: 6; }
+  .mars-abl__orig > :nth-child(4) { order: 7; }
+  .mars-abl__zoom > :nth-child(4) { order: 8; }
   .mars-abl__zcap { font-size: 0.8125rem; line-height: 1.3; margin-top: 0.3rem; }
 }
 

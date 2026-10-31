@@ -1020,7 +1020,8 @@
         </div>
         <!-- v2.3-B (guide 0.8): two test scenes, SBR 0.6 (library) and SBR 1.0
              (kitchen), each a ground-truth square and a Poisson | MaRS
-             slider. The two sliders are linked (js/mars-compare.js). Tiles:
+             slider. The two sliders move independently (v2.4-A, guide 0.9;
+             js/mars-compare.js). Tiles:
              assets/img/res/, built by tools/build_result_tiles.py. The
              numbers are PROJECT_BRIEF 3.5's test column, both tables
              (tools/audit_claims.py checks them). -->
@@ -1130,6 +1131,9 @@
                 aria-pressed="false">Hold to see ground truth</button>
         <p class="mars-visually-hidden mars-compare__status"
            aria-live="polite"></p>
+        <!-- v2.4-A (guide 0.9): the captions are test-set means, not the
+             pictured image's own error (v2.3-D's N2) -->
+        <p class="mars-demo__note mars-compare__note">Values are test-set averages.</p>
         <noscript>
           <div class="mars-demo__pair">
             <img src="assets/img/res/refl_sbr06_poisson.webp" width="200" height="200" loading="lazy"
@@ -1160,26 +1164,35 @@
          TRANSFER_35 (= PROJECT_BRIEF 3.5) whenever the lead is on the page.
          ONE SOURCE OF NUMBERS: the two visually hidden tables below, one per
          SBR. They are the screen readers' copy of the chart, and
-         js/mars-ablation.js reads them to draw the two-panel dumbbell, its
-         aria-label and the zoom-row captions. The captions ship pre-filled
-         with the Reflectivity values for the no-script page and the word
-         gate; audit_claims.py asserts each table equals PROJECT_BRIEF 3.5
-         for its SBR and every caption equals its row's table. Values (val ->
+         js/mars-ablation.js reads them to draw the two-panel dumbbell and
+         its aria-label. Since v2.4-A (guide 0.9) the image captions are
+         names only: the chart carries the values, and the footnote says
+         they are test-set averages. audit_claims.py asserts each table
+         equals PROJECT_BRIEF 3.5 for its SBR and that no image caption
+         holds a number. Values (val ->
          test, four decimals, l. 196-236): SBR 0.6 reflectivity PSNR Renewal
          29.7230 -> 12.1210, Zhang et al. 22.7444 -> 22.5421, MaRS 24.0321 ->
          24.2488 dB; depth RMSE 0.0543 -> 0.0959, 0.0526 -> 0.0820, 0.0532 ->
          0.0739 m. SBR 1.0 reflectivity PSNR 30.9704 -> 11.6988, 21.9506 ->
          22.2137, 24.2821 -> 23.5776 dB; depth RMSE 0.0514 -> 0.0967, 0.0506
          -> 0.1193, 0.0553 -> 0.0949 m.
-         THE ZOOM ROWS (one per SBR, InvProp's "Baseline Comparisons" style):
-         the ground truth holds a window of 50 % x 50 % of its square; each
-         of the three panes shows that window's region of its own method's
-         tile at 2x. One pair of custom properties per row, --u and --v (the
-         window's position as fractions of its travel, 0..1), places both:
-         the window at (u, v) x 50 % of the square, and each pane's <img>
-         (200 % of the pane) translated by -(u, v) x 50 % of itself. Tiles
-         are tools/build_result_tiles.py's native 200 px WebPs, scaled
-         smoothly, never sharpened. The inline defaults are the concept's. -->
+         THE SBR BLOCKS (v2.4-A, guide 0.9; InvProp's "Baseline Comparisons"
+         style), one per SBR: a row of the four ORIGINALS (ground truth,
+         Renewal, Zhang et al., MaRS count, each the full tile), the label
+         "2x zoom of the box" (.mars-ui), then a row of the four ZOOMS in
+         the same columns. Only the ground truth holds the window, 50 % x 50
+         % of its square; each zoom pane shows that window's region of its
+         own method's tile at 2x. One pair of custom properties per block,
+         --u and --v (the window's position as fractions of its travel,
+         0..1), places both: the window at (u, v) x 50 % of the square, and
+         each pane's <img> (200 % of the pane) translated by -(u, v) x 50 %
+         of itself. The zoom row is aria-hidden; the visually hidden
+         sentence says what it shows. DOM order is originals, label, zooms;
+         phones pair them per method with CSS grid order. Each tile is used
+         twice (original and zoom) through the same URL, so it is fetched
+         once. Tiles are tools/build_result_tiles.py's native 200 px WebPs,
+         scaled smoothly, never sharpened. The inline defaults are the
+         concept's. -->
     <article class="mars-demo" id="demo-ablation"
              aria-labelledby="demo-ablation-title">
       <p class="mars-eyebrow is-utility">Ablation</p>
@@ -1254,8 +1267,9 @@
         </div>
         <div class="mars-abl__zrow" data-sbr="sbr06" style="--u: 0.62; --v: 0.3">
           <p class="mars-abl__zhead">SBR 0.6</p>
-          <p class="mars-visually-hidden">The three images after the ground truth show the boxed region of each count model's result, at twice the size.</p>
-          <ul class="mars-abl__zgrid">
+          <p class="mars-visually-hidden">The zoomed images show the boxed region of each of the four images at twice the size.</p>
+          <div class="mars-abl__zbody">
+          <ul class="mars-abl__zgrid mars-abl__orig">
             <li class="mars-abl__zitem">
               <div class="mars-abl__gt">
                 <img width="200" height="200" alt="" decoding="async" draggable="false"
@@ -1271,29 +1285,54 @@
               <p class="mars-abl__zcap"><b>Ground truth</b> <span>drag the box</span></p>
             </li>
             <li class="mars-abl__zitem">
+              <div class="mars-abl__full"><img width="200" height="200" alt="" decoding="async" draggable="false"
+                   data-src-refl="assets/img/res/refl_sbr06_renewal.webp"
+                   data-src-depth="assets/img/res/depth_sbr06_renewal.webp"></div>
+              <p class="mars-abl__zcap"><b>Renewal count</b></p>
+            </li>
+            <li class="mars-abl__zitem">
+              <div class="mars-abl__full"><img width="200" height="200" alt="" decoding="async" draggable="false"
+                   data-src-refl="assets/img/res/refl_sbr06_zhang.webp"
+                   data-src-depth="assets/img/res/depth_sbr06_zhang.webp"></div>
+              <p class="mars-abl__zcap"><b>Zhang et al. count</b></p>
+            </li>
+            <li class="mars-abl__zitem">
+              <div class="mars-abl__full"><img width="200" height="200" alt="" decoding="async" draggable="false"
+                   data-src-refl="assets/img/res/refl_sbr06_mars.webp"
+                   data-src-depth="assets/img/res/depth_sbr06_mars.webp"></div>
+              <p class="mars-abl__zcap"><b>MaRS count</b></p>
+            </li>
+          </ul>
+          <p class="mars-ui mars-abl__zlab">2&times; zoom of the box</p>
+          <div class="mars-abl__zgrid mars-abl__zoom" aria-hidden="true">
+            <div class="mars-abl__zitem" aria-hidden="true">
+              <div class="mars-abl__pane" aria-hidden="true"><img width="200" height="200" alt="" decoding="async"
+                   data-src-refl="assets/img/res/refl_sbr06_gt.webp"
+                   data-src-depth="assets/img/res/depth_sbr06_gt.webp"></div>
+            </div>
+            <div class="mars-abl__zitem" aria-hidden="true">
               <div class="mars-abl__pane" aria-hidden="true"><img width="200" height="200" alt="" decoding="async"
                    data-src-refl="assets/img/res/refl_sbr06_renewal.webp"
                    data-src-depth="assets/img/res/depth_sbr06_renewal.webp"></div>
-              <p class="mars-abl__zcap"><b>Renewal count</b> <span data-k="renewal">12.12&nbsp;dB</span></p>
-            </li>
-            <li class="mars-abl__zitem">
+            </div>
+            <div class="mars-abl__zitem" aria-hidden="true">
               <div class="mars-abl__pane" aria-hidden="true"><img width="200" height="200" alt="" decoding="async"
                    data-src-refl="assets/img/res/refl_sbr06_zhang.webp"
                    data-src-depth="assets/img/res/depth_sbr06_zhang.webp"></div>
-              <p class="mars-abl__zcap"><b>Zhang et al. count</b> <span data-k="zhang">22.54&nbsp;dB</span></p>
-            </li>
-            <li class="mars-abl__zitem">
+            </div>
+            <div class="mars-abl__zitem" aria-hidden="true">
               <div class="mars-abl__pane" aria-hidden="true"><img width="200" height="200" alt="" decoding="async"
                    data-src-refl="assets/img/res/refl_sbr06_mars.webp"
                    data-src-depth="assets/img/res/depth_sbr06_mars.webp"></div>
-              <p class="mars-abl__zcap"><b>MaRS count</b> <span data-k="mars">24.25&nbsp;dB</span></p>
-            </li>
-          </ul>
+            </div>
+          </div>
+          </div>
         </div>
         <div class="mars-abl__zrow" data-sbr="sbr10" style="--u: 0.25; --v: 0.22">
           <p class="mars-abl__zhead">SBR 1.0</p>
-          <p class="mars-visually-hidden">The three images after the ground truth show the boxed region of each count model's result, at twice the size.</p>
-          <ul class="mars-abl__zgrid">
+          <p class="mars-visually-hidden">The zoomed images show the boxed region of each of the four images at twice the size.</p>
+          <div class="mars-abl__zbody">
+          <ul class="mars-abl__zgrid mars-abl__orig">
             <li class="mars-abl__zitem">
               <div class="mars-abl__gt">
                 <img width="200" height="200" alt="" decoding="async" draggable="false"
@@ -1309,26 +1348,50 @@
               <p class="mars-abl__zcap"><b>Ground truth</b> <span>drag the box</span></p>
             </li>
             <li class="mars-abl__zitem">
+              <div class="mars-abl__full"><img width="200" height="200" alt="" decoding="async" draggable="false"
+                   data-src-refl="assets/img/res/refl_sbr10_renewal.webp"
+                   data-src-depth="assets/img/res/depth_sbr10_renewal.webp"></div>
+              <p class="mars-abl__zcap"><b>Renewal count</b></p>
+            </li>
+            <li class="mars-abl__zitem">
+              <div class="mars-abl__full"><img width="200" height="200" alt="" decoding="async" draggable="false"
+                   data-src-refl="assets/img/res/refl_sbr10_zhang.webp"
+                   data-src-depth="assets/img/res/depth_sbr10_zhang.webp"></div>
+              <p class="mars-abl__zcap"><b>Zhang et al. count</b></p>
+            </li>
+            <li class="mars-abl__zitem">
+              <div class="mars-abl__full"><img width="200" height="200" alt="" decoding="async" draggable="false"
+                   data-src-refl="assets/img/res/refl_sbr10_mars.webp"
+                   data-src-depth="assets/img/res/depth_sbr10_mars.webp"></div>
+              <p class="mars-abl__zcap"><b>MaRS count</b></p>
+            </li>
+          </ul>
+          <p class="mars-ui mars-abl__zlab">2&times; zoom of the box</p>
+          <div class="mars-abl__zgrid mars-abl__zoom" aria-hidden="true">
+            <div class="mars-abl__zitem" aria-hidden="true">
+              <div class="mars-abl__pane" aria-hidden="true"><img width="200" height="200" alt="" decoding="async"
+                   data-src-refl="assets/img/res/refl_sbr10_gt.webp"
+                   data-src-depth="assets/img/res/depth_sbr10_gt.webp"></div>
+            </div>
+            <div class="mars-abl__zitem" aria-hidden="true">
               <div class="mars-abl__pane" aria-hidden="true"><img width="200" height="200" alt="" decoding="async"
                    data-src-refl="assets/img/res/refl_sbr10_renewal.webp"
                    data-src-depth="assets/img/res/depth_sbr10_renewal.webp"></div>
-              <p class="mars-abl__zcap"><b>Renewal count</b> <span data-k="renewal">11.70&nbsp;dB</span></p>
-            </li>
-            <li class="mars-abl__zitem">
+            </div>
+            <div class="mars-abl__zitem" aria-hidden="true">
               <div class="mars-abl__pane" aria-hidden="true"><img width="200" height="200" alt="" decoding="async"
                    data-src-refl="assets/img/res/refl_sbr10_zhang.webp"
                    data-src-depth="assets/img/res/depth_sbr10_zhang.webp"></div>
-              <p class="mars-abl__zcap"><b>Zhang et al. count</b> <span data-k="zhang">22.21&nbsp;dB</span></p>
-            </li>
-            <li class="mars-abl__zitem">
+            </div>
+            <div class="mars-abl__zitem" aria-hidden="true">
               <div class="mars-abl__pane" aria-hidden="true"><img width="200" height="200" alt="" decoding="async"
                    data-src-refl="assets/img/res/refl_sbr10_mars.webp"
                    data-src-depth="assets/img/res/depth_sbr10_mars.webp"></div>
-              <p class="mars-abl__zcap"><b>MaRS count</b> <span data-k="mars">23.58&nbsp;dB</span></p>
-            </li>
-          </ul>
+            </div>
+          </div>
+          </div>
         </div>
-        <p class="mars-demo__note mars-abl__note">All three use the same accurate temporal PDF from prior work and the same lookup-table pipeline. They differ only in the count mean and variance. There is no separate Renewal or Zhang et al. simulator.</p>
+        <p class="mars-demo__note mars-abl__note">All three use the same accurate temporal PDF from prior work and the same lookup-table pipeline. They differ only in the count mean and variance. There is no separate Renewal or Zhang et al. simulator. Values are test-set averages.</p>
       </figure>
     </article>
   </div>

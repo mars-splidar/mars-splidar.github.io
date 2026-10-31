@@ -19,8 +19,8 @@ vanilla-JS modules. No build step, no framework, no bundler.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
 Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27;
-demo first since `v2.2`, 2026-10-29; both SBRs of the paper's results since
-`v2.3`, 2026-10-30):
+demo first since `v2.2`, 2026-10-29; the results at SBR 0.6 and SBR 1.0
+since `v2.3`, 2026-10-30):
 
 | Path | What it is |
 |---|---|
@@ -33,16 +33,29 @@ only its guide (two lines at ≥ 900 px). The slicer presets carry hints (*Try
 a pixel* / *or a moment*), set Pool to 3 × 3, and show one note per preset
 whose claims `build_slicer_data.py --check` tests on the data. *In short* is
 now the Fig. 1 card with a new caption, then the paragraph. The paper's
-results appear at both SBRs it reports: `tools/build_result_tiles.py` builds
+results appear at SBR 0.6 and SBR 1.0, the two SBRs of its main results
+table (the supplement adds reflectivity at SBR 5.0 and 10.0, not shown):
+`tools/build_result_tiles.py` builds
 20 native 200 px tiles from the paper's own sources (depth from the `.npz`
 maps with one viridis mapping per scene, reflectivity cropped losslessly from
 the Fig. 7 image) with a provenance file, and its `--check` is the tenth
 gate. Downstream shows SBR 0.6 (library) and SBR 1.0 (kitchen) with linked
-sliders. The Ablation has a new lead, *The MaRS count model gives the best
+sliders (independent since v2.4-A). The Ablation has a new lead, *The MaRS count model gives the best
 results on gold-standard data at both SBR levels*, which `audit_claims.py`
 checks on all four test numbers, a two-panel chart and InvProp-style zoom
 rows (a draggable window on the ground truth, three panes at 2×). Budgets:
 609/609 prose words, 8/9 media.
+
+**v2.4-A (2026-10-31, branch `v2.4-dev`, not yet live).** Guide §0.9, the
+author's final changes. The two Downstream sliders move independently, and
+the note *Values are test-set averages.* sits under the module. The
+Ablation's image captions are names only (the chart keeps the values), and
+its footnote ends with the same sentence. Each SBR block of the Ablation is a
+row of the four originals (only the ground truth carries the draggable
+window), the label *2× zoom of the box*, then a row of the four 2× zooms (the
+ground truth's included) under them; on phones each method is one row,
+original | zoom. Each tile is fetched once. Budgets: 605/605 prose words,
+8/9 media.
 
 **v2.2 in one paragraph (live 2026-10-29, tag `v2.2`).** `/` now leads with
 the demos: a compact hero whose teaser and labels fit the first 1280 x 800
@@ -140,7 +153,10 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.7's limits since v2.2-A — visible words ≤ 609 since v2.3-C, re-pinned at
+§0.7's limits since v2.2-A — visible words ≤ 605 since v2.4-A, re-pinned at
+the measured total after guide §0.9 (the two "Values are test-set averages."
+notes +8, the six Ablation caption values −12; the label "2× zoom of the box"
+is `.mars-ui`); 609 from v2.3-C, re-pinned at
 the measured total after guide §0.8's Ablation with SBR 1.0 and the zoom rows
 (the footnote's last sentence −9, the old tile captions −23, two zoom-row
 headers +4, two "Ground truth drag the box" captions +10 and six count-model
@@ -317,9 +333,10 @@ js/mars-nav.js          sticky nav, hamburger, hero button row
 js/mars-main.js         main page only: teaser, video poster, BibTeX copy
 js/mars-compare.js      main page only: Downstream before/after slider (stage 09),
                         hold to see ground truth on phones (v2.2-C), several
-                        linked sliders in one figure (v2.3-B)
+                        sliders in one figure (v2.3-B), independent (v2.4-A)
 js/mars-ablation.js     main page only: the count-model ablation (v2.2-C): the
-                        two-panel chart and the zoom rows (v2.3-C)
+                        two-panel chart and the zoom rows (v2.3-C), originals
+                        row + zoom row per SBR (v2.4-A)
 js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
 js/mars-efficiency.js   main page only: the Efficiency schematic's animation (v2.2-B)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
@@ -777,3 +794,14 @@ Each build stage appends one line here.
   and no defect to fix. Merged into `main` (`--no-ff`) and tagged `v2.3`.
   Review pack and the author's v2.3 phone checklist:
   `build_instructions/review/v23D/`.
+- **Stage v2.4-A — independent sliders, averages notes, Ablation originals and
+  zoom rows (2026-10-31).** On branch `v2.4-dev`, not pushed. Guide §0.9: the
+  Downstream sliders are unlinked (mouse, touch and keyboard each move one);
+  *Values are test-set averages.* under Downstream and at the end of the
+  Ablation footnote; the Ablation captions are names only, and
+  `audit_claims.py` now fails on a number in any image caption; each SBR block
+  is a row of the four originals (the window on the ground truth only), the
+  `.mars-ui` label *2× zoom of the box*, and a row of four 2× zooms in the same
+  columns; phones pair each original with its zoom (CSS grid `order`). The
+  README's SBR wording now names SBR 0.6 and SBR 1.0. Word limit re-pinned at
+  605. Review pack: `build_instructions/review/v24A/`.

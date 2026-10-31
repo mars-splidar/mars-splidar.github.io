@@ -148,7 +148,17 @@ REPO = Path(__file__).resolve().parent.parent
 # truth" captions +4 and the four slider captions +12, counted as the chips
 # were (captions are prose). The toggle's new "PSNR" / "RMSE" are .mars-ui
 # (UI words 82 -> 84). The 5 freed words are not room.
-WORD_LIMIT = 599        # v2.3-B re-pin; 604 v2.3-A, 598 v2.2-D, 600 v2.2-P, 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
+# v2.3-C: RE-PINNED at 609, the measured total after guide 0.8's Ablation
+# (SBR 0.6 and SBR 1.0, zoom rows): the lead's second sentence swapped, 15
+# words for 15 (0); the footnote's "Test set, SBR 0.6, same network for every
+# row." removed -9; the v2.2-C tile captions removed -23 (Ground truth
+# reference, and "<model> count test set <value> dB" x 3); the two zoom-row
+# headers "SBR 0.6" / "SBR 1.0" +4, the two "Ground truth drag the box"
+# captions +10 and the six "<model> count <value> dB" captions +28 (captions
+# are prose, both rows count although phones show one at a time). The phone
+# SBR toggle is .mars-ui (UI words 84 -> 88); the chart's SVG text is .mars-ui
+# as before; the two visually hidden row sentences count nowhere.
+WORD_LIMIT = 609        # v2.3-C re-pin; 599 v2.3-B, 604 v2.3-A, 598 v2.2-D, 600 v2.2-P, 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
 MEDIA_ITEMS = 9         # guide 0.7 (v2.2-A): at most 9; 6 from v2.1-A, exactly 4 before
 SWITCH_MAX = 0
 EQ_MAX = 0

@@ -1888,15 +1888,25 @@ img, video { max-width: 100%; height: auto; display: block; }
   }
 }
 
-/* ---- The count-model ablation (stage v2.2-C, js/mars-ablation.js) --------
-   One toggle drives the dumbbell chart and the four tiles. The chart's SVG
-   is drawn at its own CSS width (1 unit = 1 px); its height is reserved
-   here from the script's constants: 14 + 3 x 42 + 44 = 184 px, phones
-   14 + 3 x 34 + 44 = 160 px (v2.2-P; was 3 x 40 = 178), so nothing shifts
-   when it draws. Chart text
-   is --grey / --dark / the row colours on white: 6.9:1, 16.5:1, red 6.0:1,
-   blue 5.5:1, green 5.4:1 (SVG fill, which the contrast pass does not read).
-   Tiles: four equal squares, 2 x 2 on phones. */
+/* ---- The count-model ablation (stage v2.2-C, js/mars-ablation.js; rebuilt
+   in v2.3-C with SBR 1.0 and the zoom rows, guide 0.8) ----------------------
+   One toggle drives the two-panel dumbbell chart and every zoom tile. The
+   chart's SVG is drawn at its own CSS width (1 unit = 1 px); its height is
+   reserved here from the script's LAYOUTS, with the same media queries:
+   >= 768 px 34 + 3 x 38 + 42 = 190 px; 601-767 px 206 (the axis title on two
+   lines); phones 2 x (32 + 3 x 34 + 42) + 14 = 366 (the panels stack). So
+   nothing shifts when it draws. Chart text is --grey / --dark / the row
+   colours on white: 6.9:1, 16.5:1, red 6.0:1, blue 5.5:1, green 5.4:1 (SVG
+   fill, which the contrast pass does not read).
+   ZOOM ROWS, one per SBR: four equal squares (2 x 2 on phones), the ground
+   truth with its window, then three panes. The row's --u and --v (0..1, the
+   window's position as fractions of its travel; set inline, moved by the
+   script) place the window at (u, v) x 50 % of the square, 50 % x 50 % in
+   size, and translate each pane's <img>, which is 200 % of the pane, by
+   -(u, v) x 50 % of itself: so each pane shows exactly the window's region
+   of its own tile at 2x. The <img> stays an <img> (not a background), so
+   the lazy loader controls it. Smooth scaling (no image-rendering hint), no
+   filter. Only the GT square takes touch-action: none. */
 .mars-abl__card {
   border: 1px solid var(--rule);
   border-radius: var(--radius);
@@ -1906,7 +1916,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-abl__chart {
   display: block;
   width: 100%;
-  height: 184px;
+  height: 190px;
   overflow: visible;
 }
 .mars-abl__legend {
@@ -1927,41 +1937,114 @@ img, video { max-width: 100%; height: auto; display: block; }
   background: #ffffff;
 }
 .mars-abl__dot.is-filled { background: var(--grey); }
-.mars-abl__tiles {
+.mars-abl__sbrs { display: none; }        /* phones only */
+.mars-abl__zrow { margin-top: 20px; }
+.mars-abl__zhead {
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid var(--dark);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--dark);
+  text-align: center;
+}
+.mars-abl__zgrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  margin: 16px 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
-.mars-abl__tile { min-width: 0; }
-.mars-abl__im {
+.mars-abl__zitem { min-width: 0; }
+.mars-abl__gt,
+.mars-abl__pane {
+  position: relative;
   aspect-ratio: 1 / 1;
   border-radius: 6px;
-  overflow: hidden;
   background: #000;
 }
-.mars-abl__im img { display: block; width: 100%; height: 100%; }
-.mars-abl__cap {
-  margin: 0.4rem 0 0;
-  font-family: var(--font-head);
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.35;
+.mars-abl__pane { overflow: hidden; }
+.mars-abl__gt {
+  touch-action: none;            /* a press here moves the window, never scrolls */
+  cursor: move;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
-.mars-abl__cap span {
-  display: block;
-  font-family: var(--font-body);
-  font-weight: 400;
+.mars-abl__gt img {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.mars-abl__pane img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200%;
+  height: 200%;
+  max-width: none;
+  transform: translate(calc(var(--u) * -50%), calc(var(--v) * -50%));
+  pointer-events: none;
+}
+.mars-abl__win {
+  position: absolute;
+  left: calc(var(--u) * 50%);
+  top: calc(var(--v) * 50%);
+  width: 50%;
+  height: 50%;
+  box-sizing: border-box;
+  border: 2px solid #ffffff;
+  border-radius: 2px;
+  /* a dark hairline either side of the white border, so the box reads on
+     white and on black */
+  box-shadow: 0 0 0 1px rgba(20, 24, 26, 0.6), inset 0 0 0 1px rgba(20, 24, 26, 0.6);
+}
+.mars-abl__win:focus-visible {
+  outline: 3px solid var(--aged);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.mars-abl__zcap {
+  margin: 0.4rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.35;
   color: var(--grey);            /* 6.65:1 on PAPER */
 }
-.mars-abl__cap b { font-weight: 400; white-space: nowrap; }
+.mars-abl__zcap b {
+  font-family: var(--font-head);
+  font-weight: 600;
+  color: var(--dark);
+}
+.mars-abl__zcap span { white-space: nowrap; }
 .mars-abl__note { margin-top: 0.75rem; }
+@media (min-width: 601px) and (max-width: 767px) {
+  .mars-abl__chart { height: 206px; }
+}
 @media (max-width: 600px) {
   .mars-abl__card { padding: 12px 12px 10px; }
-  .mars-abl__chart { height: 160px; }   /* v2.2-P: was 178 */
-  .mars-abl__tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mars-abl__chart { height: 366px; }
+  /* one zoom row at a time, behind the SBR toggle; its header is the
+     toggle's pressed button, so the row's own header is read, not shown */
+  .mars-abl__sbrs { display: inline-flex; margin: 16px 0 0; }
+  .mars-abl[data-sbr-sel="sbr06"] .mars-abl__zrow[data-sbr="sbr10"],
+  .mars-abl[data-sbr-sel="sbr10"] .mars-abl__zrow[data-sbr="sbr06"] { display: none; }
+  .mars-abl__zrow { margin-top: 10px; }
+  .mars-abl__zhead {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .mars-abl__zgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; column-gap: 10px; }
+  .mars-abl__zcap { font-size: 0.8125rem; line-height: 1.3; margin-top: 0.3rem; }
 }
 
 /* ---- The cube slicer (stage v2.1-C, js/mars-slicer.js) -------------------
@@ -2390,8 +2473,6 @@ img, video { max-width: 100%; height: auto; display: block; }
   .mars-home .mars-compare__toggle { margin-bottom: 0.6rem; }
   .mars-home .mars-abl__card { padding: 10px 12px 8px; }
   .mars-home .mars-abl__legend { gap: 0.2rem 1.25rem; line-height: 1.4; }
-  .mars-home .mars-abl__tiles { gap: 10px; margin-top: 12px; }
-  .mars-home .mars-abl__cap { margin-top: 0.3rem; font-size: 0.8125rem; line-height: 1.3; }
   .mars-home .mars-abl__note { margin-top: 0.6rem; }
 
   /* Demo 2's caption: its subscript d was 10.8 px (the default `smaller`). */

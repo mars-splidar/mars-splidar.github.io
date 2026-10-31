@@ -19,13 +19,30 @@ vanilla-JS modules. No build step, no framework, no bundler.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
 Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27;
-demo first since `v2.2`, 2026-10-29):
+demo first since `v2.2`, 2026-10-29; both SBRs of the paper's results since
+`v2.3`, 2026-10-30):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The lean main page, demo first (v2.2): the compact hero with the teaser, the cube slicer, *In short* with the paper's Fig. 1 top half, then Accuracy, Efficiency (an animated schematic), Downstream (Poisson- vs MaRS-trained) and the count-model ablation, the film inline, Go deeper, BibTeX |
+| `index.html` | The lean main page, demo first (v2.2, v2.3): the compact hero with the teaser, the cube slicer with preset notes, *In short* with the paper's Fig. 1 top half and its caption, then Accuracy, Efficiency (an animated schematic), Downstream (Poisson- vs MaRS-trained, SBR 0.6 and SBR 1.0) and the count-model ablation (two-panel chart and zoom rows), the film inline, Go deeper, BibTeX |
 | `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
 | `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
+
+**v2.3 in one paragraph (live 2026-10-30, tag `v2.3`).** The teaser keeps
+only its guide (two lines at ≥ 900 px). The slicer presets carry hints (*Try
+a pixel* / *or a moment*), set Pool to 3 × 3, and show one note per preset
+whose claims `build_slicer_data.py --check` tests on the data. *In short* is
+now the Fig. 1 card with a new caption, then the paragraph. The paper's
+results appear at both SBRs it reports: `tools/build_result_tiles.py` builds
+20 native 200 px tiles from the paper's own sources (depth from the `.npz`
+maps with one viridis mapping per scene, reflectivity cropped losslessly from
+the Fig. 7 image) with a provenance file, and its `--check` is the tenth
+gate. Downstream shows SBR 0.6 (library) and SBR 1.0 (kitchen) with linked
+sliders. The Ablation has a new lead, *The MaRS count model gives the best
+results on gold-standard data at both SBR levels*, which `audit_claims.py`
+checks on all four test numbers, a two-panel chart and InvProp-style zoom
+rows (a draggable window on the ground truth, three panes at 2×). Budgets:
+609/609 prose words, 8/9 media.
 
 **v2.2 in one paragraph (live 2026-10-29, tag `v2.2`).** `/` now leads with
 the demos: a compact hero whose teaser and labels fit the first 1280 x 800
@@ -745,3 +762,18 @@ Each build stage appends one line here.
   footnote loses its last sentence; the old tiles and their CSS are gone from
   `/`. Word limit re-pinned at 609. Review pack:
   `build_instructions/review/v23C/`.
+- **Stage v2.3-D — independent review, merge and launch (2026-10-30),
+  `v2.3`.** A session that built none of v2.3 re-measured it: the twelve
+  non-negotiables on `/`, with the Ablation lead (all four test numbers) and
+  Downstream's "fails / works" at both SBRs traced to paper lines; the four
+  slicer notes' counts recomputed from the shipped data with independent code
+  (814 / 282 / 293, 355 / 158 / 160, 69 / 0 / 0, 4 / 4 / 5: exact); every
+  SBR 1.0 value read off the rendered page in both modes; the 20 result tiles
+  checked independently against the read-only sources (reflectivity equal to
+  the figure's pixels, depth equal to matplotlib's viridis with one GT range
+  per scene) and the zoom panes pixel-sampled; a number-provenance table; all
+  ten gates; Chrome and Firefox at twelve widths on both pages; keyboard,
+  touch and the hold button; cold-load bytes; Lighthouse. No rule violation
+  and no defect to fix. Merged into `main` (`--no-ff`) and tagged `v2.3`.
+  Review pack and the author's v2.3 phone checklist:
+  `build_instructions/review/v23D/`.

@@ -29,6 +29,17 @@
  * are aria-pressed buttons. The readout is aria-live="polite"; its text is
  * rewritten at most every 400 ms while a drag is under way.
  *
+ * PRESET NOTE (stage v2.3-A, guide 0.8). The aria-live <p> under the chips
+ * shows the selected preset's sentence, read from meta.presets[].note (the
+ * sentences live only in tools/build_slicer_data.py, which also ships the
+ * default one as static HTML). A manual pixel or time pick clears the preset
+ * and so empties the note; its box keeps its height (css/mars.css). Range
+ * keeps the preset, and so the note. v2.3-B: the notes are claims about the
+ * 3 x 3 preset view, so a preset also sets Pool to 3 x 3 (directly, not
+ * through the pool buttons), and a real pool change clears the preset and
+ * empties the note (re-pressing the pool already shown changes nothing).
+ * Written only when it changes.
+ *
  * FAILURE. A missing file, a failed inflate or no DecompressionStream leaves
  * the placeholder stills in place with a one-line message.
  */
@@ -57,6 +68,7 @@
   var range = fig.querySelector(".mars-slicer__range");
   var tval = fig.querySelector(".mars-slicer__tval");
   var status = fig.querySelector(".mars-slicer__status");
+  var pnote = fig.querySelector(".mars-slicer__pnote-live");
   var chips = Array.prototype.slice.call(fig.querySelectorAll("[data-preset]"));
   var pools = Array.prototype.slice.call(fig.querySelectorAll("[data-pool]"));
   var zooms = Array.prototype.slice.call(fig.querySelectorAll("[data-zoom]"));
@@ -328,6 +340,11 @@
     });
     pools.forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-pool") === st.r)); });
     zooms.forEach(function (b) { b.setAttribute("aria-pressed", String(+b.getAttribute("data-zoom") === st.zoom)); });
+    if (pnote) {
+      var note = "";
+      if (st.preset) meta.presets.forEach(function (q) { if (q.id === st.preset) note = q.note || ""; });
+      if (pnote.textContent !== note) pnote.textContent = note;
+    }
     var tt = binTime(st.t).toFixed(1) + " ns";
     range.value = String(st.t);
     range.setAttribute("aria-valuetext", tt.replace(" ", " "));
@@ -363,7 +380,7 @@
     var p = null;
     meta.presets.forEach(function (q) { if (q.id === id) p = q; });
     if (!p) return;
-    st.i = p.px[0]; st.j = p.px[1]; st.t = p.bin; st.zoom = 1; st.preset = p.id;
+    st.i = p.px[0]; st.j = p.px[1]; st.t = p.bin; st.zoom = 1; st.r = 1; st.preset = p.id;
     render(true);
   }
 
@@ -374,7 +391,11 @@
       c.addEventListener("click", function () { applyPreset(c.getAttribute("data-preset")); });
     });
     pools.forEach(function (b) {
-      b.addEventListener("click", function () { st.r = +b.getAttribute("data-pool"); render(true); });
+      b.addEventListener("click", function () {
+        var r = +b.getAttribute("data-pool");
+        if (r === st.r) return;
+        st.r = r; st.preset = null; render(true);
+      });
     });
     zooms.forEach(function (b) {
       b.addEventListener("click", function () { st.zoom = +b.getAttribute("data-zoom"); render(false); });

@@ -44,8 +44,290 @@
  },
  "generator": {
   "script": "tools/build_slicer_data.py",
-  "stage": "v2.1-C",
-  "version": "1"
+  "stage": "v2.3-A",
+  "version": "2"
+ },
+ "notes_check": {
+  "gated_pool": "3x3",
+  "pools": {
+   "1x1": {
+    "rules": [
+     {
+      "detail": "t - tau = -2.3 ns",
+      "ok": true,
+      "preset": "bright",
+      "rule": "near its return: |t - tau| <= 1.5 sigma_t"
+     },
+     {
+      "detail": "Poisson +0.006, gold -2.967, MaRS -2.832 ns",
+      "ok": true,
+      "preset": "bright",
+      "rule": "gold and MaRS peak earlier than Poisson (return centre)"
+     },
+     {
+      "detail": "gold/Poisson 37/95 = 0.389 vs dim 0.463",
+      "ok": true,
+      "preset": "bright",
+      "rule": "dead time strongest: gold keeps a smaller share of Poisson than at dim"
+     },
+     {
+      "detail": "S 1.965 vs 7.651",
+      "ok": true,
+      "preset": "dim",
+      "rule": "a dimmer pixel: S below the bright pixel's"
+     },
+     {
+      "detail": "Poisson 41 vs 95",
+      "ok": true,
+      "preset": "dim",
+      "rule": "fewer photons arrive: Poisson window below the bright preset's"
+     },
+     {
+      "detail": "gold 1.450 vs 2.973, MaRS 1.344 vs 2.838 ns",
+      "ok": true,
+      "preset": "dim",
+      "rule": "the shift is smaller: 0 < (Poisson - gold, Poisson - MaRS) < bright's"
+     },
+     {
+      "detail": "t - tau = +5.0 ns",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "just after the return: 0 < t - tau < t_d"
+     },
+     {
+      "detail": "8 / 0 / 0",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "gold and MaRS register almost nothing: each <= 2 % of Poisson"
+     },
+     {
+      "detail": "Poisson 8",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "Poisson still does: >= 5 photons"
+     },
+     {
+      "detail": "t - tau = -25.0 ns",
+      "ok": true,
+      "preset": "before",
+      "rule": "only background: t - tau <= -5 sigma_t"
+     },
+     {
+      "detail": "0 / 0 / 0",
+      "ok": true,
+      "preset": "before",
+      "rule": "all three agree: max - min <= 2 photons"
+     }
+    ],
+    "window_3bins": {
+     "before": {
+      "gold": 0,
+      "mars": 0,
+      "poisson": 0
+     },
+     "bright": {
+      "gold": 37,
+      "mars": 29,
+      "poisson": 95
+     },
+     "dim": {
+      "gold": 19,
+      "mars": 19,
+      "poisson": 41
+     },
+     "shadow": {
+      "gold": 0,
+      "mars": 0,
+      "poisson": 8
+     }
+    }
+   },
+   "3x3": {
+    "rules": [
+     {
+      "detail": "t - tau = -2.3 ns",
+      "ok": true,
+      "preset": "bright",
+      "rule": "near its return: |t - tau| <= 1.5 sigma_t"
+     },
+     {
+      "detail": "Poisson +0.068, gold -2.667, MaRS -2.663 ns",
+      "ok": true,
+      "preset": "bright",
+      "rule": "gold and MaRS peak earlier than Poisson (return centre)"
+     },
+     {
+      "detail": "gold/Poisson 282/814 = 0.346 vs dim 0.445",
+      "ok": true,
+      "preset": "bright",
+      "rule": "dead time strongest: gold keeps a smaller share of Poisson than at dim"
+     },
+     {
+      "detail": "S 1.965 vs 7.651",
+      "ok": true,
+      "preset": "dim",
+      "rule": "a dimmer pixel: S below the bright pixel's"
+     },
+     {
+      "detail": "Poisson 355 vs 814",
+      "ok": true,
+      "preset": "dim",
+      "rule": "fewer photons arrive: Poisson window below the bright preset's"
+     },
+     {
+      "detail": "gold 1.145 vs 2.734, MaRS 1.289 vs 2.730 ns",
+      "ok": true,
+      "preset": "dim",
+      "rule": "the shift is smaller: 0 < (Poisson - gold, Poisson - MaRS) < bright's"
+     },
+     {
+      "detail": "t - tau = +5.0 ns",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "just after the return: 0 < t - tau < t_d"
+     },
+     {
+      "detail": "69 / 0 / 0",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "gold and MaRS register almost nothing: each <= 2 % of Poisson"
+     },
+     {
+      "detail": "Poisson 69",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "Poisson still does: >= 5 photons"
+     },
+     {
+      "detail": "t - tau = -25.0 ns",
+      "ok": true,
+      "preset": "before",
+      "rule": "only background: t - tau <= -5 sigma_t"
+     },
+     {
+      "detail": "4 / 4 / 5",
+      "ok": true,
+      "preset": "before",
+      "rule": "all three agree: max - min <= 2 photons"
+     }
+    ],
+    "window_3bins": {
+     "before": {
+      "gold": 4,
+      "mars": 5,
+      "poisson": 4
+     },
+     "bright": {
+      "gold": 282,
+      "mars": 293,
+      "poisson": 814
+     },
+     "dim": {
+      "gold": 158,
+      "mars": 160,
+      "poisson": 355
+     },
+     "shadow": {
+      "gold": 0,
+      "mars": 0,
+      "poisson": 69
+     }
+    }
+   },
+   "5x5": {
+    "rules": [
+     {
+      "detail": "t - tau = -2.3 ns",
+      "ok": true,
+      "preset": "bright",
+      "rule": "near its return: |t - tau| <= 1.5 sigma_t"
+     },
+     {
+      "detail": "Poisson +0.109, gold -2.650, MaRS -2.649 ns",
+      "ok": true,
+      "preset": "bright",
+      "rule": "gold and MaRS peak earlier than Poisson (return centre)"
+     },
+     {
+      "detail": "gold/Poisson 773/2226 = 0.347 vs dim 0.460",
+      "ok": true,
+      "preset": "bright",
+      "rule": "dead time strongest: gold keeps a smaller share of Poisson than at dim"
+     },
+     {
+      "detail": "S 1.965 vs 7.651",
+      "ok": true,
+      "preset": "dim",
+      "rule": "a dimmer pixel: S below the bright pixel's"
+     },
+     {
+      "detail": "Poisson 977 vs 2226",
+      "ok": true,
+      "preset": "dim",
+      "rule": "fewer photons arrive: Poisson window below the bright preset's"
+     },
+     {
+      "detail": "gold 1.204 vs 2.760, MaRS 1.234 vs 2.759 ns",
+      "ok": true,
+      "preset": "dim",
+      "rule": "the shift is smaller: 0 < (Poisson - gold, Poisson - MaRS) < bright's"
+     },
+     {
+      "detail": "t - tau = +5.0 ns",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "just after the return: 0 < t - tau < t_d"
+     },
+     {
+      "detail": "215 / 0 / 0",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "gold and MaRS register almost nothing: each <= 2 % of Poisson"
+     },
+     {
+      "detail": "Poisson 215",
+      "ok": true,
+      "preset": "shadow",
+      "rule": "Poisson still does: >= 5 photons"
+     },
+     {
+      "detail": "t - tau = -25.0 ns",
+      "ok": true,
+      "preset": "before",
+      "rule": "only background: t - tau <= -5 sigma_t"
+     },
+     {
+      "detail": "15 / 11 / 22",
+      "ok": false,
+      "preset": "before",
+      "rule": "all three agree: max - min <= 2 photons"
+     }
+    ],
+    "window_3bins": {
+     "before": {
+      "gold": 11,
+      "mars": 22,
+      "poisson": 15
+     },
+     "bright": {
+      "gold": 773,
+      "mars": 782,
+      "poisson": 2226
+     },
+     "dim": {
+      "gold": 449,
+      "mars": 495,
+      "poisson": 977
+     },
+     "shadow": {
+      "gold": 0,
+      "mars": 0,
+      "poisson": 215
+     }
+    }
+   }
+  },
+  "what": "each note's claims as rules on the data (tools/build_slicer_data.py claims()), photons over n x n pixels x 3 bins around the preset; gated at 3x3 (the default), reported at 1x1 and 5x5"
  },
  "order": "C: row i, column j, bin",
  "presets": [
@@ -54,6 +336,7 @@
    "bin": 108,
    "id": "bright",
    "label": "Bright surface",
+   "note": "A bright pixel near its return. Dead time is strongest here, so the gold standard and MaRS peak earlier than Poisson.",
    "px": [
     48,
     23
@@ -72,6 +355,7 @@
    "bin": 57,
    "id": "dim",
    "label": "Dim surface",
+   "note": "A dim pixel. Fewer photons arrive, so the shift is smaller.",
    "px": [
     30,
     56
@@ -90,6 +374,7 @@
    "bin": 127,
    "id": "shadow",
    "label": "Just after the peak",
+   "note": "Just after the return. The detector is still blind, so the gold standard and MaRS register almost nothing here. Poisson still does.",
    "px": [
     48,
     23
@@ -108,6 +393,7 @@
    "bin": 50,
    "id": "before",
    "label": "Before the peak",
+   "note": "Before the return. Only background light reaches this pixel, and all three agree.",
    "px": [
     48,
     23

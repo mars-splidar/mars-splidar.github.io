@@ -19,13 +19,30 @@ vanilla-JS modules. No build step, no framework, no bundler.
 - No `CNAME`: the site lives on the default `github.io` domain. Do not add one.
 
 Three pages (v2, `v2.0`, 2026-10-23; one 960 px column since `v2.1`, 2026-10-27;
-demo first since `v2.2`, 2026-10-29):
+demo first since `v2.2`, 2026-10-29; both SBRs of the paper's results since
+`v2.3`, 2026-10-30):
 
 | Path | What it is |
 |---|---|
-| `index.html` | The lean main page, demo first (v2.2): the compact hero with the teaser, the cube slicer, *In short* with the paper's Fig. 1 top half, then Accuracy, Efficiency (an animated schematic), Downstream (Poisson- vs MaRS-trained) and the count-model ablation, the film inline, Go deeper, BibTeX |
+| `index.html` | The lean main page, demo first (v2.2, v2.3): the compact hero with the teaser, the cube slicer with preset notes, *In short* with the paper's Fig. 1 top half and its caption, then Accuracy, Efficiency (an animated schematic), Downstream (Poisson- vs MaRS-trained, SBR 0.6 and SBR 1.0) and the count-model ablation (two-panel chart and zoom rows), the film inline, Go deeper, BibTeX |
 | `details/index.html` | Method and full results: v1's seven technical bands, moved verbatim |
 | `demos/index.html` | The demo lab, all four panels "coming soon"; **unlinked from every public page** until the playground ships |
+
+**v2.3 in one paragraph (live 2026-10-30, tag `v2.3`).** The teaser keeps
+only its guide (two lines at ≥ 900 px). The slicer presets carry hints (*Try
+a pixel* / *or a moment*), set Pool to 3 × 3, and show one note per preset
+whose claims `build_slicer_data.py --check` tests on the data. *In short* is
+now the Fig. 1 card with a new caption, then the paragraph. The paper's
+results appear at both SBRs it reports: `tools/build_result_tiles.py` builds
+20 native 200 px tiles from the paper's own sources (depth from the `.npz`
+maps with one viridis mapping per scene, reflectivity cropped losslessly from
+the Fig. 7 image) with a provenance file, and its `--check` is the tenth
+gate. Downstream shows SBR 0.6 (library) and SBR 1.0 (kitchen) with linked
+sliders. The Ablation has a new lead, *The MaRS count model gives the best
+results on gold-standard data at both SBR levels*, which `audit_claims.py`
+checks on all four test numbers, a two-panel chart and InvProp-style zoom
+rows (a draggable window on the ground truth, three panes at 2×). Budgets:
+609/609 prose words, 8/9 media.
 
 **v2.2 in one paragraph (live 2026-10-29, tag `v2.2`).** `/` now leads with
 the demos: a compact hero whose teaser and labels fit the first 1280 x 800
@@ -123,9 +140,18 @@ python tools/details_move_diff.py    # /details/ vs v1.0-launch, band by band
 ```
 
 `page_budget.py` measures `/` against `MARS_WEBSITE_BUILD_GUIDE.md` §0.1, with
-§0.7's limits since v2.2-A — visible words ≤ 598 since v2.2-D, re-pinned at
-the measured total after the author's copy changes (the slicer eyebrow +3, the
-BibTeX "Provisional entry" note removed −5); 600 from v2.2-P, re-pinned when
+§0.7's limits since v2.2-A — visible words ≤ 609 since v2.3-C, re-pinned at
+the measured total after guide §0.8's Ablation with SBR 1.0 and the zoom rows
+(the footnote's last sentence −9, the old tile captions −23, two zoom-row
+headers +4, two "Ground truth drag the box" captions +10 and six count-model
+captions +28; the lead swapped one 15-word sentence for another); 599 from
+v2.3-B, re-pinned at the measured total after guide §0.8's two-scene Downstream (the note under the
+module −17, the old image chips −8, the two SBR headers, two "Ground truth"
+captions and four slider captions +20); 604 from v2.3-A, re-pinned at
+the measured total after guide §0.8's copy (the teaser tagline removed −8, the
+new Fig. 1 caption +14); 598 from v2.2-D, re-pinned after the author's copy
+changes (the slicer eyebrow +3, the BibTeX "Provisional entry" note removed
+−5); 600 from v2.2-P, re-pinned when
 Demo 2's 12 chart words became schematic text (612 from v2.2-C, pinned at that stage's measured total by the author; 520 from
 v2.2-A, 420 from v2.1-A, 350 before), at most nine media slots above BibTeX (six from v2.1-A, exactly four
 before), zero switch bars, zero
@@ -180,11 +206,41 @@ python3 tools/build_slicer_placeholder.py     # Playwright + Chrome; the four st
 It fails if the bright preset does not show gold and MaRS 2-3 ns earlier than
 Poisson, and splices the default readout into `index.html`
 (`slicer_readout` markers); `--check` fails on any drift, including that text.
+Since v2.3-A it also holds the four preset notes (guide §0.8; `NOTES`, the only
+place they are written): it writes them to `meta.json` for `js/mars-slicer.js`,
+splices the default (bright) note and four aria-hidden height-reserving copies
+into `index.html` (`slicer_note` markers), and turns every claim in a note into
+a rule on the data (photons over 3 × 3 pixels × 3 bins around the preset):
+`--check` fails if a rule no longer holds at 3 × 3, or if the shipped block
+drifts. The same rules are reported, not gated, at 1 × 1 and 5 × 5.
 `build_slicer_placeholder.py` re-captures the placeholder stills
 (`assets/img/slicer_ph_*.webp`) from the live module; re-run it after any
 change to the module's drawing, the data or the fonts. Never edit either output
 by hand. `js/mars-slicer.js` is fetched by `js/mars-main.js` only when the
 reader scrolls near the block (never on a cold load).
+
+### The result tiles (stage v2.3-B)
+
+```bash
+python3 tools/build_result_tiles.py            # numpy + Pillow; writes assets/img/res/
+python3 tools/build_result_tiles.py --check    # writes nothing; the gate form
+```
+
+Builds every Downstream and Ablation tile, both test scenes (SBR 0.6, library 00357; SBR
+1.0, kitchen 00767) and both maps, into `assets/img/res/`:
+`{refl,depth}_{sbr06,sbr10}_{gt,poisson,renewal,zhang,mars}.webp` (20 files,
+200 × 200, lossless) and `provenance.json`. Sources are read only, outside the
+repo, in `~/OneDrive/MaRS/Figs/main/`: depth from the networks' native 200 × 200
+`.npz` maps (one viridis mapping per scene, the GT's min to max, the same for
+every method), reflectivity cropped at native size from
+`mars_cvpr2026-Page-1.drawio.png`, the lossless image the paper's Fig. 7
+embeds (tile boxes found by script from the alpha channel and printed; never
+`Fig6_*`). No resampling and no sharpening; `--check` rebuilds everything,
+compares bytes and `provenance.json`, and decodes every tile against its
+source pixels. Byte equality needs the same encoder: run it with the base
+`python3` (Pillow 10.4.0, libwebp 1.3.2, both recorded in the provenance).
+The old `assets/img/res_*` tiles stay for `/details/` only (the main page no
+longer uses them since v2.3-C; stage 11 decides).
 
 ### The hero teaser (stages 08, 09b)
 
@@ -260,8 +316,10 @@ js/mars-redirect.js     old /#<band> anchors -> /details/#<band> (stage 07)
 js/mars-nav.js          sticky nav, hamburger, hero button row
 js/mars-main.js         main page only: teaser, video poster, BibTeX copy
 js/mars-compare.js      main page only: Downstream before/after slider (stage 09),
-                        hold to see ground truth on phones (v2.2-C)
-js/mars-ablation.js     main page only: the count-model ablation's chart and tiles (v2.2-C)
+                        hold to see ground truth on phones (v2.2-C), several
+                        linked sliders in one figure (v2.3-B)
+js/mars-ablation.js     main page only: the count-model ablation (v2.2-C): the
+                        two-panel chart and the zoom rows (v2.3-C)
 js/mars-slicer.js       main page only: the cube slicer, loaded on demand (v2.1-C)
 js/mars-efficiency.js   main page only: the Efficiency schematic's animation (v2.2-B)
 js/mars-sections.js     the stub gate (now loaded by /details/ only)
@@ -283,6 +341,8 @@ tools/build_demo_count.py  Demo 2's SVG from video/data.py, + provenance (stage 
 tools/build_slicer_data.py  the slicer's data + default readout, --check gate (v2.1-C)
 tools/build_slicer_placeholder.py  the slicer's placeholder stills (v2.1-C)
 assets/data/slicer/     the slicer's cubes, delay map and meta.json (v2.1-C)
+tools/build_result_tiles.py  the 20 result tiles (Downstream, Ablation) + provenance, --check gate (v2.3-B)
+assets/img/res/         the result tiles, both SBRs, both maps (v2.3-B)
 tools/details_move_diff.py  proves /details/ is v1's bands verbatim (stage 07)
 ```
 
@@ -665,3 +725,55 @@ Each build stage appends one line here.
   frame's `overflow: hidden` had clipped it). Merged into `main` (`--no-ff`)
   and tagged `v2.2`. Review pack and the author's v2.2 phone checklist:
   `build_instructions/review/v22E/`.
+- **Stage v2.3-A — teaser caption, slicer preset hints and notes, In short
+  reordered (2026-10-30).** On branch `v2.3-dev`, not pushed. Guide §0.8's
+  copy: the teaser tagline is gone and its guide is the whole caption (two
+  lines at ≥ 900 px, one sentence each); the slicer presets read *Try a pixel*
+  [Bright surface] [Dim surface] *or a moment* [Just after the peak] [Before
+  the peak], with one aria-live note under them that follows the selected
+  preset and empties, keeping its height, on a manual pick
+  (`build_slicer_data.py` holds the four sentences and checks each claim on
+  the data); *In short* is heading → Fig. 1 card with its new three-sentence
+  caption → the paragraph. Word limit re-pinned at 604 (tagline −8, caption
+  +14). Review pack: `build_instructions/review/v23A/`.
+- **Stage v2.3-B — result tiles pipeline, Downstream with SBR 1.0, the slicer
+  pool fix (2026-10-30).** On branch `v2.3-dev`, not pushed. A slicer preset
+  now also sets Pool to 3 × 3 (the view its note was checked at), and a real
+  pool change empties the note. `tools/build_result_tiles.py` builds all 20
+  result tiles (both SBRs, both maps) from the paper's own sources into
+  `assets/img/res/` with a provenance file; its `--check` is the tenth gate.
+  Downstream shows SBR 0.6 and SBR 1.0 side by side (guide §0.8): each a
+  header with a dark rule, a ground-truth square and a Poisson | MaRS slider
+  with its test-set numbers as captions; the two sliders are linked; phones
+  show the two sliders side by side with one *Hold to see ground truth*. The
+  note under the module and the image chips are gone. `audit_claims.py` parses
+  both PROJECT_BRIEF §3.5 tables and checks all eight caption values. Word
+  limit re-pinned at 599. Review pack: `build_instructions/review/v23B/`.
+- **Stage v2.3-C — the Ablation with SBR 1.0 and the zoom rows (2026-10-30).**
+  On branch `v2.3-dev`, not pushed. Guide §0.8: the new lead (*The MaRS count
+  model gives the best results on gold-standard data at both SBR levels.*),
+  which `audit_claims.py` checks as a rule on all four test numbers; a
+  two-panel dumbbell (SBR 0.6 | SBR 1.0, stacked on phones) drawn from two
+  visually hidden tables; one zoom row per SBR in the style of InvProp's
+  "Baseline Comparisons": the ground truth holds a draggable window of ¼ of
+  its area (mouse, touch and keyboard) and the Renewal, Zhang et al. and MaRS
+  count panes show that window at 2× from `assets/img/res/`, with their test
+  values. Phones show one zoom row at a time behind an SBR toggle, 2 × 2. The
+  footnote loses its last sentence; the old tiles and their CSS are gone from
+  `/`. Word limit re-pinned at 609. Review pack:
+  `build_instructions/review/v23C/`.
+- **Stage v2.3-D — independent review, merge and launch (2026-10-30),
+  `v2.3`.** A session that built none of v2.3 re-measured it: the twelve
+  non-negotiables on `/`, with the Ablation lead (all four test numbers) and
+  Downstream's "fails / works" at both SBRs traced to paper lines; the four
+  slicer notes' counts recomputed from the shipped data with independent code
+  (814 / 282 / 293, 355 / 158 / 160, 69 / 0 / 0, 4 / 4 / 5: exact); every
+  SBR 1.0 value read off the rendered page in both modes; the 20 result tiles
+  checked independently against the read-only sources (reflectivity equal to
+  the figure's pixels, depth equal to matplotlib's viridis with one GT range
+  per scene) and the zoom panes pixel-sampled; a number-provenance table; all
+  ten gates; Chrome and Firefox at twelve widths on both pages; keyboard,
+  touch and the hold button; cold-load bytes; Lighthouse. No rule violation
+  and no defect to fix. Merged into `main` (`--no-ff`) and tagged `v2.3`.
+  Review pack and the author's v2.3 phone checklist:
+  `build_instructions/review/v23D/`.

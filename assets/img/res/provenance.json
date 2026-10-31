@@ -1,0 +1,595 @@
+{
+  "generator": {
+    "script": "tools/build_result_tiles.py",
+    "version": 1,
+    "stage": "v2.3-B",
+    "pillow": "10.4.0",
+    "libwebp": "1.3.2",
+    "numpy": "2.0.2",
+    "webp": {
+      "lossless": true,
+      "quality": 100,
+      "method": 6
+    }
+  },
+  "sources": {
+    "reflectivity": {
+      "path": "~/OneDrive/MaRS/Figs/main/mars_cvpr2026-Page-1.drawio.png",
+      "sha256": "22db7bffa1c40a24bfefac45dc1c945aa4b1037f3cd36cb2ecccfc6cda13819c",
+      "size": [
+        2565,
+        1028
+      ],
+      "mode": "RGBA",
+      "note": "the image paper/Figs/main/Fig7_reflectivity_visual_results.pdf embeds"
+    },
+    "depth": {
+      "sbr06": {
+        "dir": "~/OneDrive/MaRS/Figs/main/downstream_visuals/depth_visuals_eccv2026/sbr0.6_00357",
+        "gt": {
+          "poisson": {
+            "file": "poisson/00357_r3_0_gt.npz",
+            "sha256": "4675ad4d08f9f1457de6552fa43c21628e9b63449b93d3d14c2139a06d7a5e11"
+          },
+          "renewal": {
+            "file": "renewal/00357_r2_0_gt.npz",
+            "sha256": "4675ad4d08f9f1457de6552fa43c21628e9b63449b93d3d14c2139a06d7a5e11"
+          },
+          "zhang": {
+            "file": "icip/00357_r3_0_gt.npz",
+            "sha256": "4675ad4d08f9f1457de6552fa43c21628e9b63449b93d3d14c2139a06d7a5e11"
+          },
+          "mars": {
+            "file": "ours/00357_r1_0_gt.npz",
+            "sha256": "4675ad4d08f9f1457de6552fa43c21628e9b63449b93d3d14c2139a06d7a5e11"
+          }
+        },
+        "pred": {
+          "poisson": {
+            "file": "poisson/00357_r3_0_pred.npz",
+            "sha256": "e83992f02cb05f2d993b954a2a494a29268bbd1ea71522f996d887043b78fb14"
+          },
+          "renewal": {
+            "file": "renewal/00357_r2_0_pred.npz",
+            "sha256": "0a4788b5728ec351e4830e09c69a9ace56f7217d123b6238d9755d23d0cb8425"
+          },
+          "zhang": {
+            "file": "icip/00357_r3_0_pred.npz",
+            "sha256": "e0d3eb853a12febdd04f0bd06f34b9c16555e964c06edbfee38ebfb5a2964b4a"
+          },
+          "mars": {
+            "file": "ours/00357_r1_0_pred.npz",
+            "sha256": "25f23fba463d13b03ac95bb43e6172689e8a94abd4228ee0a959a2155fb11638"
+          }
+        }
+      },
+      "sbr10": {
+        "dir": "~/OneDrive/MaRS/Figs/main/downstream_visuals/depth_visuals_eccv2026/sbr1.0_00767",
+        "gt": {
+          "poisson": {
+            "file": "poisson/00767_r0_1_histogram_gt.npz",
+            "sha256": "dcd3d0e19642ce1710152171961cd330ddb51d5984a446f4ba6cfd4a664fff6a"
+          },
+          "renewal": {
+            "file": "renewal/00767_r4_1_histogram_gt.npz",
+            "sha256": "dcd3d0e19642ce1710152171961cd330ddb51d5984a446f4ba6cfd4a664fff6a"
+          },
+          "zhang": {
+            "file": "icip/00767_r4_1_histogram_gt.npz",
+            "sha256": "dcd3d0e19642ce1710152171961cd330ddb51d5984a446f4ba6cfd4a664fff6a"
+          },
+          "mars": {
+            "file": "ours/00767_r2_1_histogram_gt.npz",
+            "sha256": "dcd3d0e19642ce1710152171961cd330ddb51d5984a446f4ba6cfd4a664fff6a"
+          }
+        },
+        "pred": {
+          "poisson": {
+            "file": "poisson/00767_r0_1_histogram_pred.npz",
+            "sha256": "72c569487371d135a2355e97bae46bfb5cfeaace45d9697dabd7b7a9262bdaa5"
+          },
+          "renewal": {
+            "file": "renewal/00767_r4_1_histogram_pred.npz",
+            "sha256": "d8f902141c8349d964877848c42f28204ee88791e4d54b0515cff2c551214105"
+          },
+          "zhang": {
+            "file": "icip/00767_r4_1_histogram_pred.npz",
+            "sha256": "ced7ce0a2f95ef0e89627a52048ea200c4c7bd438e4a851a9b03be15ac93dee7"
+          },
+          "mars": {
+            "file": "ours/00767_r2_1_histogram_pred.npz",
+            "sha256": "fa03f80c9b902ddb4777c44c8f8777c3449636c489ee2b0f467ea78ef771945e"
+          }
+        }
+      }
+    }
+  },
+  "reflectivity": {
+    "rule": "alpha >= 128 components, 190-215 px square and >= 99 % filled; top row of each half = GT, Poisson, Renewal, Zhang et al., MaRS; native crop, centre-cropped to 200 x 200; RGB taken as is (un-premultiplied); no resampling",
+    "colour_bars": [
+      [
+        1219,
+        111,
+        1256,
+        525
+      ],
+      [
+        2512,
+        113,
+        2548,
+        527
+      ]
+    ],
+    "sbr06": {
+      "scene": "library, test sample 00357",
+      "gaps_px": [
+        128,
+        10,
+        10,
+        10
+      ],
+      "tiles": {
+        "gt": {
+          "tile_box": [
+            51,
+            111,
+            253,
+            313
+          ],
+          "tile_size": [
+            202,
+            202
+          ],
+          "crop_box": [
+            52,
+            112,
+            252,
+            312
+          ],
+          "min_alpha": 255,
+          "partial_alpha_columns": 0,
+          "partial_alpha_rows": 0
+        },
+        "poisson": {
+          "tile_box": [
+            381,
+            113,
+            581,
+            313
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            381,
+            113,
+            581,
+            313
+          ],
+          "min_alpha": 255,
+          "partial_alpha_columns": 0,
+          "partial_alpha_rows": 0
+        },
+        "renewal": {
+          "tile_box": [
+            591,
+            113,
+            791,
+            313
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            591,
+            113,
+            791,
+            313
+          ],
+          "min_alpha": 255,
+          "partial_alpha_columns": 0,
+          "partial_alpha_rows": 0
+        },
+        "zhang": {
+          "tile_box": [
+            801,
+            113,
+            1001,
+            313
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            801,
+            113,
+            1001,
+            313
+          ],
+          "min_alpha": 255,
+          "partial_alpha_columns": 0,
+          "partial_alpha_rows": 0
+        },
+        "mars": {
+          "tile_box": [
+            1011,
+            113,
+            1211,
+            313
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            1011,
+            113,
+            1211,
+            313
+          ],
+          "min_alpha": 255,
+          "partial_alpha_columns": 0,
+          "partial_alpha_rows": 0
+        }
+      }
+    },
+    "sbr10": {
+      "scene": "kitchen, test sample 00767",
+      "gaps_px": [
+        129,
+        10,
+        10,
+        10
+      ],
+      "tiles": {
+        "gt": {
+          "tile_box": [
+            1343,
+            114,
+            1543,
+            314
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            1343,
+            114,
+            1543,
+            314
+          ],
+          "min_alpha": 229,
+          "partial_alpha_columns": 1,
+          "partial_alpha_rows": 200
+        },
+        "poisson": {
+          "tile_box": [
+            1672,
+            114,
+            1872,
+            314
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            1672,
+            114,
+            1872,
+            314
+          ],
+          "min_alpha": 229,
+          "partial_alpha_columns": 1,
+          "partial_alpha_rows": 200
+        },
+        "renewal": {
+          "tile_box": [
+            1882,
+            114,
+            2082,
+            314
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            1882,
+            114,
+            2082,
+            314
+          ],
+          "min_alpha": 229,
+          "partial_alpha_columns": 1,
+          "partial_alpha_rows": 200
+        },
+        "zhang": {
+          "tile_box": [
+            2092,
+            114,
+            2292,
+            314
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            2092,
+            114,
+            2292,
+            314
+          ],
+          "min_alpha": 229,
+          "partial_alpha_columns": 1,
+          "partial_alpha_rows": 200
+        },
+        "mars": {
+          "tile_box": [
+            2302,
+            114,
+            2502,
+            314
+          ],
+          "tile_size": [
+            200,
+            200
+          ],
+          "crop_box": [
+            2302,
+            114,
+            2502,
+            314
+          ],
+          "min_alpha": 229,
+          "partial_alpha_columns": 1,
+          "partial_alpha_rows": 200
+        }
+      }
+    }
+  },
+  "depth": {
+    "colormap": "viridis, matplotlib 3.9.2, 256 entries, 8-bit (embedded)",
+    "colormap_sha256": "18545f7c72a02f02a54f2e3f6ff9dcf357e0190ab9117a1f8fae44c6eaf179e0",
+    "mapping": "index = clip(round(255 * (d - lo) / (hi - lo)), 0, 255); lo, hi = the scene's GT min and max; the same mapping for all five tiles of a scene",
+    "sbr06": {
+      "scene": "library, test sample 00357",
+      "range_m": [
+        3.5859999656677246,
+        6.999000072479248
+      ],
+      "gt_files_identical": true,
+      "clip_fraction": {
+        "gt": {
+          "below": 0.0,
+          "above": 0.0
+        },
+        "poisson": {
+          "below": 0.234025,
+          "above": 0.0
+        },
+        "renewal": {
+          "below": 0.02445,
+          "above": 0.0
+        },
+        "zhang": {
+          "below": 0.012625,
+          "above": 0.0
+        },
+        "mars": {
+          "below": 0.022725,
+          "above": 0.001225
+        }
+      },
+      "figure_luminance_corr": {
+        "poisson": 0.9904,
+        "renewal": 0.9972,
+        "zhang": 0.9972,
+        "mars": 0.9972
+      }
+    },
+    "sbr10": {
+      "scene": "kitchen, test sample 00767",
+      "range_m": [
+        4.510000228881836,
+        8.280000686645508
+      ],
+      "gt_files_identical": true,
+      "clip_fraction": {
+        "gt": {
+          "below": 0.0,
+          "above": 0.0
+        },
+        "poisson": {
+          "below": 0.0825,
+          "above": 0.0
+        },
+        "renewal": {
+          "below": 0.002,
+          "above": 0.0
+        },
+        "zhang": {
+          "below": 0.0002,
+          "above": 0.0
+        },
+        "mars": {
+          "below": 0.0,
+          "above": 5e-05
+        }
+      },
+      "figure_luminance_corr": {
+        "poisson": 0.9928,
+        "renewal": 0.9951,
+        "zhang": 0.9946,
+        "mars": 0.9945
+      }
+    }
+  },
+  "outputs": {
+    "assets/img/res/depth_sbr06_gt.webp": {
+      "sha256": "c89c6f1ca9a0075ab3c2a85942d33edb20a11ac13e09f8ca5b2c2f557f05d1f7",
+      "bytes": 9730,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr06_mars.webp": {
+      "sha256": "ec7c86a99c31b9dc9d46a70aec45f464788efe2e9af20f1a1740f9fae44afab9",
+      "bytes": 9922,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr06_poisson.webp": {
+      "sha256": "bfbc95bfbfbbfaaa61086099a3b845c9e6c75674bb22d051e0c1fe34ce5787ca",
+      "bytes": 8708,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr06_renewal.webp": {
+      "sha256": "12bac20b49a8c73018a49ba29719a52dfc8955621492af9bbd4ff4c7aa075fae",
+      "bytes": 9360,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr06_zhang.webp": {
+      "sha256": "4a3459bc1c113225fa74c409b62a7ce8a7790909f348e23bdb5e7761b5477f66",
+      "bytes": 10142,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr10_gt.webp": {
+      "sha256": "b234fe16c44bc638ff4b2f0746e8adc59a9404b04f3374c23e8e14aeeef12997",
+      "bytes": 11378,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr10_mars.webp": {
+      "sha256": "2a9f4d3c35fbf7cd37aaab6428abb1ac8d059822cf45668b9df534ea70e971f2",
+      "bytes": 9954,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr10_poisson.webp": {
+      "sha256": "7da0df5bdcce953bbe7db04b5fe1af8672ae6f0ab0287c8a71a1ce3c66405db6",
+      "bytes": 10112,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr10_renewal.webp": {
+      "sha256": "b402af3808e1efb0430ba5e2995ab05dfad1e036a361fb613a1cfd5eca7d59f5",
+      "bytes": 9952,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/depth_sbr10_zhang.webp": {
+      "sha256": "664c9abd893a1f2f312fa8f716a92ca443562ebcd0fdd2f8d994c83bc4aa14a7",
+      "bytes": 9224,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr06_gt.webp": {
+      "sha256": "7434a2f370c7f99338c7269773a08336e57adea126abef0a03dcddd33c8bd962",
+      "bytes": 16056,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr06_mars.webp": {
+      "sha256": "d229ae3b9c331751287a004c20d60a67e75af00208c1398dc97ec37dd22a33f3",
+      "bytes": 17722,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr06_poisson.webp": {
+      "sha256": "375a1ac38e111c78e1374b228ebeadf3f299913d97bef43cfaacad3fad2fb56d",
+      "bytes": 248,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr06_renewal.webp": {
+      "sha256": "d4ac0d53b6be91bfa083590459dd36b86cb287f698d56a9d9628343ae03d4fc6",
+      "bytes": 12294,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr06_zhang.webp": {
+      "sha256": "8601bf11e0dbde9ea15e9ca54ffdb6a58cb6b68e5b2d15479b20490d713d5328",
+      "bytes": 16964,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr10_gt.webp": {
+      "sha256": "647c3cbfea547d0788adc604620c14606d7aff2686b5527225beabbd6e3f0475",
+      "bytes": 16562,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr10_mars.webp": {
+      "sha256": "d3dde5b14d5940df81d7527e5786d3db39a2405b18f34e2a585e99cf37b934db",
+      "bytes": 16308,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr10_poisson.webp": {
+      "sha256": "3db4731adbb390b2afb652f11320dac6b54dfbe9eb50040e38af00f78640f6e1",
+      "bytes": 3310,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr10_renewal.webp": {
+      "sha256": "02f5fcf9bf6df651987cac825045d312f26840db838f4b1ea6660c0f520cee21",
+      "bytes": 11176,
+      "size": [
+        200,
+        200
+      ]
+    },
+    "assets/img/res/refl_sbr10_zhang.webp": {
+      "sha256": "273d4c89bb72f94f8d1a298ee49f4714126a0d78e0bb270fb63c215dce05dfa2",
+      "bytes": 16640,
+      "size": [
+        200,
+        200
+      ]
+    }
+  }
+}

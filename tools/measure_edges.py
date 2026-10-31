@@ -68,7 +68,7 @@ MAIN = [
     ("teaser cubes", ".mars-teaser__frame", "F"),
     ("teaser labels", ".mars-teaser__cols", "X"),
     ("teaser workload", ".mars-teaser__workload", "C"),
-    ("tagline", ".mars-teaser__tagline", "C"),
+    # v2.3-A: the tagline is gone; the guide is the whole caption
     ("teaser guide", ".mars-teaser__guide", "C"),
     # the cube slicer (v2.1-C): presets and readout are ragged rows, the
     # three images and the chart frame fill the column
@@ -76,6 +76,7 @@ MAIN = [
     ("slicer title", "#slicer-title", "L"),
     ("slicer guide", ".mars-slicer__guide", "L"),
     ("slicer presets", ".mars-slicer__presets", "L"),
+    ("slicer preset note", ".mars-slicer__pnote", "L"),   # v2.3-A
     ("slicer images", ".mars-slicer__trio", "F"),
     ("slicer readout", ".mars-slicer__readout", "L"),
     ("slicer chart frame", ".mars-slicer__chartbox", "F"),
@@ -106,19 +107,29 @@ MAIN = [
     ("Demo 3 eyebrow", "#demo-downstream .mars-eyebrow", "L"),
     ("Demo 3 title", "#demo-downstream-title", "L"),
     ("Demo 3 sentence", "#demo-downstream .mars-demo__sentence", "L"),
-    # v2.2-C: two equal squares (slider | ground truth) fill the column; on
-    # phones the GT square is hidden and the slider fills it alone
+    # v2.3-B: two scene groups (SBR 0.6 | SBR 1.0) fill the column, each a
+    # header rule over a GT square and a slider square; on phones the GT
+    # squares are hidden and the two sliders sit side by side. The note is
+    # gone (guide 0.8). The left group starts on the column's left edge, the
+    # right group ends on its right edge.
     ("Demo 3 toggle", "#demo-downstream .mars-compare__toggle", "L"),
-    ("Demo 3 pair", ".mars-compare__pair", "F"),
-    ("Demo 3 slider", "#demo-downstream .mars-compare__cell .mars-compare__stage", "X"),
-    ("Demo 3 note", "#demo-downstream .mars-compare__note", "L"),
-    # v2.2-C: the count-model ablation; chart card and tile grid fill the column
+    ("Demo 3 groups", "#demo-downstream .mars-compare__groups", "F"),
+    ("Demo 3 SBR 0.6 rule", "#demo-downstream [data-sbr=sbr06] .mars-compare__head", "L"),
+    ("Demo 3 SBR 1.0 rule", "#demo-downstream [data-sbr=sbr10] .mars-compare__head", "Rnav"),
+    ("Demo 3 slider", "#demo-downstream [data-sbr=sbr10] .mars-compare__cell .mars-compare__stage", "Rnav"),
+    # v2.2-C: the count-model ablation; chart card and tile grid fill the column.
+    # v2.3-C: the tile grid became one zoom row per SBR (guide 0.8), each a
+    # header rule over four squares, both filling the column; phones show one
+    # row at a time behind the SBR toggle (the row header is then read, not
+    # shown, so it is skipped there as hidden).
     ("ablation eyebrow", "#demo-ablation .mars-eyebrow", "L"),
     ("ablation title", "#demo-ablation-title", "L"),
     ("ablation sentence", "#demo-ablation .mars-demo__sentence", "L"),
-    ("ablation toggle", "#demo-ablation .mars-compare__toggle", "L"),
+    ("ablation toggle", "#demo-ablation .mars-abl__modes", "L"),
     ("ablation chart card", ".mars-abl__card", "F"),
-    ("ablation tiles", ".mars-abl__tiles", "F"),
+    ("ablation SBR toggle", "#demo-ablation .mars-abl__sbrs", "L"),
+    ("ablation zoom rule", "#demo-ablation .mars-abl__zhead", "Fall"),
+    ("ablation zoom row", "#demo-ablation .mars-abl__zgrid", "Fall"),
     ("ablation note", ".mars-abl__note", "L"),
     ("film heading", "#video-heading", "L"),
     ("film", ".mars-video__frame", "F"),

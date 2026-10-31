@@ -1469,27 +1469,23 @@ img, video { max-width: 100%; height: auto; display: block; }
   color: var(--grey);
 }
 
-/* The tagline — the approved headline (PROJECT_BRIEF 4.1). Set like v1's hook
-   caption, which it replaces: larger and darker than a figure caption. */
-.mars-teaser__tagline {
-  margin-top: 0.9rem;
-  text-align: center;
-  font-family: var(--font-head);
-  font-weight: 500;
-  font-size: clamp(1rem, 2.2vw, 1.25rem);
-  line-height: 1.45;
-  color: var(--dark);            /* DARK on PAPER = 15.89:1 */
-}
-/* v2.1-D: the teaser's guiding sentence, under the tagline in regular weight
-   and body type, so the headline stays the louder line. */
+/* The teaser's caption: the guiding sentences (v2.1-D), the whole
+   figcaption since v2.3-A removed the tagline (guide 0.8). Body type, regular
+   weight, dark, centred; the tagline's 0.9rem gap under the label row. At
+   >= 900 px each sentence is its own block, so the caption is exactly two
+   lines; below that the sentences run on and wrap naturally. */
 .mars-teaser__guide {
   display: block;
-  margin-top: 0.3rem;
+  margin-top: 0.9rem;
+  text-align: center;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: clamp(0.9375rem, 1.8vw, 1.0625rem);   /* 15 px on phones, under the 16 px tagline */
+  font-size: clamp(0.9375rem, 1.8vw, 1.0625rem);   /* 15 px on phones */
   line-height: 1.5;
-  color: var(--dark);
+  color: var(--dark);            /* DARK on PAPER = 15.89:1 */
+}
+@media (min-width: 900px) {
+  .mars-teaser__s { display: block; }
 }
 
 /* ---- In short (MINT), v2.2-A ------------------------------------------- */
@@ -1508,8 +1504,10 @@ img, video { max-width: 100%; height: auto; display: block; }
    image box is reserved by an explicit aspect-ratio per crop, because the
    <img> holds a 1 x 1 data: GIF until js/mars-main.js promotes the real
    sources (the attribute-mapped ratio would follow the GIF). */
+/* v2.3-A (guide 0.8): the card comes first, under the heading, and the
+   paragraph follows 1.4rem below it (it was 1.4rem above the card). */
 .mars-context {
-  margin: 1.4rem 0 0;
+  margin: 0 0 1.4rem;
   padding: 14px 0 12px;
   background: #fff;
   border-radius: 10px;
@@ -1683,7 +1681,19 @@ img, video { max-width: 100%; height: auto; display: block; }
    v2.2-C: the slider and the ground truth are two EQUAL squares on the
    column, 24 px apart (468 px each at the 960 column), the test-set numbers
    on the image corners as chips. Phones (<= 600 px): the GT square is
-   hidden and the hold button shows the GT inside the slider frame. */
+   hidden and the hold button shows the GT inside the slider frame.
+   v2.3-B (guide 0.8): TWO GROUPS, SBR 0.6 and SBR 1.0, 28 px apart; each a
+   header with a dark rule, then a ground-truth square and a slider square,
+   10 px apart (four equal squares in a row from 601 px up; 228 px at the
+   960 column). The chips are gone: the numbers are a caption under each
+   slider, Poisson-trained on the left and MaRS-trained on the right, each a
+   label line over a value line when the slider is at least 200 px wide,
+   one line each, stacked, below that (a container query on the cell, so
+   the caption follows the square, not the viewport); on phones always
+   stacked, at 12 px under a 155 px slider so each stays one line. Phones: the GT
+   squares are hidden, the two sliders sit side by side, and one hold
+   button shows both ground truths; while held each caption reads "Ground
+   truth" in the box its numbers keep. */
 .mars-compare__toggle {
   display: inline-flex;
   gap: 0;
@@ -1716,12 +1726,33 @@ img, video { max-width: 100%; height: auto; display: block; }
   box-shadow: inset 0 0 0 5px #ffffff;
 }
 
-.mars-compare__pair {
+.mars-compare__groups {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
+  gap: 28px;
 }
+.mars-compare__group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+.mars-compare__head {
+  grid-column: 1 / -1;
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid var(--dark);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--dark);
+  text-align: center;
+}
+.mars-compare__gt,
 .mars-compare__cell { min-width: 0; }
+.mars-compare__cell { container-type: inline-size; }
 .mars-compare__stage {
   --pos: 50%;
   position: relative;
@@ -1784,40 +1815,53 @@ img, video { max-width: 100%; height: auto; display: block; }
   outline: 3px solid var(--aged);
   outline-offset: 3px;
 }
-/* The chips: the test-set number on its image's top corner. White on INK at
-   82 % reads on black and on the brightest tile: over pure white the chip
-   composites to #3e4243, 10.2:1 (over black, 18:1). tools/audit_claims.py
-   pins .mars-compare__chip to that worst-case #3e4243 in SURFACES. */
-.mars-compare__chip {
-  position: absolute;
-  top: 10px;
-  margin: 0;
-  padding: 5px 9px;
-  max-width: calc(50% - 22px);
-  border-radius: 6px;
-  background: rgba(20, 24, 26, 0.82);
-  color: #ffffff;
-  font-family: var(--font-head);
+/* Captions: 13 px, --grey labels (6.9:1 on PAPER) and --dark values. */
+.mars-compare__cap {
+  margin: 0.4rem 0 0;
   font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.3;
-  pointer-events: none;
+  line-height: 1.35;
+  color: var(--grey);
 }
-.mars-compare__chip b { display: block; font-weight: 700; font-size: 0.9375rem; white-space: nowrap; }
-.mars-compare__chip.is-left { left: 10px; }
-.mars-compare__chip.is-right { right: 10px; text-align: right; }
-.mars-compare__chip.is-gt { left: 10px; }
-/* holding: only the ground truth and its chip */
-.mars-compare__stage.is-holding .mars-compare__img.is-under,
-.mars-compare__stage.is-holding .mars-compare__img.is-over,
-.mars-compare__stage.is-holding .mars-compare__handle,
-.mars-compare__stage.is-holding .mars-compare__chip.is-left,
-.mars-compare__stage.is-holding .mars-compare__chip.is-right { visibility: hidden; }
-.mars-compare__stage.is-holding .mars-compare__img.is-gt { visibility: visible; }
+.mars-compare__cap b {
+  font-family: var(--font-head);
+  font-weight: 600;
+  color: var(--dark);
+}
+.mars-compare__cap.is-pair { display: grid; }
+.mars-compare__vals,
+.mars-compare__capgt { grid-area: 1 / 1; min-width: 0; }
+.mars-compare__vals { display: flex; flex-direction: column; }
+.mars-compare__val b { font-family: var(--font-body); font-weight: 700; white-space: nowrap; }
+@container (min-width: 200px) {
+  .mars-compare__vals { flex-direction: row; justify-content: space-between; gap: 0.5rem; }
+  .mars-compare__val b { display: block; }
+  .mars-compare__val.is-right { text-align: right; }
+}
+/* holding: every slider frame shows its ground truth, and each caption
+   reads "Ground truth" in the box its numbers keep */
+.mars-compare.is-holding .mars-compare__img.is-under,
+.mars-compare.is-holding .mars-compare__img.is-over,
+.mars-compare.is-holding .mars-compare__handle,
+.mars-compare.is-holding .mars-compare__vals { visibility: hidden; }
+.mars-compare.is-holding .mars-compare__img.is-gt { visibility: visible; }
 .mars-compare__hold { display: none; }
 @media (max-width: 600px) {
-  .mars-compare__pair { grid-template-columns: minmax(0, 1fr); }
+  .mars-compare__groups { gap: 12px; }
+  .mars-compare__group { grid-template-columns: minmax(0, 1fr); }
   .mars-compare__gt { display: none; }
+  .mars-compare__handle::after { width: 30px; height: 30px; background-size: 17px; }
+  /* Phones: the captions always stack, one line per side (guide 0.8), even
+     where the slider is 200 px or wider (431-600 px viewports). */
+  .mars-compare__vals { flex-direction: column; gap: 0; }
+  .mars-compare__val b { display: inline; }
+  .mars-compare__val.is-right { text-align: left; }
+  /* Phones: each caption line ("Poisson-trained 0.785 m") is up to 151.5 px
+     at 13 px; below a 155 px slider (viewports under ~370 px) it is set at
+     the 12 px floor, tracked -0.02em (139.8 -> ~134 px), so each side stays
+     one line down to 320 px (slider 138 px). */
+  @container (max-width: 155px) {
+    .mars-compare__cap { font-size: 0.75rem; letter-spacing: -0.02em; }
+  }
   .mars-compare__hold {
     display: inline-flex;
     align-items: center;
@@ -1843,17 +1887,26 @@ img, video { max-width: 100%; height: auto; display: block; }
     outline-offset: 2px;
   }
 }
-.mars-compare__note { margin: 0.6rem 0 0; }
 
-/* ---- The count-model ablation (stage v2.2-C, js/mars-ablation.js) --------
-   One toggle drives the dumbbell chart and the four tiles. The chart's SVG
-   is drawn at its own CSS width (1 unit = 1 px); its height is reserved
-   here from the script's constants: 14 + 3 x 42 + 44 = 184 px, phones
-   14 + 3 x 34 + 44 = 160 px (v2.2-P; was 3 x 40 = 178), so nothing shifts
-   when it draws. Chart text
-   is --grey / --dark / the row colours on white: 6.9:1, 16.5:1, red 6.0:1,
-   blue 5.5:1, green 5.4:1 (SVG fill, which the contrast pass does not read).
-   Tiles: four equal squares, 2 x 2 on phones. */
+/* ---- The count-model ablation (stage v2.2-C, js/mars-ablation.js; rebuilt
+   in v2.3-C with SBR 1.0 and the zoom rows, guide 0.8) ----------------------
+   One toggle drives the two-panel dumbbell chart and every zoom tile. The
+   chart's SVG is drawn at its own CSS width (1 unit = 1 px); its height is
+   reserved here from the script's LAYOUTS, with the same media queries:
+   >= 768 px 34 + 3 x 38 + 42 = 190 px; 601-767 px 206 (the axis title on two
+   lines); phones 2 x (32 + 3 x 34 + 42) + 14 = 366 (the panels stack). So
+   nothing shifts when it draws. Chart text is --grey / --dark / the row
+   colours on white: 6.9:1, 16.5:1, red 6.0:1, blue 5.5:1, green 5.4:1 (SVG
+   fill, which the contrast pass does not read).
+   ZOOM ROWS, one per SBR: four equal squares (2 x 2 on phones), the ground
+   truth with its window, then three panes. The row's --u and --v (0..1, the
+   window's position as fractions of its travel; set inline, moved by the
+   script) place the window at (u, v) x 50 % of the square, 50 % x 50 % in
+   size, and translate each pane's <img>, which is 200 % of the pane, by
+   -(u, v) x 50 % of itself: so each pane shows exactly the window's region
+   of its own tile at 2x. The <img> stays an <img> (not a background), so
+   the lazy loader controls it. Smooth scaling (no image-rendering hint), no
+   filter. Only the GT square takes touch-action: none. */
 .mars-abl__card {
   border: 1px solid var(--rule);
   border-radius: var(--radius);
@@ -1863,7 +1916,7 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-abl__chart {
   display: block;
   width: 100%;
-  height: 184px;
+  height: 190px;
   overflow: visible;
 }
 .mars-abl__legend {
@@ -1884,41 +1937,114 @@ img, video { max-width: 100%; height: auto; display: block; }
   background: #ffffff;
 }
 .mars-abl__dot.is-filled { background: var(--grey); }
-.mars-abl__tiles {
+.mars-abl__sbrs { display: none; }        /* phones only */
+.mars-abl__zrow { margin-top: 20px; }
+.mars-abl__zhead {
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid var(--dark);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--dark);
+  text-align: center;
+}
+.mars-abl__zgrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  margin: 16px 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
-.mars-abl__tile { min-width: 0; }
-.mars-abl__im {
+.mars-abl__zitem { min-width: 0; }
+.mars-abl__gt,
+.mars-abl__pane {
+  position: relative;
   aspect-ratio: 1 / 1;
   border-radius: 6px;
-  overflow: hidden;
   background: #000;
 }
-.mars-abl__im img { display: block; width: 100%; height: 100%; }
-.mars-abl__cap {
-  margin: 0.4rem 0 0;
-  font-family: var(--font-head);
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.35;
+.mars-abl__pane { overflow: hidden; }
+.mars-abl__gt {
+  touch-action: none;            /* a press here moves the window, never scrolls */
+  cursor: move;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
-.mars-abl__cap span {
-  display: block;
-  font-family: var(--font-body);
-  font-weight: 400;
+.mars-abl__gt img {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.mars-abl__pane img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200%;
+  height: 200%;
+  max-width: none;
+  transform: translate(calc(var(--u) * -50%), calc(var(--v) * -50%));
+  pointer-events: none;
+}
+.mars-abl__win {
+  position: absolute;
+  left: calc(var(--u) * 50%);
+  top: calc(var(--v) * 50%);
+  width: 50%;
+  height: 50%;
+  box-sizing: border-box;
+  border: 2px solid #ffffff;
+  border-radius: 2px;
+  /* a dark hairline either side of the white border, so the box reads on
+     white and on black */
+  box-shadow: 0 0 0 1px rgba(20, 24, 26, 0.6), inset 0 0 0 1px rgba(20, 24, 26, 0.6);
+}
+.mars-abl__win:focus-visible {
+  outline: 3px solid var(--aged);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.mars-abl__zcap {
+  margin: 0.4rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.35;
   color: var(--grey);            /* 6.65:1 on PAPER */
 }
-.mars-abl__cap b { font-weight: 400; white-space: nowrap; }
+.mars-abl__zcap b {
+  font-family: var(--font-head);
+  font-weight: 600;
+  color: var(--dark);
+}
+.mars-abl__zcap span { white-space: nowrap; }
 .mars-abl__note { margin-top: 0.75rem; }
+@media (min-width: 601px) and (max-width: 767px) {
+  .mars-abl__chart { height: 206px; }
+}
 @media (max-width: 600px) {
   .mars-abl__card { padding: 12px 12px 10px; }
-  .mars-abl__chart { height: 160px; }   /* v2.2-P: was 178 */
-  .mars-abl__tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mars-abl__chart { height: 366px; }
+  /* one zoom row at a time, behind the SBR toggle; its header is the
+     toggle's pressed button, so the row's own header is read, not shown */
+  .mars-abl__sbrs { display: inline-flex; margin: 16px 0 0; }
+  .mars-abl[data-sbr-sel="sbr06"] .mars-abl__zrow[data-sbr="sbr10"],
+  .mars-abl[data-sbr-sel="sbr10"] .mars-abl__zrow[data-sbr="sbr06"] { display: none; }
+  .mars-abl__zrow { margin-top: 10px; }
+  .mars-abl__zhead {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .mars-abl__zgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; column-gap: 10px; }
+  .mars-abl__zcap { font-size: 0.8125rem; line-height: 1.3; margin-top: 0.3rem; }
 }
 
 /* ---- The cube slicer (stage v2.1-C, js/mars-slicer.js) -------------------
@@ -1960,6 +2086,29 @@ img, video { max-width: 100%; height: auto; display: block; }
   line-height: 1.2;
   cursor: pointer;
 }
+/* v2.3-A (guide 0.8): a plain-text hint before each pair of chips. The
+   chips' font, grey (5A5A5A on PAPER = 6.9:1), not a control. */
+.mars-slicer__presets { align-items: center; }
+.mars-slicer__hint {
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  color: var(--grey);
+}
+.mars-slicer__hint.is-second { margin-left: 0.6rem; }
+/* The note under the chips. Its live <p> and four aria-hidden copies of the
+   notes share one grid cell, so the box is always as tall as the tallest
+   note: switching presets, or a manual pick emptying it, shifts nothing. */
+.mars-slicer__pnote {
+  display: grid;
+  margin: -0.35rem 0 1rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--grey);
+}
+.mars-slicer__pnote > * { grid-area: 1 / 1; margin: 0; }
+.mars-slicer__pnote-size { visibility: hidden; }
 .mars-slicer__chip:hover { background: var(--gold-soft); }
 .mars-slicer__chip[aria-pressed="true"] {
   background: var(--gold);       /* FILL; dark text on gold = 8.6:1 */
@@ -2148,6 +2297,9 @@ img, video { max-width: 100%; height: auto; display: block; }
 .mars-slicer__note { margin-top: 0.7rem; }
 
 @media (max-width: 600px) {
+  .mars-slicer__hint { flex-basis: 100%; font-size: 0.8125rem; }
+  .mars-slicer__hint.is-second { margin: 0.2rem 0 0; }
+  .mars-slicer__pnote { font-size: 0.8125rem; }
   .mars-slicer__chip { min-height: 40px; padding: 0.4rem 0.8rem; font-size: 0.8125rem; }
   .mars-slicer__name { font-size: 0.8125rem; }
   .mars-slicer__readout { font-size: 0.875rem; }
@@ -2296,7 +2448,6 @@ img, video { max-width: 100%; height: auto; display: block; }
     border: 0;
   }
   .mars-home .mars-teaser__workload { font-size: 0.75rem; }   /* the mock's 11 px is under the 12 px floor */
-  .mars-home .mars-teaser__tagline { font-size: 0.9375rem; }
   .mars-home .mars-teaser__guide { font-size: 0.875rem; line-height: 1.5; }
 
   /* Fig. 1 card (T3): 10 px inside the card, the inference crop at 68 %
@@ -2322,8 +2473,6 @@ img, video { max-width: 100%; height: auto; display: block; }
   .mars-home .mars-compare__toggle { margin-bottom: 0.6rem; }
   .mars-home .mars-abl__card { padding: 10px 12px 8px; }
   .mars-home .mars-abl__legend { gap: 0.2rem 1.25rem; line-height: 1.4; }
-  .mars-home .mars-abl__tiles { gap: 10px; margin-top: 12px; }
-  .mars-home .mars-abl__cap { margin-top: 0.3rem; font-size: 0.8125rem; line-height: 1.3; }
   .mars-home .mars-abl__note { margin-top: 0.6rem; }
 
   /* Demo 2's caption: its subscript d was 10.8 px (the default `smaller`). */

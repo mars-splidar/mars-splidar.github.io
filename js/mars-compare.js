@@ -38,14 +38,34 @@
  * hidden and a "Ground truth" chip is shown, so the GT is never labelled
  * with a reconstruction's number. aria-pressed mirrors the state, and a
  * polite live region announces it.
+ *
+ * v2.3-B (guide 0.8): ONE FIGURE MAY HOLD SEVERAL SLIDERS, and they are
+ * LINKED. Downstream shows two test scenes (SBR 0.6 and SBR 1.0), each a
+ * ground-truth square (.mars-compare__stage.is-static) beside a slider
+ * stage. Every slider stage keeps its own range input (keyboard, its own
+ * aria-label and an aria-valuetext that names its scene from the stage's
+ * data-sbr-label), its own pointer drag and the 8 px touch rule; moving any
+ * one sets the same position on all of them. The test-set numbers are now
+ * captions under each slider (.mars-compare__val, still data-depth swaps),
+ * not chips. ONE hold button serves the whole figure: while held, the
+ * figure carries .is-holding, every slider frame shows its ground truth,
+ * and each caption's numbers are replaced by "Ground truth"
+ * (.mars-compare__capgt, un-hidden; the numbers keep their box, so nothing
+ * moves). One live-region message covers both scenes.
  */
 (function () {
   "use strict";
 
   function initOne(fig) {
-    var stage = fig.querySelector(".mars-compare__stage");
-    var range = fig.querySelector(".mars-compare__range");
-    if (!stage || !range) return;
+    var stages = Array.prototype.slice.call(
+      fig.querySelectorAll(".mars-compare__stage:not(.is-static)"));
+    var sliders = [];
+    stages.forEach(function (stage) {
+      var range = stage.querySelector(".mars-compare__range");
+      if (range) sliders.push({ stage: stage, range: range,
+                                label: stage.getAttribute("data-sbr-label") });
+    });
+    if (!sliders.length) return;
     var imgs = Array.prototype.slice.call(fig.querySelectorAll("img[data-src-refl]"));
     var swaps = Array.prototype.slice.call(fig.querySelectorAll("[data-depth]"));
     var buttons = Array.prototype.slice.call(fig.querySelectorAll(".mars-compare__mode"));
@@ -55,12 +75,15 @@
     /* the reflectivity strings are whatever the HTML ships */
     swaps.forEach(function (el) { el.setAttribute("data-refl", el.innerHTML); });
 
+    /* one position for every slider in the figure (v2.3-B: linked) */
     function setPos(v) {
       v = Math.max(0, Math.min(100, Math.round(v)));
-      range.value = String(v);
-      stage.style.setProperty("--pos", v + "%");
-      range.setAttribute("aria-valuetext",
-        v + "% Poisson-trained, " + (100 - v) + "% MaRS-trained");
+      sliders.forEach(function (s) {
+        s.range.value = String(v);
+        s.stage.style.setProperty("--pos", v + "%");
+        s.range.setAttribute("aria-valuetext", (s.label ? s.label + ": " : "") +
+          v + "% Poisson-trained, " + (100 - v) + "% MaRS-trained");
+      });
     }
 
     function loadImages() {
@@ -90,14 +113,6 @@
       b.addEventListener("click", function () { setMode(b.getAttribute("data-mode")); });
     });
 
-    range.addEventListener("input", function () { setPos(+range.value); });
-
-    /* pointer drag (mouse, pen, touch) */
-    var dragging = null;
-    function fromEvent(e) {
-      var r = stage.getBoundingClientRect();
-      return (e.clientX - r.left) / r.width * 100;
-    }
     /* TOUCH (stage 10b): a finger landing on the image must not move the
        divider — it may be the start of a page scroll. So on touch the drag
        starts only once the finger has moved INTENT px and more sideways than
@@ -105,58 +120,70 @@
        the browser by touch-action: pan-y, which fires pointercancel. Mouse and
        pen keep click-to-jump; the keyboard is the range input's own. */
     var INTENT = 8;
-    var pending = null;   /* touch pointer not yet recognised as a drag */
-    function begin(e) {
-      dragging = e.pointerId;
-      try { stage.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
-      setPos(fromEvent(e));
-      range.focus({ preventScroll: true });
-    }
-    stage.addEventListener("pointerdown", function (e) {
-      if (e.button !== undefined && e.button !== 0) return;
-      if (e.pointerType === "touch") {
-        pending = { id: e.pointerId, x: e.clientX, y: e.clientY };
-        return;
-      }
-      begin(e);
-      e.preventDefault();
-    });
-    stage.addEventListener("pointermove", function (e) {
-      if (pending && pending.id === e.pointerId) {
-        var dx = Math.abs(e.clientX - pending.x), dy = Math.abs(e.clientY - pending.y);
-        if (dx < INTENT || dx <= dy) return;
-        pending = null;
-        begin(e);
-        return;
-      }
-      if (dragging !== e.pointerId) return;
-      setPos(fromEvent(e));
-    });
-    function end(e) {
-      if (pending && pending.id === e.pointerId) pending = null;
-      if (dragging !== e.pointerId) return;
-      dragging = null;
-      try { stage.releasePointerCapture(e.pointerId); } catch (err) { /* noop */ }
-    }
-    stage.addEventListener("pointerup", end);
-    stage.addEventListener("pointercancel", end);
+    sliders.forEach(function (s) {
+      var stage = s.stage, range = s.range;
+      range.addEventListener("input", function () { setPos(+range.value); });
 
-    setPos(+range.value || 50);
+      /* pointer drag (mouse, pen, touch) */
+      var dragging = null;
+      var pending = null;   /* touch pointer not yet recognised as a drag */
+      function fromEvent(e) {
+        var r = stage.getBoundingClientRect();
+        return (e.clientX - r.left) / r.width * 100;
+      }
+      function begin(e) {
+        dragging = e.pointerId;
+        try { stage.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+        setPos(fromEvent(e));
+        range.focus({ preventScroll: true });
+      }
+      stage.addEventListener("pointerdown", function (e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        if (e.pointerType === "touch") {
+          pending = { id: e.pointerId, x: e.clientX, y: e.clientY };
+          return;
+        }
+        begin(e);
+        e.preventDefault();
+      });
+      stage.addEventListener("pointermove", function (e) {
+        if (pending && pending.id === e.pointerId) {
+          var dx = Math.abs(e.clientX - pending.x), dy = Math.abs(e.clientY - pending.y);
+          if (dx < INTENT || dx <= dy) return;
+          pending = null;
+          begin(e);
+          return;
+        }
+        if (dragging !== e.pointerId) return;
+        setPos(fromEvent(e));
+      });
+      function end(e) {
+        if (pending && pending.id === e.pointerId) pending = null;
+        if (dragging !== e.pointerId) return;
+        dragging = null;
+        try { stage.releasePointerCapture(e.pointerId); } catch (err) { /* noop */ }
+      }
+      stage.addEventListener("pointerup", end);
+      stage.addEventListener("pointercancel", end);
+    });
+
+    setPos(+sliders[0].range.value || 50);
 
     /* ---- hold to see ground truth (v2.2-C, phones) ---- */
     var hold = fig.querySelector(".mars-compare__hold");
     var status = fig.querySelector(".mars-compare__status");
-    var gtChip = fig.querySelector(".mars-compare__chip.is-gt");
+    var gtCaps = Array.prototype.slice.call(fig.querySelectorAll(".mars-compare__capgt"));
     var held = false;
     function setHeld(on) {
       on = !!on;
       if (on === held) return;
       held = on;
-      stage.classList.toggle("is-holding", on);
-      if (gtChip) gtChip.hidden = !on;
+      fig.classList.toggle("is-holding", on);
+      gtCaps.forEach(function (c) { c.hidden = !on; });
       if (hold) hold.setAttribute("aria-pressed", on ? "true" : "false");
       if (status) status.textContent = on
-        ? "Showing the ground truth."
+        ? (sliders.length > 1 ? "Showing the ground truth of both scenes."
+                              : "Showing the ground truth.")
         : "Showing the Poisson-trained and MaRS-trained reconstructions.";
     }
     setRelease = function () { setHeld(false); };

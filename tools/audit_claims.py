@@ -959,6 +959,13 @@ ABLATION_REQUIRED = [
 ]
 
 
+# v2.4-A (guide 0.9, v2.3-D's N2): the values on `/` are test-set means, not
+# the pictured image's own error. Downstream carries this note under the
+# sliders, and the Ablation footnote ends with it.
+AVERAGES_NOTE = "Values are test-set averages."
+COMMENT_JS_RE = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
+
+
 # v2.3-C: the ablation's lead (guide 0.8, verbatim) is a claim about all four
 # test numbers. It holds only while, at SBR 0.6 AND SBR 1.0, the MaRS count
 # row has the highest reflectivity PSNR and the lowest depth RMSE on
@@ -1119,6 +1126,17 @@ def check_downstream(rep: Report) -> None:
                     n_ok += 2
         rep.info.append(f"Downstream: {n_ok}/8 caption values (2 SBR x 2 modes x 2 sides) "
                         "= PROJECT_BRIEF 3.5 test column")
+        # v2.4-A (guide 0.9): one note under the module, after the sliders
+        # and the hold button, verbatim
+        notes = re.findall(r'<p class="mars-demo__note[^"]*">(.*?)</p>', body, re.S)
+        notes = [re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", n))).strip() for n in notes]
+        hold_at = body.find("mars-compare__hold")
+        note_at = body.find('class="mars-demo__note')
+        if notes != [AVERAGES_NOTE] or note_at < 0 or note_at < hold_at or note_at < body.rfind("mars-compare__group"):
+            rep.fail("index.html", "Downstream note [v2.4-A]",
+                     f"expected one .mars-demo__note '{AVERAGES_NOTE}' under the sliders and the hold button, found {notes}")
+        else:
+            rep.info.append(f"Downstream note: '{AVERAGES_NOTE}' under the sliders")
 
     # Part 2 (v2.2-C; v2.3-C: both SBRs). Two visually hidden tables, one per
     # SBR, are the one source; each must equal 3.5 for its SBR, with the three
@@ -1156,51 +1174,116 @@ def check_downstream(rep: Report) -> None:
             name = re.search(r"<th[^>]*>(.*?)</th>", row).group(1)
             if name != TRANSFER_NAMES.get(key, "?") + " count":
                 rep.fail("index.html", f"Ablation table {sbr} row {key} named {name!r} [v2.2-C]", "")
+    # v2.4-A (guide 0.9): each SBR block is a row of four ORIGINALS (GT,
+    # Renewal, Zhang et al., MaRS; only the GT holds the window), the
+    # label "2x zoom of the box" (.mars-ui), then a row of four ZOOM panes
+    # (aria-hidden) in the same order. The image captions are NAMES ONLY:
+    # v2.3-C's per-caption value check is retired with them (the values live
+    # in the hidden tables and the chart, checked above), and instead no
+    # image caption may hold a digit, in the HTML or written by the script.
     parts = re.split(r'(?=<div class="mars-abl__zrow" data-sbr=")', body)
     zrows = [(re.match(r'<div class="mars-abl__zrow" data-sbr="(\w+)"', z).group(1), z) for z in parts[1:]]
     if [k for k, _ in zrows] != ["sbr06", "sbr10"]:
-        rep.fail("index.html", "Ablation zoom rows [v2.3-C]",
+        rep.fail("index.html", "Ablation SBR blocks [v2.3-C, v2.4-A]",
                  f"expected sbr06 then sbr10, found {[k for k, _ in zrows]}")
-    n_caps = 0
+    n_blocks = 0
+    want_order = ["gt"] + list(COUNT_MODELS)
     for sbr, z in zrows:
+        ok = True
         head = re.search(r'<p class="mars-abl__zhead">(.*?)</p>', z, re.S)
         if not head or head.group(1).strip() != SBR_LABEL.get(sbr):
-            rep.fail("index.html", f"Ablation zoom row {sbr} header [v2.3-C]",
+            rep.fail("index.html", f"Ablation block {sbr} header [v2.3-C]",
                      f"shows {head.group(1) if head else None!r}, expected {SBR_LABEL.get(sbr)!r}")
-        if not re.search(r'<p class="mars-abl__zcap"><b>Ground truth</b>\s+<span>drag the box</span></p>', z):
-            rep.fail("index.html", f"Ablation zoom row {sbr}: 'Ground truth drag the box' caption [v2.3-C]", "")
-        caps = re.findall(r'<b>([^<]*)</b>\s+<span data-k="(\w+)">(.*?)</span>', z)
-        if [k for _, k, _ in caps] != list(COUNT_MODELS):
-            rep.fail("index.html", f"Ablation zoom row {sbr} captions [v2.3-C]",
-                     f"expected renewal, zhang, mars, found {[k for _, k, _ in caps]}")
-        for name, key, val in caps:
-            cells = rows_by_sbr.get(sbr, {}).get(key, ())
-            if name != TRANSFER_NAMES.get(key, "?") + " count":
-                rep.fail("index.html", f"Ablation zoom caption {sbr} {key} named {name!r} [v2.3-C]", "")
-            if len(cells) < 2 or _num(val) != cells[1] or not html.unescape(val).replace("\xa0", " ").endswith(" dB"):
-                rep.fail("index.html", f"Ablation zoom caption {sbr} {key} != its table value [v2.3-C]",
-                         f"caption {val!r}, table test PSNR {cells[1] if len(cells) > 1 else None}")
-            else:
-                n_caps += 1
-        srcs = re.findall(r'data-src-(refl|depth)="([^"]*)"', z)
-        for mode, path in srcs:
-            m = re.fullmatch(r"assets/img/res/(refl|depth)_(sbr\d+)_(gt|renewal|zhang|mars)\.webp", path)
-            if not m or m.group(2) != sbr or m.group(1) != mode:
-                rep.fail("index.html", f"Ablation zoom row {sbr} tile path [v2.3-C]",
-                         f"data-src-{mode}={path} is not this scene's {mode} tile")
-        order = [re.search(r"_(gt|renewal|zhang|mars)\.webp", p).group(1)
-                 for mode, p in srcs if mode == "refl" and re.search(r"_(gt|renewal|zhang|mars)\.webp", p)]
-        if order != ["gt"] + list(COUNT_MODELS):
-            rep.fail("index.html", f"Ablation zoom row {sbr} panes [v2.3-C]",
-                     f"expected gt, renewal, zhang, mars in that order, found {order}")
+            ok = False
+        orig = re.search(r'<ul class="mars-abl__zgrid mars-abl__orig">(.*?)</ul>', z, re.S)
+        # the zoom row runs from its opening tag to the end of the block
+        # (the SBR 1.0 block is followed by the footnote, which is cut off)
+        zoom = re.search(r'<div class="mars-abl__zgrid mars-abl__zoom" aria-hidden="true">(.*?)'
+                         r'(?=<p class="mars-demo__note|\Z)', z, re.S)
+        lab = re.findall(r'<p class="([^"]*)">([^<]*)</p>', z)
+        lab = [(c, t) for c, t in lab if "mars-abl__zlab" in c]
+        if not orig or not zoom:
+            rep.fail("index.html", f"Ablation block {sbr}: originals row and aria-hidden zoom row [v2.4-A]",
+                     f"originals {'found' if orig else 'missing'}, zoom row {'found' if zoom else 'missing or not aria-hidden'}")
+            continue
+        lab_at = z.find("mars-abl__zlab")
+        if lab_at < 0 or orig.start() > lab_at or lab_at > zoom.start():
+            rep.fail("index.html", f"Ablation block {sbr}: order must be originals, label, zooms [v2.4-A]", "")
+            ok = False
+        if len(lab) != 1 or "mars-ui" not in lab[0][0].split() or html.unescape(lab[0][1]) != "2× zoom of the box":
+            rep.fail("index.html", f"Ablation block {sbr}: one .mars-ui label '2× zoom of the box' [v2.4-A]",
+                     f"found {lab}")
+            ok = False
+        o, zz = orig.group(1), zoom.group(1)
+        # captions: under the originals only, names only, in order
+        caps = [re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", c))).strip()
+                for c in re.findall(r'<p class="mars-abl__zcap">(.*?)</p>', o, re.S)]
+        want_caps = ["Ground truth drag the box"] + [TRANSFER_NAMES[k] + " count" for k in COUNT_MODELS]
+        if caps != want_caps:
+            rep.fail("index.html", f"Ablation block {sbr} captions: names only [v2.4-A]",
+                     f"found {caps}, expected {want_caps}")
+            ok = False
+        if "mars-abl__zcap" in zz:
+            rep.fail("index.html", f"Ablation block {sbr}: the zoom panes carry no caption [v2.4-A]", "")
+            ok = False
+        if not re.search(r'<p class="mars-abl__zcap"><b>Ground truth</b>\s+<span>drag the box</span></p>', o):
+            rep.fail("index.html", f"Ablation block {sbr}: 'Ground truth drag the box' caption [v2.3-C]", "")
+            ok = False
+        # the window: exactly one in the block, inside the GT original
+        gt = re.search(r'<div class="mars-abl__gt">(.*?)</div>', o, re.S)
+        if z.count('class="mars-abl__win"') != 1 or not gt or 'class="mars-abl__win"' not in gt.group(1):
+            rep.fail("index.html", f"Ablation block {sbr}: one window, on the GT original only [v2.4-A]",
+                     f"{z.count('class=\"mars-abl__win\"')} window(s)")
+            ok = False
+        if 'class="mars-abl__pane"' in o or 'class="mars-abl__gt"' in zz or 'mars-abl__full' in zz:
+            rep.fail("index.html", f"Ablation block {sbr}: originals and zoom panes mixed up [v2.4-A]", "")
+            ok = False
+        if zz.count('class="mars-abl__pane" aria-hidden="true"') != 4:
+            rep.fail("index.html", f"Ablation block {sbr}: four aria-hidden zoom panes [v2.4-A]",
+                     f"found {zz.count('class=\"mars-abl__pane\" aria-hidden=\"true\"')}")
+            ok = False
+        for row_name, frag in (("originals", o), ("zooms", zz)):
+            srcs = re.findall(r'data-src-(refl|depth)="([^"]*)"', frag)
+            for mode, path in srcs:
+                m = re.fullmatch(r"assets/img/res/(refl|depth)_(sbr\d+)_(gt|renewal|zhang|mars)\.webp", path)
+                if not m or m.group(2) != sbr or m.group(1) != mode:
+                    rep.fail("index.html", f"Ablation block {sbr} {row_name} tile path [v2.3-C]",
+                             f"data-src-{mode}={path} is not this scene's {mode} tile")
+                    ok = False
+            for mode in ("refl", "depth"):
+                order = [re.search(r"_(gt|renewal|zhang|mars)\.webp", pth).group(1) if
+                         re.search(r"_(gt|renewal|zhang|mars)\.webp", pth) else "?"
+                         for md, pth in srcs if md == mode]
+                if order != want_order:
+                    rep.fail("index.html", f"Ablation block {sbr} {row_name} ({mode}) [v2.3-C, v2.4-A]",
+                             f"expected {want_order} in that order, found {order}")
+                    ok = False
+        n_blocks += ok
+    # no number in any image caption: the shipped HTML ...
+    for c in re.findall(r'<p class="mars-abl__zcap">(.*?)</p>', body, re.S):
+        if re.search(r"\d", html.unescape(re.sub(r"<[^>]+>", "", c))):
+            rep.fail("index.html", "Ablation: a number in an image caption [v2.4-A]",
+                     f"{c!r}: captions are names only (guide 0.9); the chart carries the values")
+    # ... and the script never writes into one
+    js = (REPO / "js" / "mars-ablation.js").read_text(encoding="utf-8", errors="replace")
+    if "zcap" in COMMENT_JS_RE.sub(" ", js):
+        rep.fail("js/mars-ablation.js", "Ablation: the script touches the image captions [v2.4-A]",
+                 "captions are names only and static")
     text = visible_text(body)
     for label, rx in ABLATION_REQUIRED:
         if not re.search(rx, text):
             rep.fail("index.html", f"Ablation footnote: {label} missing [v2.2-C]",
                      "the framing must be unmistakable (stage doc 0)")
-    rep.info.append(f"Ablation: 2 tables = PROJECT_BRIEF 3.5, {n_caps}/6 zoom captions = their table"
-                    + (" (parsed from the brief)" if brief else "")
-                    + "; the 'no separate simulator' footnote present")
+    # v2.4-A: the footnote ends with the averages sentence (v2.3-D's N2)
+    note = re.search(r'<p class="mars-demo__note mars-abl__note">(.*?)</p>', body, re.S)
+    note_t = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", note.group(1)))).strip() if note else ""
+    if not note_t.endswith(" " + AVERAGES_NOTE) or note_t.count(AVERAGES_NOTE) != 1:
+        rep.fail("index.html", "Ablation footnote must end with the averages sentence [v2.4-A]",
+                 f"{note_t!r} should end '{AVERAGES_NOTE}'")
+    rep.info.append(f"Ablation: 2 tables = PROJECT_BRIEF 3.5; {n_blocks}/2 SBR blocks = originals, label, "
+                    "zooms, names-only captions, one window"
+                    + (" (tables parsed from the brief)" if brief else "")
+                    + "; the 'no separate simulator' footnote ends with the averages sentence")
     check_ablation_lead(rep, source, brief)
 
 

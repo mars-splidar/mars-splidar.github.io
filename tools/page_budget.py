@@ -158,7 +158,14 @@ REPO = Path(__file__).resolve().parent.parent
 # are prose, both rows count although phones show one at a time). The phone
 # SBR toggle is .mars-ui (UI words 84 -> 88); the chart's SVG text is .mars-ui
 # as before; the two visually hidden row sentences count nowhere.
-WORD_LIMIT = 609        # v2.3-C re-pin; 599 v2.3-B, 604 v2.3-A, 598 v2.2-D, 600 v2.2-P, 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
+# v2.4-A: RE-PINNED at 605, the measured total after guide 0.9: the Downstream
+# note "Values are test-set averages." +4 (test-set is one word), the same
+# sentence at the end of the Ablation footnote +4, and the six caption values
+# ("12.12 dB" ...) removed from the Ablation captions -12 (names only). The
+# label "2x zoom of the box", once per SBR block, is .mars-ui (UI words
+# 88 -> 98); the two visually hidden block sentences count nowhere. Media
+# unchanged.
+WORD_LIMIT = 605        # v2.4-A re-pin; 609 v2.3-C, 599 v2.3-B, 604 v2.3-A, 598 v2.2-D, 600 v2.2-P, 612 v2.2-C pin, 580 planned (status 2), 520 from v2.2-A, 420 from v2.1-A, 350 before
 MEDIA_ITEMS = 9         # guide 0.7 (v2.2-A): at most 9; 6 from v2.1-A, exactly 4 before
 SWITCH_MAX = 0
 EQ_MAX = 0

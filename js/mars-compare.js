@@ -39,13 +39,14 @@
  * with a reconstruction's number. aria-pressed mirrors the state, and a
  * polite live region announces it.
  *
- * v2.3-B (guide 0.8): ONE FIGURE MAY HOLD SEVERAL SLIDERS, and they are
- * LINKED. Downstream shows two test scenes (SBR 0.6 and SBR 1.0), each a
- * ground-truth square (.mars-compare__stage.is-static) beside a slider
- * stage. Every slider stage keeps its own range input (keyboard, its own
- * aria-label and an aria-valuetext that names its scene from the stage's
- * data-sbr-label), its own pointer drag and the 8 px touch rule; moving any
- * one sets the same position on all of them. The test-set numbers are now
+ * v2.3-B (guide 0.8): ONE FIGURE MAY HOLD SEVERAL SLIDERS. Downstream
+ * shows two test scenes (SBR 0.6 and SBR 1.0), each a ground-truth square
+ * (.mars-compare__stage.is-static) beside a slider stage. Every slider stage
+ * keeps its own range input (keyboard, its own aria-label and an
+ * aria-valuetext that names its scene from the stage's data-sbr-label), its
+ * own pointer drag and the 8 px touch rule. v2.4-A (guide 0.9): the sliders
+ * are INDEPENDENT; moving one never moves another (v2.3 linked them). The
+ * test-set numbers are now
  * captions under each slider (.mars-compare__val, still data-depth swaps),
  * not chips. ONE hold button serves the whole figure: while held, the
  * figure carries .is-holding, every slider frame shows its ground truth,
@@ -75,15 +76,13 @@
     /* the reflectivity strings are whatever the HTML ships */
     swaps.forEach(function (el) { el.setAttribute("data-refl", el.innerHTML); });
 
-    /* one position for every slider in the figure (v2.3-B: linked) */
-    function setPos(v) {
+    /* one slider's position (v2.4-A: each slider on its own) */
+    function setPos(s, v) {
       v = Math.max(0, Math.min(100, Math.round(v)));
-      sliders.forEach(function (s) {
-        s.range.value = String(v);
-        s.stage.style.setProperty("--pos", v + "%");
-        s.range.setAttribute("aria-valuetext", (s.label ? s.label + ": " : "") +
-          v + "% Poisson-trained, " + (100 - v) + "% MaRS-trained");
-      });
+      s.range.value = String(v);
+      s.stage.style.setProperty("--pos", v + "%");
+      s.range.setAttribute("aria-valuetext", (s.label ? s.label + ": " : "") +
+        v + "% Poisson-trained, " + (100 - v) + "% MaRS-trained");
     }
 
     function loadImages() {
@@ -122,7 +121,7 @@
     var INTENT = 8;
     sliders.forEach(function (s) {
       var stage = s.stage, range = s.range;
-      range.addEventListener("input", function () { setPos(+range.value); });
+      range.addEventListener("input", function () { setPos(s, +range.value); });
 
       /* pointer drag (mouse, pen, touch) */
       var dragging = null;
@@ -134,7 +133,7 @@
       function begin(e) {
         dragging = e.pointerId;
         try { stage.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
-        setPos(fromEvent(e));
+        setPos(s, fromEvent(e));
         range.focus({ preventScroll: true });
       }
       stage.addEventListener("pointerdown", function (e) {
@@ -155,7 +154,7 @@
           return;
         }
         if (dragging !== e.pointerId) return;
-        setPos(fromEvent(e));
+        setPos(s, fromEvent(e));
       });
       function end(e) {
         if (pending && pending.id === e.pointerId) pending = null;
@@ -167,7 +166,7 @@
       stage.addEventListener("pointercancel", end);
     });
 
-    setPos(+sliders[0].range.value || 50);
+    sliders.forEach(function (s) { setPos(s, s.range.value === "" ? 50 : +s.range.value); });
 
     /* ---- hold to see ground truth (v2.2-C, phones) ---- */
     var hold = fig.querySelector(".mars-compare__hold");

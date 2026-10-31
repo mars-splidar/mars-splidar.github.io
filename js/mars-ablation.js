@@ -8,10 +8,10 @@
  * count model (data-k renewal / zhang / mars) with four cells: reflectivity
  * PSNR val, test (dB), depth RMSE val, test (m). "val" is tested on data from
  * the row's own count model, "test" on gold-standard data. This script reads
- * the tables and draws from them: the two-panel dumbbell chart, its
- * aria-label and the zoom-row captions. Nothing here holds a number.
- * tools/audit_claims.py asserts each table equals PROJECT_BRIEF 3.5 for its
- * SBR and that the captions the HTML ships equal the tables.
+ * the tables and draws from them: the two-panel dumbbell chart and its
+ * aria-label. Nothing here holds a number. tools/audit_claims.py asserts
+ * each table equals PROJECT_BRIEF 3.5 for its SBR. Since v2.4-A (guide 0.9)
+ * the image captions are names only and this script never writes them.
  *
  * THE CHART is an inline SVG whose viewBox is its own CSS width, so 1 unit
  * is 1 px and the 12-14 px text stays 12-14 px at every width. Two panels,
@@ -33,27 +33,32 @@
  * touch are dropped, working leftwards from the last one (which carries the
  * unit and always stays). Colours are read from the CSS tokens.
  *
- * THE ZOOM ROWS, one per SBR: the ground truth with a window of 50 % x 50 %
- * of its square, and three panes (Renewal, Zhang et al., MaRS count) that
- * each show the window's region of their own tile at 2x. The row's custom
- * properties --u and --v (the window's position as fractions of its
- * travel, 0..1, clamped) place the window and translate each pane's <img>
- * (css/mars.css); this script only sets them. The window moves by:
+ * THE SBR BLOCKS (.mars-abl__zrow; v2.4-A, guide 0.9), one per SBR: a row
+ * of the four originals (ground truth, Renewal, Zhang et al., MaRS count;
+ * only the ground truth holds the window, 50 % x 50 % of its square), then
+ * a row of four zoom panes in the same columns, each showing the window's
+ * region of its own tile at 2x (the GT's own zoom included). Phones pair
+ * each original with its zoom (css/mars.css, grid order). The block's
+ * custom properties --u and --v (the window's position as fractions of
+ * its travel, 0..1, clamped) place the window and translate each pane's
+ * <img> (css/mars.css); this script only sets them. Each tile URL is used
+ * twice (original and zoom), and both <img>s get it in the same pass, so
+ * it is fetched once. The window moves by:
  *   - pointer (mouse, touch, pen): a press or drag anywhere on the GT square
  *     centres the window on the pointer (pointer capture, so a drag may
  *     leave the square). The GT square alone has touch-action: none, so the
  *     rest of the page scrolls as usual;
  *   - keyboard: the window is focusable (role slider); the arrow keys move
  *     it by 5 % of its travel, Home centres it.
- * The two rows move independently. Defaults are in the markup (the concept's:
+ * The two blocks move independently. Defaults are in the markup (the concept's:
  * SBR 0.6 (0.62, 0.30), SBR 1.0 (0.25, 0.22)).
  *
- * THE TOGGLES. Reflectivity PSNR / Depth RMSE swaps the chart, every tile
- * and every value. On phones a second toggle, SBR 0.6 / SBR 1.0, shows one
- * zoom row at a time (figure[data-sbr-sel]; CSS hides the other).
+ * THE TOGGLES. Reflectivity PSNR / Depth RMSE swaps the chart and every
+ * tile. On phones a second toggle, SBR 0.6 / SBR 1.0, shows one block at a
+ * time (figure[data-sbr-sel]; CSS hides the other).
  *
  * LAZY: no tile is requested until the figure comes within 300 px of the
- * viewport. Then only the rows on screen load (both on wider screens, the
+ * viewport. Then only the blocks on screen load (both on wider screens, the
  * chosen one on phones), and only the current mode's tiles: depth tiles on
  * the first switch to Depth, SBR 1.0 tiles on a phone's first switch to it.
  */
@@ -246,17 +251,6 @@
         "gold-standard data. " + parts.join(". ") + ". " + finding);
     }
 
-    /* ---- captions under the zoom panes -------------------------------- */
-    function captions() {
-      var m = MODES[mode];
-      zrows.forEach(function (zr) {
-        var rows = data[zr.getAttribute("data-sbr")];
-        Array.prototype.slice.call(zr.querySelectorAll(".mars-abl__zcap [data-k]")).forEach(function (s) {
-          s.textContent = fmt(rows[s.getAttribute("data-k")][m.col + 1], mode) + " " + m.unit;
-        });
-      });
-    }
-
     /* ---- lazy tiles: only the rows on screen, only the current mode --- */
     function rowShown(zr) { return !Q.phone.matches || zr.getAttribute("data-sbr") === sbrSel; }
     function loadImages() {
@@ -323,7 +317,6 @@
         b.setAttribute("aria-pressed", b.getAttribute("data-mode") === m ? "true" : "false");
       });
       draw();
-      captions();
       loadImages();
     }
     function setSbr(s) {
@@ -343,7 +336,6 @@
     });
 
     draw();
-    captions();
     if ("ResizeObserver" in window) {
       new ResizeObserver(function () {
         if (Math.round(svg.getBoundingClientRect().width) !== lastW) draw();
